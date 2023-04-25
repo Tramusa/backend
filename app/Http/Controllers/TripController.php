@@ -2,11 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Autobuses;
 use App\Models\Dollys;
+use App\Models\Maquinarias;
 use App\Models\Remolques;
+use App\Models\Sprinters;
+use App\Models\Toneles;
+use App\Models\Tortons;
 use App\Models\Tractocamiones;
 use App\Models\Trips;
 use App\Models\Units_Trips;
+use App\Models\Utilitarios;
+use App\Models\Volteos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -62,6 +69,69 @@ class TripController extends Controller
                     ->orWhere('model', 'LIKE', '%' . $query . '%')
                     ->first();
                 break;
+            case 4:
+                $resultados = DB::table('volteos')
+                    ->where('no_economic', 'LIKE', '%' . $query . '%')
+                    ->orWhere('brand', 'LIKE', '%' . $query . '%')
+                    ->orWhere('model', 'LIKE', '%' . $query . '%')
+                    ->orWhere('no_seriously', 'LIKE', '%' . $query . '%')
+                    ->orWhere('no_placas', 'LIKE', '%' . $query . '%')
+                    ->first();
+                break;
+            case 5:
+                $resultados = DB::table('toneles')
+                    ->where('no_economic', 'LIKE', '%' . $query . '%')
+                    ->orWhere('brand', 'LIKE', '%' . $query . '%')
+                    ->orWhere('model', 'LIKE', '%' . $query . '%')
+                    ->orWhere('no_seriously', 'LIKE', '%' . $query . '%')
+                    ->orWhere('no_placas', 'LIKE', '%' . $query . '%')
+                    ->first();
+                break;
+            case 6:
+                $resultados = DB::table('tortons')
+                    ->where('no_economic', 'LIKE', '%' . $query . '%')
+                    ->orWhere('brand', 'LIKE', '%' . $query . '%')
+                    ->orWhere('model', 'LIKE', '%' . $query . '%')
+                    ->orWhere('no_seriously', 'LIKE', '%' . $query . '%')
+                    ->orWhere('no_placas', 'LIKE', '%' . $query . '%')
+                    ->first();
+                break;
+            case 7:
+                $resultados = DB::table('autobuses')
+                    ->where('no_economic', 'LIKE', '%' . $query . '%')
+                    ->orWhere('brand', 'LIKE', '%' . $query . '%')
+                    ->orWhere('model', 'LIKE', '%' . $query . '%')
+                    ->orWhere('no_seriously', 'LIKE', '%' . $query . '%')
+                    ->orWhere('no_placas', 'LIKE', '%' . $query . '%')
+                    ->first();
+                break;
+            case 8:
+                $resultados = DB::table('sprinters')
+                    ->where('no_economic', 'LIKE', '%' . $query . '%')
+                    ->orWhere('brand', 'LIKE', '%' . $query . '%')
+                    ->orWhere('model', 'LIKE', '%' . $query . '%')
+                    ->orWhere('no_seriously', 'LIKE', '%' . $query . '%')
+                    ->orWhere('no_placas', 'LIKE', '%' . $query . '%')
+                    ->first();
+                break;
+            case 9:
+                $resultados = DB::table('utilitarios')
+                    ->where('no_economic', 'LIKE', '%' . $query . '%')
+                    ->orWhere('brand', 'LIKE', '%' . $query . '%')
+                    ->orWhere('model', 'LIKE', '%' . $query . '%')
+                    ->orWhere('no_seriously', 'LIKE', '%' . $query . '%')
+                    ->orWhere('no_placas', 'LIKE', '%' . $query . '%')
+                    ->first();
+                break;
+            case 10:
+                $resultados = DB::table('maquinarias')
+                    ->where('no_economic', 'LIKE', '%' . $query . '%')
+                    ->orWhere('brand', 'LIKE', '%' . $query . '%')
+                    ->orWhere('model', 'LIKE', '%' . $query . '%')
+                    ->orWhere('no_seriously', 'LIKE', '%' . $query . '%')
+                    ->orWhere('no_placas', 'LIKE', '%' . $query . '%')
+                    ->first();
+                break;
             default:
                 $resultados = '';
                 break;
@@ -95,6 +165,27 @@ class TripController extends Controller
                 break;
             case 3:
                 $available= Dollys::find($id);
+                break;
+            case 4:       
+                $available=Volteos::find($id);
+                break;
+            case 5:       
+                $available=Toneles::find($id);
+                break;
+            case 6:       
+                $available=Tortons::find($id);
+                break;
+            case 7:       
+                $available=Autobuses::find($id);
+                break;
+            case 8:       
+                $available=Sprinters::find($id);
+                break;
+            case 9:       
+                $available=Utilitarios::find($id);
+                break;
+            case 10:       
+                $available=Maquinarias::find($id);
                 break;
             default:
                 break;
@@ -145,14 +236,42 @@ class TripController extends Controller
                     break;
                 case 3:
                     $unit = Dollys::find($id);
-                    $detaills = $unit->no_seriously.' '.$unit->brand .' '.$unit->model;
+                    $detaills = $unit->no_economic.' '.$unit->brand.' ('.$unit->no_placas.')';
+                    break;
+                case 4:       
+                    $unit=Volteos::find($id);
+                    $detaills = $unit->no_economic.' '.$unit->brand.' ('.$unit->no_placas.')';
+                    break;
+                case 5:       
+                    $unit=Toneles::find($id);
+                    $detaills = $unit->no_economic.' '.$unit->brand.' ('.$unit->no_placas.')';
+                    break;
+                case 6:       
+                    $unit=Tortons::find($id);
+                    $detaills = $unit->no_economic.' '.$unit->brand.' ('.$unit->no_placas.')';
+                    break;
+                case 7:       
+                    $unit=Autobuses::find($id);
+                    $detaills = $unit->no_economic.' '.$unit->brand.' ('.$unit->no_placas.')';
+                    break;
+                case 8:       
+                    $unit=Sprinters::find($id);
+                    $detaills = $unit->no_economic.' '.$unit->brand.' ('.$unit->no_placas.')';
+                    break;
+                case 9:       
+                    $unit=Utilitarios::find($id);
+                    $detaills = $unit->no_economic.' '.$unit->brand.' ('.$unit->no_placas.')';
+                    break;
+                case 10:       
+                    $unit=Maquinarias::find($id);
+                    $detaills = $unit->no_economic.' '.$unit->brand.' ('.$unit->no_placas.')';
                     break;
                 default:
                     break;
             }
             $item->detaills = $detaills;
         }
-        return response()->json($units); 
+        return response()->json($units);  
     }
 
     public function showTrips($type)
@@ -205,6 +324,27 @@ class TripController extends Controller
                 case 3:
                     Dollys::find($id)->update($data);
                     break;
+                case 4:       
+                    Volteos::find($id)->update($data);
+                    break;
+                case 5:       
+                    Toneles::find($id)->update($data);
+                    break;
+                case 6:       
+                    Tortons::find($id)->update($data);
+                    break;
+                case 7:       
+                    Autobuses::find($id)->update($data);
+                    break;
+                case 8:       
+                    Sprinters::find($id)->update($data);
+                    break;
+                case 9:       
+                    Utilitarios::find($id)->update($data);
+                    break;
+                case 10:       
+                    Maquinarias::find($id)->update($data);
+                    break;
                 default:
                     break;
             }
@@ -247,6 +387,27 @@ class TripController extends Controller
                     break;
                 case 3:
                     Dollys::find($id)->update($data);
+                    break;
+                case 4:       
+                    Volteos::find($id)->update($data);
+                    break;
+                case 5:       
+                    Toneles::find($id)->update($data);
+                    break;
+                case 6:       
+                    Tortons::find($id)->update($data);
+                    break;
+                case 7:       
+                    Autobuses::find($id)->update($data);
+                    break;
+                case 8:       
+                    Sprinters::find($id)->update($data);
+                    break;
+                case 9:       
+                    Utilitarios::find($id)->update($data);
+                    break;
+                case 10:       
+                    Maquinarias::find($id)->update($data);
                     break;
                 default:
                     break;
