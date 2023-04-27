@@ -40,6 +40,7 @@ Route::middleware('auth:sanctum')->put('/createTrip/{trip}', [TripController::cl
 Route::middleware('auth:sanctum')->get('/trips/{type}', [TripController::class, 'showTrips']);
 Route::middleware('auth:sanctum')->get('/cancelTrip/{trip}', [TripController::class, 'cancel']);
 Route::middleware('auth:sanctum')->get('/finishTrip/{trip}', [TripController::class, 'finish']);
+Route::middleware('auth:sanctum')->get('/trip/{id}', [TripController::class, 'showTrip']);
 
 Route::middleware('auth:sanctum')->get('/tripsCount', function () {
     $trips = DB::table('trips')->where('status', 1)->get();

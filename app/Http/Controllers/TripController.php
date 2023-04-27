@@ -308,6 +308,16 @@ class TripController extends Controller
         return response()->json($trips);
     }
 
+    public function showTrip($id)
+    {
+        $trip = Trips::find($id);
+        $operator = DB::table('users')->where('id', $trip->operator)->get();
+        
+        $trip['operator'] = $operator[0]->name.' '.$operator[0]->a_paterno;
+
+        return response()->json($trip);
+    }
+
     public function update(Request $request, $trip)
     {   
         $units = DB::table('units__trips')->where('trip', $trip)->get();    
