@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProgramsController;
 use App\Http\Controllers\TripController;
 use App\Http\Controllers\UnitController;
 use Illuminate\Support\Facades\DB;
@@ -46,3 +47,13 @@ Route::middleware('auth:sanctum')->get('/tripsCount', function () {
     $trips = DB::table('trips')->where('status', 1)->get();
     return response()->json(['total' => count($trips)]);
 });
+
+Route::middleware('auth:sanctum')->get('/programs', [ProgramsController::class, 'index']);
+Route::middleware('auth:sanctum')->post('/addMto', [ProgramsController::class, 'create']);
+Route::middleware('auth:sanctum')->get('/unitsMto/{type}', [ProgramsController::class, 'units']);
+Route::middleware('auth:sanctum')->get('/mto/{id}', [ProgramsController::class, 'show']);
+Route::middleware('auth:sanctum')->put('/mto/{id}', [ProgramsController::class, 'update']);
+Route::middleware('auth:sanctum')->delete('/deleteMto/{id}', [ProgramsController::class, 'destroy']);
+
+
+

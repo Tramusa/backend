@@ -23,8 +23,7 @@ class AuthController extends Controller
     
     public function updateStatus(Request $request)
     {   
-        $data = User::find($request->id)->update($request->all());  
-        return $data;
+        User::find($request->id)->update($request->all());  
     
         return response()->json([
             'message' => 'Estado actualizado con éxito!'
