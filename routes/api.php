@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\InspectionsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProgramsController;
 use App\Http\Controllers\TripController;
@@ -47,6 +48,10 @@ Route::middleware('auth:sanctum')->get('/tripsCount', function () {
     $trips = DB::table('trips')->where('status', 1)->get();
     return response()->json(['total' => count($trips)]);
 });
+Route::middleware('auth:sanctum')->get('/inspectionCount/{user}', function ($user) {
+    $inspections = DB::table('inspections')->where('status', 1)->where('responsible', $user)->get();
+    return response()->json(['total' => count($inspections)]);
+});
 
 Route::middleware('auth:sanctum')->get('/programs', [ProgramsController::class, 'index']);
 Route::middleware('auth:sanctum')->post('/addMto', [ProgramsController::class, 'create']);
@@ -55,5 +60,4 @@ Route::middleware('auth:sanctum')->get('/mto/{id}', [ProgramsController::class, 
 Route::middleware('auth:sanctum')->put('/mto/{id}', [ProgramsController::class, 'update']);
 Route::middleware('auth:sanctum')->delete('/deleteMto/{id}', [ProgramsController::class, 'destroy']);
 
-
-
+Route::middleware('auth:sanctum')->get('/inspections/{user}', [InspectionsController::class, 'index']);

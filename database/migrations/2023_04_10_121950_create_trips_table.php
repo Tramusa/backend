@@ -17,6 +17,7 @@ return new class extends Migration
             $table->longText('detaills')->nullable();
             $table->integer('operator')->nullable();
             $table->boolean('status')->default(1);
+            $table->string('end_date')->nullable();
             $table->integer('user');
             $table->timestamps();
         });

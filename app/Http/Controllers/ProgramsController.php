@@ -60,6 +60,5 @@ class ProgramsController extends Controller
         $unit = Programs::find($id);
         $unit->delete();
         return response()->json(['message' => 'Mantenimineto eliminado exitosamente.']);
-    
     }
 }

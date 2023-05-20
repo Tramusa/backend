@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Autobuses;
 use App\Models\Dollys;
+use App\Models\Inspections;
 use App\Models\Maquinarias;
 use App\Models\Remolques;
 use App\Models\Sprinters;
@@ -312,9 +313,7 @@ class TripController extends Controller
     {
         $trip = Trips::find($id);
         $operator = DB::table('users')->where('id', $trip->operator)->get();
-        
-        $trip['operator'] = $operator[0]->name.' '.$operator[0]->a_paterno;
-
+        $trip['operator'] = $operator[0]->name.' '.$operator[0]->a_paterno; 
         return response()->json($trip);
     }
 
@@ -384,10 +383,24 @@ class TripController extends Controller
 
     public function finish($trip)
     {
+        //CAMBIAMOS EL ESTATUS A 2 QUE ES TERMINADO Y AGREGAMOS LA FECHA DE TERMINO DEL VIAJE
+        $data_trip['status'] = 2;
+        $data_trip['end_date'] = date('Y-m-d');
+        Trips::find($trip)->update($data_trip);
+
+        //CAMBIAMOS EL ESTATUS DE LAS UNIDADES INVOLUCRADAS EN EL TRIP ['status'] = 'inspection'
         $units = DB::table('units__trips')->where('trip', $trip)->get();
         $data['status'] = 'inspection';
         foreach ($units as $item) {
             $id = $item->unit;
+            //TAMBIEN GENERAMOS UNA INSPECCION FISICOMECANICA POR CADA UNIDAD INVOLUCRADA
+            $trip =Trips::find($trip);
+            $data_inspection['responsible'] = $trip->operator;
+            $data_inspection['type'] = $item->type_unit;
+            $data_inspection['unit'] = $id;
+            $inspection = new Inspections($data_inspection);
+            $inspection->save();
+            
             switch ($item->type_unit) {
                 case 1:
                     Tractocamiones::find($id)->update($data);
@@ -423,8 +436,7 @@ class TripController extends Controller
                     break;
             }
         }
-        $status['status'] = 2;
-        $trip = Trips::find($trip)->update($status);
+        
         return response()->json(['message' => 'Viaje terminado exitosamente.']);
     }
 }

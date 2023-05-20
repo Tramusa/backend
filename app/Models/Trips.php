@@ -9,5 +9,5 @@ class Trips extends Model
 {
     use HasFactory;
     
-    protected $fillable = [ 'date', 'hour', 'origin', 'destination' , 'detaills' , 'operator' , 'user', 'status'];
+    protected $fillable = [ 'date', 'hour', 'origin', 'destination' , 'detaills' , 'operator' , 'user', 'status', 'end_date'];
 }
