@@ -61,3 +61,4 @@ Route::middleware('auth:sanctum')->put('/mto/{id}', [ProgramsController::class, 
 Route::middleware('auth:sanctum')->delete('/deleteMto/{id}', [ProgramsController::class, 'destroy']);
 
 Route::middleware('auth:sanctum')->get('/inspections/{user}', [InspectionsController::class, 'index']);
+Route::middleware('auth:sanctum')->get('/inspection/{id}', [InspectionsController::class, 'show']);
