@@ -19,7 +19,7 @@ class ProfileController extends Controller
             'alias' => $request->user()->alias,
             'rol' => $request->user()->rol,
             'email' => $request->user()->email,
-            'avatar' => $request->user()->avatar ? 'http://localhost:8000'.Storage::url($request->user()->avatar) : null,
+            'avatar' => $request->user()->avatar ? 'https://www.stc-api.tramusacarrier.com.mx/'.Storage::url($request->user()->avatar) : null,
         ]);
     }
 
