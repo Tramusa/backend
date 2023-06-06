@@ -19,6 +19,7 @@ return new class extends Migration
             $table->integer('type');
             $table->integer('unit');
             $table->boolean('status')->default(1);
+            $table->string('is');
             $table->string('end_date')->nullable();
             $table->timestamps();
         });

@@ -9,5 +9,5 @@ class Inspections extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['responsible', 'type', 'unit', 'status', 'end_date' ];
+    protected $fillable = ['responsible', 'type', 'unit', 'status', 'is', 'end_date' ];
 }

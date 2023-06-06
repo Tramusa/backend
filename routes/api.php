@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\EarringsController;
 use App\Http\Controllers\InspectionsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProgramsController;
@@ -52,6 +53,10 @@ Route::middleware('auth:sanctum')->get('/inspectionCount/{user}', function ($use
     $inspections = DB::table('inspections')->where('status', 1)->where('responsible', $user)->get();
     return response()->json(['total' => count($inspections)]);
 });
+Route::middleware('auth:sanctum')->get('/earringsCount', function () {
+    $earrings = DB::table('earrings')->where('status', 1)->get();
+    return response()->json(['total' => count($earrings)]);
+});
 
 Route::middleware('auth:sanctum')->get('/programs', [ProgramsController::class, 'index']);
 Route::middleware('auth:sanctum')->post('/addMto', [ProgramsController::class, 'create']);
@@ -62,3 +67,7 @@ Route::middleware('auth:sanctum')->delete('/deleteMto/{id}', [ProgramsController
 
 Route::middleware('auth:sanctum')->get('/inspections/{user}', [InspectionsController::class, 'index']);
 Route::middleware('auth:sanctum')->get('/inspection/{id}', [InspectionsController::class, 'show']);
+Route::middleware('auth:sanctum')->post('/createInspection', [InspectionsController::class, 'create']);
+
+Route::middleware('auth:sanctum')->get('/earrings', [EarringsController::class, 'index']);
+

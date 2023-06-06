@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('programs', function (Blueprint $table) {
             $table->id();
             $table->string('unit');
+            $table->string('type_unit');
             $table->string('description');
             $table->string('type');
             $table->date('date');

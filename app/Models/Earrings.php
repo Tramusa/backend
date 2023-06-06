@@ -5,11 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Programs extends Model
+class Earrings extends Model
 {
     use HasFactory;
+    
+    protected $fillable = ['type', 'unit', 'status', 'description' ];
 
-    protected $fillable = [
-        'unit', 'description', 'type', 'type_unit', 'date', 'user'
-    ];
 }

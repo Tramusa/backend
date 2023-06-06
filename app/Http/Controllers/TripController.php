@@ -387,7 +387,6 @@ class TripController extends Controller
         $data_trip['status'] = 2;
         $data_trip['end_date'] = date('Y-m-d');
         Trips::find($trip)->update($data_trip);
-
         //CAMBIAMOS EL ESTATUS DE LAS UNIDADES INVOLUCRADAS EN EL TRIP ['status'] = 'inspection'
         $units = DB::table('units__trips')->where('trip', $trip)->get();
         $data['status'] = 'inspection';
@@ -398,6 +397,7 @@ class TripController extends Controller
             $data_inspection['responsible'] = $trip->operator;
             $data_inspection['type'] = $item->type_unit;
             $data_inspection['unit'] = $id;
+            $data_inspection['is'] = 'fisico mecanica';
             $inspection = new Inspections($data_inspection);
             $inspection->save();
             
@@ -435,8 +435,7 @@ class TripController extends Controller
                 default:
                     break;
             }
-        }
-        
+        }        
         return response()->json(['message' => 'Viaje terminado exitosamente.']);
     }
 }
