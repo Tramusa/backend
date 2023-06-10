@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -70,4 +69,5 @@ Route::middleware('auth:sanctum')->get('/inspection/{id}', [InspectionsControlle
 Route::middleware('auth:sanctum')->post('/createInspection', [InspectionsController::class, 'create']);
 
 Route::middleware('auth:sanctum')->get('/earrings', [EarringsController::class, 'index']);
-
+Route::middleware('auth:sanctum')->get('/earring/{id}', [EarringsController::class, 'show']);
+Route::middleware('auth:sanctum')->put('/earring/{id}', [EarringsController::class, 'update']);
