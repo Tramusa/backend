@@ -43,56 +43,11 @@ class InspectionsController extends Controller
 
     public function create(Request $request)
     {
-        $requestData = $request->all(); // Obtén todos los datos del objeto $request como un arreglo asociativo
-        $inspection = $request->inspection; // Obtén el valor de 'inspection' del objeto $request
-        unset($requestData['inspection']); // Elimina 'inspection' del objeto $request
-        //GENERAMOS LA INFORMACION DE $data QUE ES LA INFOR DE LOS PENDIENTES A CREAR
-        $data = [];
-        $data['unit'] = $inspection['unit'];
-        $data['type'] = $inspection['type'];
-        foreach ($requestData as $key => $value) {
-            $data['description'] = 'En '.$key.' No cumple: '.$value;
-            $earrings = new Earrings($data);//GENERAMOS LOS PENDIENTES UNO A UNO 
-            $earrings->save();
-        } 
-        //CAMBIAR STATUS
-        Inspections::find($inspection['id'])->update(['status'=> 2]);
-        $status['status'] = 'available';
-        switch ($inspection['type']) {
-            case 1:
-                Tractocamiones::find($inspection['unit'])->update($status);
-                break;   
-            case 2:
-                Remolques::find($inspection['unit'])->update($status);
-                break;
-            case 3:
-                Dollys::find($inspection['unit'])->update($status);
-                break;
-            case 4:       
-                Volteos::find($inspection['unit'])->update($status);
-                break;
-            case 5:       
-                Toneles::find($inspection['unit'])->update($status);
-                break;
-            case 6:       
-                Tortons::find($inspection['unit'])->update($status);
-                break;
-            case 7:       
-                Autobuses::find($inspection['unit'])->update($status);
-                break;
-            case 8:       
-                Sprinters::find($inspection['unit'])->update($status);
-                break;
-            case 9:       
-                Utilitarios::find($inspection['unit'])->update($status);
-                break;
-            case 10:       
-                Maquinarias::find($inspection['unit'])->update($status);
-                break;
-            default:
-                break;
-        }
-        return response()->json(['message' => 'Inspeccion terminada existosamente.']);
+       #Logger($request);
+       $program = new Inspections($request->all());                
+       $program->save();
+       return response()->json(['message' => 'Insepeccion generada existosamente.']);
+   
     }
 
     public function store(Request $request)
