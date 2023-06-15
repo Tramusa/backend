@@ -60,6 +60,7 @@ class AuthController extends Controller
             'message' => 'Perfil actualizado con éxito!'
         ]);
     }
+    
     public function updateAdmin(Request $request)
     {   
         User::find($request->id)->update($request->all()); 
