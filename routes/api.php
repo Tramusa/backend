@@ -17,16 +17,11 @@ use Illuminate\Support\Facades\DB;
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
-Route::group(['middleware' => 'admin'], function () {
-    // Rutas para administradores
-    // ...
-    Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-        return $request->user();
-    });
-    Route::middleware('auth:sanctum')->get('/users', [AuthController::class, 'usersAll']);
-    Route::middleware('auth:sanctum')->put('/updateStatus', [AuthController::class, 'updateStatus']);
-    Route::middleware('auth:sanctum')->get('/user/{id}', [AuthController::class, 'show']);
-    Route::middleware('auth:sanctum')->post('/userAdmin', [AuthController::class, 'updateAdmin']);
+Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+    Route::get('/users', [AuthController::class, 'usersAll']);
+    Route::put('/updateStatus', [AuthController::class, 'updateStatus']);
+    Route::get('/user/{id}', [AuthController::class, 'show']);
+    Route::post('/userAdmin', [AuthController::class, 'updateAdmin']);
 });
 
 Route::middleware('auth:sanctum')->post('/change-password', [ProfileController::class, 'changePassword']);
