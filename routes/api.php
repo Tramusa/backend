@@ -10,21 +10,30 @@ use App\Http\Controllers\TripController;
 use App\Http\Controllers\UnitController;
 use Illuminate\Support\Facades\DB;
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+
+
+
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
+Route::group(['middleware' => 'admin'], function () {
+    // Rutas para administradores
+    // ...
+    Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+        return $request->user();
+    });
+    Route::middleware('auth:sanctum')->get('/users', [AuthController::class, 'usersAll']);
+    Route::middleware('auth:sanctum')->put('/updateStatus', [AuthController::class, 'updateStatus']);
+    Route::middleware('auth:sanctum')->get('/user/{id}', [AuthController::class, 'show']);
+    Route::middleware('auth:sanctum')->post('/userAdmin', [AuthController::class, 'updateAdmin']);
+});
+
 Route::middleware('auth:sanctum')->post('/change-password', [ProfileController::class, 'changePassword']);
 Route::middleware('auth:sanctum')->get('/profile', [ProfileController::class, 'show']);
-
-Route::middleware('auth:sanctum')->get('/users', [AuthController::class, 'usersAll']);
-Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
-Route::middleware('auth:sanctum')->get('/user/{id}', [AuthController::class, 'show']);
 Route::middleware('auth:sanctum')->post('/user', [AuthController::class, 'update']);
-Route::middleware('auth:sanctum')->put('/updateStatus', [AuthController::class, 'updateStatus']);
+
+Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 
 Route::middleware('auth:sanctum')->post('/createUnit', [UnitController::class, 'create']);
 Route::middleware('auth:sanctum')->post('/unit', [UnitController::class, 'unit']);

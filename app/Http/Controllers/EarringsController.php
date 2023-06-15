@@ -92,11 +92,13 @@ class EarringsController extends Controller
                 Maquinarias::find($inspection['unit'])->update($status);
                 break;
             default:
+
+            
                 break;
         }
         return response()->json(['message' => 'Inspeccion terminada existosamente.']);
     }
-    
+
     public function show($id)
     {
         $earring = Earrings::find($id);

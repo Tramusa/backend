@@ -45,6 +45,7 @@ class AuthController extends Controller
         $request->validate([
             'avatar' => 'required|image|max:5000', // 5MB Asegúrate de que se haya cargado una imagen y que sea de un tipo válido.
         ]);
+
         if ($request->file('avatar')){
             if ($user->avatar){ Storage::delete($user->avatar); } 
 
@@ -57,6 +58,14 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Perfil actualizado con éxito!'
+        ]);
+    }
+    public function updateAdmin(Request $request)
+    {   
+        User::find($request->id)->update($request->all()); 
+
+        return response()->json([
+            'message' => 'Usuario actualizado con éxito!'
         ]);
     }
 
@@ -106,7 +115,7 @@ class AuthController extends Controller
                 'place_birth' => 'required|string|max:20',
                 'nationality' => 'string|max:20',
                 'scholarship' => 'string|max:20',
-                'title' => 'string|max:5',
+                'title' => 'string',
                 'ine' => 'string|max:20',
                 'rfc' => 'string|size:13|unique:others',
                 'curp' => 'string|size:18|unique:others',
