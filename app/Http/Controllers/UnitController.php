@@ -10,9 +10,12 @@ use App\Models\Remolques;
 use App\Models\Sprinters;
 use App\Models\Toneles;
 use App\Models\Tortons;
+use App\Models\UnitsPDFs;
 use App\Models\Utilitarios;
 use App\Models\Volteos;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class UnitController extends Controller
 {
@@ -109,6 +112,15 @@ class UnitController extends Controller
        
     }
 
+    public function show(Request $request)
+    { 
+        $docs = DB::table('units_p_d_fs')->where('unit_id', $request->id)->where('type_unit', $request->type)->get();
+        foreach ($docs as $doc) {
+            $doc->location = asset(Storage::url($doc->location));
+        }
+        return response()->json($docs);            
+    }
+
     public function unit(Request $request)
     {      
         $request->validate([ 'type' => 'required', ]);
@@ -157,11 +169,6 @@ class UnitController extends Controller
             default:
                 break;
         }           
-    }
-
-    public function show($unit)
-    {
-        return response()->json($unit);
     }
 
     public function update(Request $request, $type)
@@ -254,5 +261,44 @@ class UnitController extends Controller
             return response()->json(['message' => 'Unidad eliminada']);
         } 
         
+    }
+
+    public function destroyDocs($id)
+    {
+        $unit = UnitsPDFs::find($id);
+        if ($unit->location){ Storage::delete($unit->location); }
+        $unit->delete();
+        return response()->json(['message' => 'Documento eliminado exitosamente.']);
+    }
+
+    public function upload(Request $request)
+    {
+        Logger($request);
+        $request->validate([
+            'title' => 'required',
+            'unit_id' => 'required',
+            'pdf' => 'required|file|mimes:pdf'
+        ]);
+
+        if ($request->hasFile('pdf')) {
+            $path = $request->file('pdf')->store('public/pdfs');  
+            
+            // Guardar el título y el ID de la unidad
+            $title = $request->input('title');
+            $unitId = $request->input('unit_id');
+            $unitType = $request->input('type_unit');
+            
+            // Crear un nuevo registro en la tabla "pdfs"
+            UnitsPDFs::create([
+                'title' => $title,
+                'unit_id' => $unitId,
+                'type_unit' => $unitType,
+                'location' => $path
+            ]);
+            
+            return response()->json(['message' => 'Archivo PDF subido correctamente']);
+        }
+        
+        return response()->json(['error' => 'No se encontró ningún archivo PDF']);
     }
 }

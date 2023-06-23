@@ -38,6 +38,7 @@ class AuthController extends Controller
 
     public function update(Request $request)
     {   
+        #Logger($request);
         $data = $request->only(['name', 'a_paterno', 'a_materno', 'alias', 'email', ]);
         $user = User::find($request->id);
         $user->update($data); 

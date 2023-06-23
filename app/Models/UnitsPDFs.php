@@ -5,9 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Earrings extends Model
+class UnitsPDFs extends Model
 {
     use HasFactory;
-    
-    protected $fillable = ['type', 'unit', 'status', 'description' ];
+
+    protected $fillable = ['title', 'unit_id', 'type_unit', 'location'];
 }
