@@ -2,6 +2,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\EarringsController;
 use App\Http\Controllers\InspectionsController;
 use App\Http\Controllers\ProfileController;
@@ -35,6 +36,9 @@ Route::middleware('auth:sanctum')->post('/unit', [UnitController::class, 'unit']
 Route::middleware('auth:sanctum')->get('/units/{type}', [UnitController::class, 'units']);
 Route::middleware('auth:sanctum')->put('/unit/{type}', [UnitController::class, 'update']);
 Route::middleware('auth:sanctum')->delete('/unit', [UnitController::class, 'destroy']);
+Route::middleware('auth:sanctum')->post('/upload-pdf', [UnitController::class, 'upload']);
+Route::middleware('auth:sanctum')->post('/docsUnits', [UnitController::class, 'show']);
+Route::middleware('auth:sanctum')->delete('/docsUnits/{id}', [UnitController::class, 'destroyDocs']);
 
 Route::middleware('auth:sanctum')->post('/createTrip', [TripController::class, 'create']);
 Route::middleware('auth:sanctum')->get('/operators', [TripController::class, 'operatorsAll']);
@@ -76,3 +80,8 @@ Route::middleware('auth:sanctum')->post('/finishInspection', [EarringsController
 Route::middleware('auth:sanctum')->get('/earrings', [EarringsController::class, 'index']);
 Route::middleware('auth:sanctum')->get('/earring/{id}', [EarringsController::class, 'show']);
 Route::middleware('auth:sanctum')->put('/earring/{id}', [EarringsController::class, 'update']);
+
+Route::middleware('auth:sanctum')->post('/addCECO', [CustomersController::class, 'addceco']);
+Route::middleware('auth:sanctum')->get('/cecosR', [CustomersController::class, 'cecosR']);
+Route::middleware('auth:sanctum')->post('/createCustomer', [CustomersController::class, 'create']);
+Route::middleware('auth:sanctum')->get('/customers', [CustomersController::class, 'index']);
