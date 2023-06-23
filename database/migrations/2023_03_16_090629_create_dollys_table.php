@@ -10,6 +10,7 @@ return new class extends Migration
     {
         Schema::create('dollys', function (Blueprint $table) {
             $table->id();
+            $table->string('no_economic');
             $table->string('no_seriously');
             $table->string('brand');
             $table->string('model');

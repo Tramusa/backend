@@ -25,6 +25,7 @@ return new class extends Migration
             $table->string('engine_capacity');
             $table->string('speeds');
             $table->string('differential_pitch');
+            $table->string('extent_tire');
             $table->string('tire');
             $table->string('transmission');
             $table->string('ecm');
