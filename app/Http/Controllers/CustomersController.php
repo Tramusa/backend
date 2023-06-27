@@ -30,20 +30,13 @@ class CustomersController extends Controller
         //SELECCIONAMOS EL CLIENTE SI LO ENCUENTRA, LE AGREGAMOS EL ID A LOS CECOs
         $customer = DB::table('customers')->where('name', $request->name)->where('prefijo', $request->prefijo)->first();
         if ($customer) {
-            $cecos = DB::table('c_e_c_os')->where('customer', null)->get();
+            $cecos = DB::table('c_e_c_os')->where('customer_id', null)->get();
             foreach ($cecos as $ceco) {
                 //Agregar ID
-                CECOs::find($ceco->id)->update(['customer'=> $customer->id]);
+                CECOs::find($ceco->id)->update(['customer_id'=> $customer->id]);
             }
         }
-        return response()->json([
-            'message' => 'Cliente registrado con exito'
-        ], 201);
-    }
-
-    public function store(Request $request)
-    {
-        //
+        return response()->json(['message' => 'Cliente registrado con exito'], 201);
     }
 
     public function addceco(Request $request)
@@ -52,31 +45,43 @@ class CustomersController extends Controller
         $validatedData = $request->validate([
             'description' => 'unique:c_e_c_os,description',
         ]);
-        $ceco = new CECOs($validatedData);
+        $ceco = new CECOs($request->all());
         $ceco->save();
-        return response()->json([
-            'message' => 'CECO registrado con exito'
-        ], 201);
+        return response()->json(['message' => 'CECO registrado con exito'], 201);
     } 
 
     public function cecosR()
     {
-        $cecos = DB::table('c_e_c_os')->where('customer', null)->get();
+        $cecos = DB::table('c_e_c_os')->where('customer_id', null)->get();
+        return $cecos;
+    }
+
+    public function cecos($id)
+    {
+        $cecos = DB::table('c_e_c_os')->where('customer_id', $id)->get();
         return $cecos;
     }
 
     public function edit($id)
     {
-        //
+        $Customer = Customers::find($id);
+        return response()->json($Customer);
     }
 
     public function update(Request $request, $id)
     {
-        //
+        Customers::find($id)->update($request->all()); 
     }
 
     public function destroy($id)
     {
-        //
+        Customers::findOrFail($id)->delete(); // Elimina el cliente
+        return response()->json(['message' => 'Cliente eliminado'], 201);
+    }
+
+    public function deleteCECOs($id)
+    {
+        CECOs::find($id)->delete();
+        return response()->json(['message' => 'CECO eliminado'], 201);
     }
 }

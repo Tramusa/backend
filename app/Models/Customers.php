@@ -9,5 +9,10 @@ class Customers extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'prefijo' ];
+    protected $fillable = ['name', 'prefijo'];
+
+    public function cecos()
+    {
+        return $this->hasMany(CECOs::class, 'customer_id')->onDelete('cascade');
+    }
 }

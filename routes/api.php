@@ -85,3 +85,8 @@ Route::middleware('auth:sanctum')->post('/addCECO', [CustomersController::class,
 Route::middleware('auth:sanctum')->get('/cecosR', [CustomersController::class, 'cecosR']);
 Route::middleware('auth:sanctum')->post('/createCustomer', [CustomersController::class, 'create']);
 Route::middleware('auth:sanctum')->get('/customers', [CustomersController::class, 'index']);
+Route::middleware('auth:sanctum')->delete('/cecos/{id}', [CustomersController::class, 'deleteCECOs']);
+Route::middleware('auth:sanctum')->get('/cecos/{id}', [CustomersController::class, 'cecos']);
+Route::middleware('auth:sanctum')->get('/customer/{id}', [CustomersController::class, 'edit']);
+Route::middleware('auth:sanctum')->put('/customer/{id}', [CustomersController::class, 'update']);
+Route::middleware('auth:sanctum')->delete('/customers/{id}', [CustomersController::class, 'destroy']);
