@@ -53,9 +53,17 @@ class EarringsController extends Controller
         $data['unit'] = $inspection['unit'];
         $data['type'] = $inspection['type'];
         foreach ($requestData as $key => $value) {
-            $data['description'] = 'En '.$key.' No cumple: '.$value;
-            $earrings = new Earrings($data);//GENERAMOS LOS PENDIENTES UNO A UNO 
-            $earrings->save();
+            $description = 'En '.$key.' No cumple: '.$value;
+
+            // Verificar si la descripción ya existe en los pendientes registrados
+            $existingEarring = Earrings::where('description', $description)->where('status', 1)->where('type', $data['type'])->where('unit', $data['unit'])->first();
+            if ($existingEarring) {
+                continue; // La descripción ya existe, pasa al siguiente pendiente
+            }else{
+                $data['description'] = $description;
+                $earrings = new Earrings($data);//GENERAMOS LOS PENDIENTES UNO A UNO 
+                $earrings->save();
+            }            
         } 
         //CAMBIAR STATUS
         Inspections::find($inspection['id'])->update(['status'=> 2]);
