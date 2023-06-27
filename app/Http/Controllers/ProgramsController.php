@@ -57,8 +57,7 @@ class ProgramsController extends Controller
 
     public function destroy($id)
     {
-        $unit = Programs::find($id);
-        $unit->delete();
+        Programs::find($id)->delete();
         return response()->json(['message' => 'Mantenimineto eliminado exitosamente.']);
     }
 }

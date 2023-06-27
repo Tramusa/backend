@@ -216,44 +216,34 @@ class UnitController extends Controller
 
         switch ($type) {
             case 1:
-                $unit = Tractocamiones::find($id);
-                $unit->delete();
+                Tractocamiones::find($id)->delete();
                 break;
             case 2:
-                $unit = Remolques::find($id);
-                $unit->delete();
+                Remolques::find($id)->delete();
                 break;
             case 3:
-                $unit = Dollys::find($id);
-                $unit->delete();                
+                Dollys::find($id)->delete();                
                 break;
             case 4:       
-                $unit = Volteos::find($id);
-                $unit->delete();
+                Volteos::find($id)->delete();
                 break;
             case 5:       
-                $unit = Toneles::find($id);
-                $unit->delete();
+                Toneles::find($id)->delete();
                 break;
             case 6:       
-                $unit = Tortons::find($id);
-                $unit->delete();
+                Tortons::find($id)->delete();
                 break;
             case 7:       
-                $unit = Autobuses::find($id);
-                $unit->delete();
+                Autobuses::find($id)->delete();
                 break;
             case 8:       
-                $unit = Sprinters::find($id);
-                $unit->delete();
+                Sprinters::find($id)->delete();
                 break;
             case 9:       
-                $unit = Utilitarios::find($id);
-                $unit->delete();
+                Utilitarios::find($id)->delete();
                 break;
             case 10:       
-                $unit = Maquinarias::find($id);
-                $unit->delete();
+                Maquinarias::find($id)->delete();
                 break;
             default:
                 break;
