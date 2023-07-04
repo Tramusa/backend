@@ -32,6 +32,7 @@ return new class extends Migration
             $table->string('cpl');
             $table->string('extent_tire');
             $table->string('tire');
+            $table->integer('ejes');
             $table->integer('user');
             $table->string('status')->default('available');
             $table->timestamps();

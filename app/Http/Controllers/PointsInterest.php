@@ -57,10 +57,10 @@ class PointsInterest extends Controller
         $destination = $ruta->destination;
             
         $orig = DB::table('points_interests')->where('id', $origin)->first();
-        $ruta->origin_des = $orig->street.' '.$orig->suburb.', '.$orig->city.', '.$orig->state;
+        $ruta->origin_name = $orig->name;
         
         $des = DB::table('points_interests')->where('id', $destination)->first();
-        $ruta->destination_des = $des->street.' '.$des->suburb.', '.$des->city.', '.$des->state;
+        $ruta->destination_name = $des->name;
 
         return response()->json($ruta);
     }
@@ -69,8 +69,8 @@ class PointsInterest extends Controller
     public function updateRuta(Request $request)
     {
         $requestData = $request->all(); // Obtén todos los datos del objeto $request como un arreglo asociativo
-        unset($requestData['origin_des']); // Elimina 'inspection' del objeto $request
-        unset($requestData['destination_des']); // Elimina 'inspection' del objeto $request
+        unset($requestData['origin_name']); // Elimina 'inspection' del objeto $request
+        unset($requestData['destination_name']); // Elimina 'inspection' del objeto $request
         
         Rutas::find($request->id)->update($requestData); 
     }
@@ -82,16 +82,23 @@ class PointsInterest extends Controller
 
     public function show($id)
     {
-        
+        $Address = ModelsPointsInterest::find($id);
+        return response()->json($Address);        
     }
 
     public function update(Request $request, $id)
     {
-        //
+        ModelsPointsInterest::find($id)->update($request->all()); 
     }
 
     public function destroy($id)
     {
-        //
+        $existingRuta = Rutas::where('origin', $id)->orwhere('destination',  $id)->first();
+        if ($existingRuta) {
+            return response()->json(['message' => 'La direccion se encuentra en alguna ruta'], 422);
+        }else{
+            ModelsPointsInterest::find($id)->delete();
+            return response()->json(['message' => 'Direccion eliminada exitosamente.'], 201);
+        }
     }
 }

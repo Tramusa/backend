@@ -10,6 +10,6 @@ class Sprinters extends Model
     use HasFactory;
 
     protected $fillable = [
-        'no_economic', 'brand', 'model', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'user', 'status'
+        'no_economic', 'brand', 'model', 'ejes', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'user', 'status'
     ];
 }

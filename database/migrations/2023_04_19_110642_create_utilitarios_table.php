@@ -23,6 +23,7 @@ return new class extends Migration
             $table->date('expiration_placas');
             $table->string('circulation_card');
             $table->date('expiration_circulation');
+            $table->integer('ejes');
             $table->integer('user');
             $table->string('status')->default('available');
             $table->timestamps();

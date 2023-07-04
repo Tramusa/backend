@@ -9,5 +9,5 @@ class PointsInterest extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['street', 'suburb', 'city', 'state', 'cp'];
+    protected $fillable = ['name', 'street', 'suburb', 'city', 'state', 'cp'];
 }

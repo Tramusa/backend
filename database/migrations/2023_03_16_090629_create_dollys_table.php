@@ -14,6 +14,7 @@ return new class extends Migration
             $table->string('no_seriously');
             $table->string('brand');
             $table->string('model');
+            $table->integer('ejes');
             $table->integer('user');
             $table->string('status')->default('available');
             $table->timestamps();

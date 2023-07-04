@@ -9,5 +9,5 @@ class Rutas extends Model
 {
     use HasFactory;
 
-    protected $fillable = [  'origin', 'destination', 'km', 'time'  ];
+    protected $fillable = [  'origin', 'destination', 'km', 'time', 'observation' ];
 }

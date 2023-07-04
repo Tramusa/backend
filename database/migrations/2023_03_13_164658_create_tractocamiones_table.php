@@ -31,6 +31,7 @@ return new class extends Migration
             $table->string('ecm');
             $table->string('esn');
             $table->string('cpl');
+            $table->integer('ejes');
             $table->integer('user');
             $table->string('status')->default('available');
             $table->timestamps();

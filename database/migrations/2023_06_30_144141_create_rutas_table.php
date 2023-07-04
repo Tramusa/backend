@@ -14,6 +14,7 @@ return new class extends Migration
             $table->integer('destination');            
             $table->string('km');
             $table->string('time');
+            $table->string('observation');
             $table->timestamps();
         });
     }

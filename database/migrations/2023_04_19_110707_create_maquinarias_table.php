@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('circulation_card');
             $table->date('expiration_circulation');
             $table->integer('user');
+            $table->integer('ejes');
             $table->string('status')->default('available');
             $table->timestamps();
         });
