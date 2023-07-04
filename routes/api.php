@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\EarringsController;
 use App\Http\Controllers\InspectionsController;
+use App\Http\Controllers\PointsInterest;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProgramsController;
 use App\Http\Controllers\TripController;
@@ -90,3 +91,11 @@ Route::middleware('auth:sanctum')->get('/cecos/{id}', [CustomersController::clas
 Route::middleware('auth:sanctum')->get('/customer/{id}', [CustomersController::class, 'edit']);
 Route::middleware('auth:sanctum')->put('/customer/{id}', [CustomersController::class, 'update']);
 Route::middleware('auth:sanctum')->delete('/customers/{id}', [CustomersController::class, 'destroy']);
+
+Route::middleware('auth:sanctum')->post('/createAddress', [PointsInterest::class, 'create']);
+Route::middleware('auth:sanctum')->get('/address', [PointsInterest::class, 'index']);
+Route::middleware('auth:sanctum')->post('/createRuta', [PointsInterest::class, 'createRuta']);
+Route::middleware('auth:sanctum')->get('/rutas', [PointsInterest::class, 'rutas']);
+Route::middleware('auth:sanctum')->get('/ruta/{id}', [PointsInterest::class, 'ruta']);
+Route::middleware('auth:sanctum')->post('/editRuta', [PointsInterest::class, 'updateRuta']);
+Route::middleware('auth:sanctum')->delete('/ruta/{id}', [PointsInterest::class, 'destroyRuta']);
