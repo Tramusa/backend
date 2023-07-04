@@ -25,23 +25,14 @@ class ProgramsController extends Controller
     public function units($type)
     {
         $tablas = ['','tractocamiones','remolques','dollys','volteos','toneles','tortons','autobuses','sprinters','utilitarios','maquinarias'];
-        if ($type == 3) {
-            $units = DB::table($tablas[$type])->select('no_seriously')->get();
-            foreach ($units as $item) {
-                $unit = $item->no_seriously;  
-                unset($item->no_seriously);         
-                $item->unit = $unit;
-            }
-            return response()->json($units);
-        }else{
-            $units = DB::table($tablas[$type])->select('no_economic')->get();
-            foreach ($units as $item) {
-                $unit = $item->no_economic;   
-                unset($item->no_economic);           
-                $item->unit = $unit;
-            }
-            return response()->json($units);
+        
+        $units = DB::table($tablas[$type])->select('no_economic')->get();
+        foreach ($units as $item) {
+            $unit = $item->no_economic;   
+            unset($item->no_economic);           
+            $item->unit = $unit;
         }
+        return response()->json($units);
     }
 
     public function show($id)

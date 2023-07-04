@@ -65,7 +65,8 @@ class TripController extends Controller
                 break;
             case 3:
                 $resultados = DB::table('dollys')
-                    ->where('no_seriously', 'LIKE', '%' . $query . '%')
+                    ->where('no_economic', 'LIKE', '%' . $query . '%')
+                    ->orwhere('no_seriously', 'LIKE', '%' . $query . '%')
                     ->orWhere('brand', 'LIKE', '%' . $query . '%')
                     ->orWhere('model', 'LIKE', '%' . $query . '%')
                     ->first();

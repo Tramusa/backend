@@ -93,9 +93,13 @@ Route::middleware('auth:sanctum')->put('/customer/{id}', [CustomersController::c
 Route::middleware('auth:sanctum')->delete('/customers/{id}', [CustomersController::class, 'destroy']);
 
 Route::middleware('auth:sanctum')->post('/createAddress', [PointsInterest::class, 'create']);
-Route::middleware('auth:sanctum')->get('/address', [PointsInterest::class, 'index']);
+Route::middleware('auth:sanctum')->get('/addresses', [PointsInterest::class, 'index']);
 Route::middleware('auth:sanctum')->post('/createRuta', [PointsInterest::class, 'createRuta']);
 Route::middleware('auth:sanctum')->get('/rutas', [PointsInterest::class, 'rutas']);
 Route::middleware('auth:sanctum')->get('/ruta/{id}', [PointsInterest::class, 'ruta']);
 Route::middleware('auth:sanctum')->post('/editRuta', [PointsInterest::class, 'updateRuta']);
 Route::middleware('auth:sanctum')->delete('/ruta/{id}', [PointsInterest::class, 'destroyRuta']);
+Route::middleware('auth:sanctum')->get('/address/{id}', [PointsInterest::class, 'show']);
+Route::middleware('auth:sanctum')->put('/address/{id}', [PointsInterest::class, 'update']);
+Route::middleware('auth:sanctum')->delete('/address/{id}', [PointsInterest::class, 'destroy']);
+
