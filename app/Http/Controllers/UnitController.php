@@ -59,7 +59,7 @@ class UnitController extends Controller
     
     public function create(Request $request)
     {      
-        $request->validate([ 'tipo' => 'required', ]);
+        $request->validate([ 'tipo' => 'required']);
 
         switch ($request->tipo) {
             case 1:
@@ -105,10 +105,7 @@ class UnitController extends Controller
             default:
                 break;
         }
-
-        return response()->json([
-            'message' => 'Successfully registered'
-        ], 201);             
+        return response()->json(['message' => 'Unidad registrada con exito'], 201);             
        
     }
 
