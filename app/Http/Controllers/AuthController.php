@@ -57,18 +57,14 @@ class AuthController extends Controller
             $imagen_cuadrada->save(public_path(Storage::url($path)));
         }      
 
-        return response()->json([
-            'message' => 'Perfil actualizado con éxito!'
-        ]);
+        return response()->json(['message' => 'Perfil actualizado con éxito!'], 201);
     }
     
     public function updateAdmin(Request $request)
     {   
         User::find($request->id)->update($request->all()); 
 
-        return response()->json([
-            'message' => 'Usuario actualizado con éxito!'
-        ]);
+        return response()->json(['message' => 'Usuario actualizado con éxito!'], 201);
     }
 
     public function register(Request $request)
@@ -200,9 +196,7 @@ class AuthController extends Controller
             }                
         }        
 
-        return response()->json([
-            'message' => 'Usuario registrado con exito'
-        ], 201);
+        return response()->json(['message' => 'Usuario registrado con exito'], 201);
     }
 
     public function login(Request $request)
