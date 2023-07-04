@@ -28,13 +28,9 @@ class InspectionsController extends Controller
             $id_unit = $inspection->unit;
             $id_responsible = $inspection->responsible;
             
-            if ($inspection->type == 3) {
-                $unit = DB::table('dollys')->select('no_seriously')->where('id', $id_unit)->first();
-                $inspection->unit = $unit->no_seriously;
-            } else {
-                $unit = DB::table($tablas[$inspection->type])->select('no_economic')->where('id', $id_unit)->first();
-                $inspection->unit = $unit->no_economic;
-            }            
+            $unit = DB::table($tablas[$inspection->type])->select('no_economic')->where('id', $id_unit)->first();
+            $inspection->unit = $unit->no_economic;    
+                   
             $responsible = DB::table('users')->select('name')->where('id', $id_responsible)->first();
             $inspection->responsible = $responsible->name;
         }
@@ -50,29 +46,10 @@ class InspectionsController extends Controller
    
     }
 
-    public function store(Request $request)
-    {
-        //
-    }
-
     public function show($id)
     {
         $inspection = Inspections::find($id);
         return response()->json($inspection);
     }
 
-    public function edit($id)
-    {
-        //
-    }
-
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    public function destroy($id)
-    {
-        //
-    }
 }
