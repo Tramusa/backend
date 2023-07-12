@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Peajes_Ruta;
 use App\Models\PointsInterest as ModelsPointsInterest;
 use App\Models\Rutas;
 use Illuminate\Http\Request;
@@ -28,8 +29,18 @@ class PointsInterest extends Controller
         if ($existingRuta) {
             return response()->json(['message' => 'La ruta ya existe'], 422);
         }else{
-            $address = new Rutas($request->all());
-            $address->save();
+            $ruta = new Rutas($request->all());
+            $ruta->save();
+            
+            //SELECCIONAMOS LA RUTA SI LO ENCUENTRA, LE AGREGAMOS EL ID A LOS PEAJES
+            $ruta = DB::table('rutas')->where('origin', $request->origin)->where('destination', $request->destination)->first();
+            if ($ruta) {
+                $peajes = DB::table('peajes__rutas')->where('ruta_id', null)->get();
+                foreach ($peajes as $peaje) {
+                    //Agregar ID
+                    Peajes_Ruta::find($peaje->id)->update(['ruta_id'=> $ruta->id]);
+                }
+            }
             return response()->json(['message' => 'Ruta registrada con exito'], 201);
         }
     }
