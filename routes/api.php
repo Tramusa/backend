@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\EarringsController;
 use App\Http\Controllers\InspectionsController;
+use App\Http\Controllers\PeajesController;
 use App\Http\Controllers\PointsInterest;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProgramsController;
@@ -102,4 +103,16 @@ Route::middleware('auth:sanctum')->delete('/ruta/{id}', [PointsInterest::class, 
 Route::middleware('auth:sanctum')->get('/address/{id}', [PointsInterest::class, 'show']);
 Route::middleware('auth:sanctum')->put('/address/{id}', [PointsInterest::class, 'update']);
 Route::middleware('auth:sanctum')->delete('/address/{id}', [PointsInterest::class, 'destroy']);
+
+Route::middleware('auth:sanctum')->post('/createPeaje', [PeajesController::class, 'create']);
+Route::middleware('auth:sanctum')->get('/peajes', [PeajesController::class, 'index']);
+Route::middleware('auth:sanctum')->get('/peaje/{id}', [PeajesController::class, 'show']);
+Route::middleware('auth:sanctum')->put('/peaje/{id}', [PeajesController::class, 'update']);
+Route::middleware('auth:sanctum')->post('/addCaseta', [PeajesController::class, 'addPeaje']);
+Route::middleware('auth:sanctum')->get('/peajesR', [PeajesController::class, 'peajesR']);
+Route::middleware('auth:sanctum')->get('/peajes/{id}', [PeajesController::class, 'peajes']);
+Route::middleware('auth:sanctum')->delete('/peajeR/{id}/{ruta}', [PeajesController::class, 'destroyRuta']);
+Route::middleware('auth:sanctum')->delete('/peaje/{id}', [PeajesController::class, 'destroy']);
+
+
 
