@@ -12,7 +12,8 @@ class CreateCECOsTable extends Migration
             $table->id();
             $table->foreignId('customer_id')
                 ->constrained('customers')
-                ->onDelete('cascade'); // Eliminación en cascada al borrar un cliente
+                ->onDelete('cascade') // Eliminación en cascada al borrar un cliente
+                ->nullable();
             $table->string('description');
             $table->timestamps();
         });
