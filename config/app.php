@@ -183,13 +183,6 @@ return [
         Illuminate\View\ViewServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
 
-        /*
-         * Package Service Providers...
-         */
-
-        /*
-         * Application Service Providers...
-         */
         App\Providers\AppServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
         // App\Providers\BroadcastServiceProvider::class,

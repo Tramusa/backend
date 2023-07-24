@@ -10,12 +10,20 @@ return new class extends Migration
     {
         Schema::create('trips', function (Blueprint $table) {
             $table->id();
-            $table->string('date')->nullable();
-            $table->string('hour')->nullable();
+            $table->string('customer')->nullable();
+            $table->string('ceco')->nullable();
+            $table->string('name')->nullable();
+            $table->string('mail')->nullable();
+            $table->string('phone')->nullable();
+            $table->string('position')->nullable();            
             $table->string('origin')->nullable();
             $table->string('destination')->nullable();
-            $table->longText('detaills')->nullable();
+            $table->string('date')->nullable();
+            $table->string('hour')->nullable();
             $table->integer('operator')->nullable();
+            $table->longText('type')->nullable();
+            $table->longText('product')->nullable();
+            $table->longText('detaills')->nullable();
             $table->boolean('status')->default(1);
             $table->string('end_date')->nullable();
             $table->integer('user');

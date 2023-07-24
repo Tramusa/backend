@@ -62,7 +62,6 @@ class PeajesController extends Controller
     {
         $peajes = DB::table('peajes__rutas')
             ->leftJoin('peajes', 'peajes__rutas.caseta_id', '=', 'peajes.id')
-            ->select('peajes.id', 'peajes.name', 'peajes.address')
             ->where('peajes__rutas.ruta_id', $id)
             ->get();
 
