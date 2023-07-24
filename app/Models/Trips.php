@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Trips extends Model
 {
-    use HasFactory;
-    
-    protected $fillable = [ 'date', 'hour', 'origin', 'destination' , 'detaills' , 'operator' , 'user', 'status', 'end_date'];
+    use HasFactory; 
+              
+    protected $fillable = [ 'ceco', 'customer', 'name', 'mail', 'phone', 'position', 'date', 'hour', 'origin', 'destination' , 'type', 'product', 'detaills' , 'operator' , 'user', 'status', 'end_date'];
 }

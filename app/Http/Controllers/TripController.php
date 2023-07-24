@@ -3,10 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Autobuses;
+use App\Models\CECOs;
+use App\Models\Customers;
 use App\Models\Dollys;
 use App\Models\Inspections;
 use App\Models\Maquinarias;
+use App\Models\PointsInterest as ModelsPointsInterest;
 use App\Models\Remolques;
+use App\Models\Rutas;
 use App\Models\Sprinters;
 use App\Models\Toneles;
 use App\Models\Tortons;
@@ -17,6 +21,8 @@ use App\Models\Utilitarios;
 use App\Models\Volteos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Dompdf\Dompdf;
+use Illuminate\Support\Facades\Storage;
 
 class TripController extends Controller
 {
@@ -148,10 +154,21 @@ class TripController extends Controller
             ], 422);
         }  
     }
+    public function rutaTrip(Request $request)
+    {
+        $origin = $request->input('origin');
+        $destination = $request->input('destination');
+    
+        $ruta = Rutas::where('origin', $origin)
+            ->where('destination', $destination)
+            ->first();
+    
+        return response()->json($ruta);
+    }
 
     public function operatorsAll()
     {
-        $users = DB::table('users')->where('rol', 'Operador')->get(); 
+        $users = DB::table('users')->where('rol', 'like', 'Operador%')->get(); 
         return response()->json($users); 
     }
 
@@ -272,6 +289,7 @@ class TripController extends Controller
                     break;
             }
             $item->detaills = $detaills;
+            $item->ejes = $unit->ejes;
         }
         return response()->json($units);  
     }
@@ -296,6 +314,12 @@ class TripController extends Controller
                     ->where('date', '>', $Hoy)
                     ->where('status', 1)
                     ->get();
+                foreach ($trips as $item) {
+                    $origin = ModelsPointsInterest::find($item->origin);
+                    $destination = ModelsPointsInterest::find($item->destination);
+                    $item->origin = $origin->name;
+                    $item->destination = $destination->name;
+                }
                 break;
             case 3:
                 $trips = DB::table('trips')
@@ -305,8 +329,14 @@ class TripController extends Controller
                     ->where('date', '<=', $Hoy)
                     ->where('status', 1)
                     ->get();
+                foreach ($trips as $item) {
+                    $origin = ModelsPointsInterest::find($item->origin);
+                    $destination = ModelsPointsInterest::find($item->destination);
+                    $item->origin = $origin->name;
+                    $item->destination = $destination->name;
+                }
                 break;
-        }
+        }        
         return response()->json($trips);
     }
 
@@ -314,7 +344,26 @@ class TripController extends Controller
     {
         $trip = Trips::find($id);
         $operator = DB::table('users')->where('id', $trip->operator)->get();
-        $trip['operator'] = $operator[0]->name.' '.$operator[0]->a_paterno; 
+        $trip->operator = $operator[0]->name.' '.$operator[0]->a_paterno; 
+        
+        $origin = ModelsPointsInterest::find($trip->origin);
+        $destination = ModelsPointsInterest::find($trip->destination);
+        $customer = Customers::find($trip->customer);
+        $CECO = CECOs::find($trip->ceco);    
+        $ruta = Rutas::where('origin', $trip->origin)
+            ->where('destination', $trip->destination)
+            ->first();
+        $trip->customer_id = $customer->id;
+        $trip->customer = $customer->name;
+        $trip->prefijo = $customer->prefijo;
+        $trip->prefijo = $customer->prefijo;
+        $trip->ruta = $ruta->id;
+        $trip->km = $ruta->km;
+        $trip->time = $ruta->time;
+        $trip->ceco = $CECO->description;
+        $trip->origin = $origin->name;
+        $trip->destination = $destination->name;
+        
         return response()->json($trip);
     }
 
@@ -359,7 +408,90 @@ class TripController extends Controller
                     break;
             }
         }
-        $trip = Trips::find($trip)->update($request->all());         
+        Trips::find($trip)->update($request->all()); 
+        
+        $dompdf = new Dompdf();
+        $html = '
+        <html>
+        <head>
+            <style>
+                /* Estilos personalizados */
+                .header {
+                    text-align: center;
+                    margin-bottom: 20px;
+                }
+                .logo {
+                    max-width: 150px;
+                    height: auto;
+                }
+                .list {
+                    margin-bottom: 20px;
+                }
+                .table {
+                    width: 100%;
+                    border-collapse: collapse;
+                }
+                .table th, .table td {
+                    border: 1px solid #000;
+                    padding: 5px;
+                }
+                .footer {
+                    text-align: center;
+                    position: fixed;
+                    bottom: 20px;
+                    width: 100%;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <img class="logo" src="ruta/al/logo.png" alt="Logo">
+                <h1>¡Hola, PDF!</h1>
+            </div>
+            <div class="content">
+                <h2>VIAJE DE PRUEBA N°' . $trip . '</h2>
+                <ul class="list">
+                    <li>Elemento 1</li>
+                    <li>Elemento 2</li>
+                    <li>Elemento 3</li>
+                </ul>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Columna 1</th>
+                            <th>Columna 2</th>
+                            <th>Columna 3</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Dato 1</td>
+                            <td>Dato 2</td>
+                            <td>Dato 3</td>
+                        </tr>
+                        <tr>
+                            <td>Dato 4</td>
+                            <td>Dato 5</td>
+                            <td>Dato 6</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="footer">
+                Pie de página
+            </div>
+        </body>
+        </html>';
+    
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+        
+        $pdfContent = $dompdf->output();
+        Storage::disk('public')->put('trips/ViajePrueba N°' . $trip . '_pdf.pdf', $pdfContent);
+
+        // Devolver el contenido del PDF
+        return response($pdfContent, 200)->header('Content-Type', 'application/pdf');
     }
 
     public function deleteUnit($id)

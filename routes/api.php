@@ -13,10 +13,6 @@ use App\Http\Controllers\TripController;
 use App\Http\Controllers\UnitController;
 use Illuminate\Support\Facades\DB;
 
-
-
-
-
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
@@ -53,6 +49,7 @@ Route::middleware('auth:sanctum')->get('/trips/{type}', [TripController::class, 
 Route::middleware('auth:sanctum')->get('/cancelTrip/{trip}', [TripController::class, 'cancel']);
 Route::middleware('auth:sanctum')->get('/finishTrip/{trip}', [TripController::class, 'finish']);
 Route::middleware('auth:sanctum')->get('/trip/{id}', [TripController::class, 'showTrip']);
+Route::middleware('auth:sanctum')->get('/rutaTrip', [TripController::class, 'rutaTrip']);
 
 Route::middleware('auth:sanctum')->get('/tripsCount', function () {
     $trips = DB::table('trips')->where('status', 1)->get();
@@ -113,6 +110,8 @@ Route::middleware('auth:sanctum')->get('/peajesR', [PeajesController::class, 'pe
 Route::middleware('auth:sanctum')->get('/peajes/{id}', [PeajesController::class, 'peajes']);
 Route::middleware('auth:sanctum')->delete('/peajeR/{id}/{ruta}', [PeajesController::class, 'destroyRuta']);
 Route::middleware('auth:sanctum')->delete('/peaje/{id}', [PeajesController::class, 'destroy']);
+Route::middleware('auth:sanctum')->get('/generar-pdf', [PeajesController::class, 'generarPDF']);
 
-
-
+Route::get('/pdf', function () {
+    return view('orden_viaje');
+});
