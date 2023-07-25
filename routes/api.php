@@ -111,7 +111,3 @@ Route::middleware('auth:sanctum')->get('/peajes/{id}', [PeajesController::class,
 Route::middleware('auth:sanctum')->delete('/peajeR/{id}/{ruta}', [PeajesController::class, 'destroyRuta']);
 Route::middleware('auth:sanctum')->delete('/peaje/{id}', [PeajesController::class, 'destroy']);
 Route::middleware('auth:sanctum')->get('/generar-pdf', [PeajesController::class, 'generarPDF']);
-
-Route::get('/pdf', function () {
-    return view('orden_viaje');
-});

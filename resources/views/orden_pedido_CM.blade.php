@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>PDF Viajes</title>
+    <title>PDF PEDIDO CM</title>
     <style>
       .clearfix:after {
         content: "";
@@ -86,7 +86,6 @@
         width: 75px; /* Ajusta el tamaño de la imagen según lo que desees */        
       }
 
-
       #logo {
         flex: 3;
         text-align: left;
@@ -165,16 +164,12 @@
         text-decoration: underline; /* Agregar subrayado */
       }
 
-      #project {
+      #project #kardex {
         float: left;
+        font-family: "Arial Narrow", Arial, sans-serif;
         padding: 10px;
         color: #F26726;
-      }
-
-      #kardex {
-        float: left;
-        padding: 10px;
-        color: #F26726;
+        font-weight: bold;
       }
 
       #project span {
@@ -199,6 +194,7 @@
         margin-right: 10px;
         display: inline-block;
       }
+
       .izqKadrex {
         border-radius: 15%; /* Añade un borde redondeado */
         color: #FFFFFF;
@@ -303,11 +299,16 @@
       </div>
       <div class="column-2">
         <p class="blueTitle">TRAMUSA CARRIER S.A. DE C.V.</p>
-        <p class="title">ORDEN DE VIAJE / Service confirmation</p>
+        <p class="title">ORDEN DE PEDIDO CONCENTRADO MINERAL</p>
         <h2>ÁREA: LOGÍSTICA F-03-33/R2 PERIODICIDAD: CUANDO SE REQUIERA RESGUARDO: 3 AÑOS/ELECTRÓNICO REVISIÓN: AGOSTO 2021</h2>
       </div>      
     </header>
     <main>
+      <div id="project">
+        <div><span>FECHA:</span> FZN 4401</div>
+        <div><span>ESTACION:</span> Autobús</div>
+      </div>
+      <h1>GENERALES</h1>
       <div class="row2">
         <div class="column-2-1"><br></div>
         <table class="column-2-2">
@@ -315,46 +316,6 @@
           <tr><td class="blueTitle">P 5983</td></tr>
         </table>
       </div>
-      <table>
-        <tr>
-          <th class="columnTable-1" colspan="1">INFORMACIÓN GENERAL DEL SERVICIO / Trip Information</th>
-          <th class="columnTable-2" colspan="1">MAPA DE TRAYECTO / Route map</th>
-          <th class="columnTable-3" colspan="1">OPERADOR / KARDEX / Operator ID</th>
-        </tr>
-        <tr>
-          <td class="columnTable-1 " colspan="1"><br>
-            <div class="desc">Fecha de servicio / Date of service:</div>
-            <div class="info">lunes, 3 de julio de 2023</div><br>
-            <div class="desc">Hora de incio de viaje / Time of tridiv starts:</div>
-            <div class="info">06:00:00</div><br>
-            <div class="desc">Tiempo estimado de trayecto / Estimated time of trip:</div>
-            <div class="info">06:00:00</div><br>
-            <div class="desc">Hora esperada de llegada a destino / Arriving time: </div>
-            <div class="info">06:00:00</div><br>
-            <b><div class="desc">Hora recomendada de inicio de sueño </div>
-            <div class="info">06:00:00</div></b><br>
-            <div class="desc">Nombre de los pasajeros a transportar / Passangers Name: </div>
-            <div class="blueTitle">SE ANEXA LISTA DE PASAJEROS</div>
-          </td>
-          <td class="columnTable-2" colspan="1"></td>
-          <td class="columnTable-3 line" colspan="1"><br>
-            <div id="perfil">
-              <img src="{{ asset('storage/avatars/m6fiLe0AyMbRngF6dxzzDsqV799RiMEHZIGnFBY2.png') }}">
-            </div>
-            <div id="logoID">
-              <img src="{{ asset('imgPDF/logo.png') }}">
-            </div>
-            <div class="names">Luis Antonio Enriquez F. </div><br>
-            <div id="kardex">
-              <div><span class="izqKadrex">NSS </span> Supervisor</div>
-              <div><span class="izqKadrex">RFC</span> 433-103-8319</div>
-              <div><span class="izqKadrex">CURP</span> </div>
-              <div><span class="izqKadrex">LIC</span> 465465468</div>
-              <div><span class="izqKadrex">PHONE</span> 465465468</div><br><br><br>
-            </div>
-          </td>
-        </tr>
-      </table>
       <table>
         <tr>
           <td class="columnTable-2-1 " colspan="1"><br>
