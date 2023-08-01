@@ -206,11 +206,9 @@ class UnitController extends Controller
         } 
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request, $id)
     {
-        $type = $request->input('type');
-        $id = $request->input('id');
-
+        $type = $request->input('type');    
         switch ($type) {
             case 1:
                 Tractocamiones::find($id)->delete();
@@ -219,35 +217,33 @@ class UnitController extends Controller
                 Remolques::find($id)->delete();
                 break;
             case 3:
-                Dollys::find($id)->delete();                
+                Dollys::find($id)->delete();
                 break;
-            case 4:       
+            case 4:
                 Volteos::find($id)->delete();
                 break;
-            case 5:       
+            case 5:
                 Toneles::find($id)->delete();
                 break;
-            case 6:       
+            case 6:
                 Tortons::find($id)->delete();
                 break;
-            case 7:       
+            case 7:
                 Autobuses::find($id)->delete();
                 break;
-            case 8:       
+            case 8:
                 Sprinters::find($id)->delete();
                 break;
-            case 9:       
+            case 9:
                 Utilitarios::find($id)->delete();
                 break;
-            case 10:       
+            case 10:
                 Maquinarias::find($id)->delete();
                 break;
             default:
-                break;
-
-            return response()->json(['message' => 'Unidad eliminada']);
-        } 
-        
+                return response()->json(['message' => 'Tipo de unidad no válido'], 400);
+        }    
+        return response()->json(['message' => 'Unidad eliminada']);
     }
 
     public function destroyDocs($id)
