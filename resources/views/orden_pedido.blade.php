@@ -12,31 +12,34 @@
 
       header {
         padding: 10px 0px;
-        display: flex;
       }
 
       .column-1 {
-        flex: 3;
+        width: 20%;
+        float: left;
         text-align: center;
         border: 2.5px solid #D1D1D1;
       }
 
       .column-2 {
-        flex: 9;      
+        width: 80%;
+        float: left;
         border: 2.5px solid #D1D1D1;
       }
 
-      .row2 {
-        display: flex;
+      .row{
+        display: table;
+        width: 100%;
       }
 
       .column-2-1 {
-        flex: 9;
-        text-align: center;
+        width: 2%;
+        float: left; 
       }
 
       .column-2-2 {
-        flex: 2;      
+        width: 15%;
+        float: left;
         border: 1px solid #000;
       }
 
@@ -47,25 +50,13 @@
 
       body {
         position: relative;
-        width: 21cm;  
+        width: 19cm;  
         height: 29.7cm; 
         margin: 0 auto; 
         color: #001028;
         background: #FFFFFF; 
-        font-family: Arial, sans-serif; 
-        font-size: 12px; 
-        font-family: Arial;
-      }
-
-      /* Estilos para la imagen de perfil */
-      #perfil {
-        text-align: left;
-        display: inline-block;
-        border: 2px solid #F26726;
-        border-radius: 15%; /* Añade un borde redondeado */
-        overflow: hidden; /* Oculta las esquinas sobrantes de la imagen */
-        padding: 3px; /* Agrega un pequeño espacio alrededor de la imagen de perfil */
-    
+        font-size: 11px; 
+        font-family: "Arial Narrow", Arial, sans-serif;
       }
 
       #logo {
@@ -73,8 +64,9 @@
         text-align: left;
       }     
 
-      #logo img {
+      .logoImg{
         width: 100%;
+        margin: 10px 0 10px 0;
       }
 
       h1 {
@@ -92,7 +84,7 @@
       h2 {
         font-family: "Arial Narrow", Arial, sans-serif;
         color: #FFFFFF;
-        font-size: 0.9em;
+        font-size: 0.8em;
         line-height: 1.4em;
         font-weight: bold;
         text-align: center;
@@ -115,7 +107,7 @@
         font-size: 1.5em;
         font-weight: bold;
         text-align: center;
-        padding: 10px 10px 10px 10px;
+        padding: 10px;
       }
 
       .title {
@@ -131,22 +123,10 @@
       .leyenda {
         font-family: "Arial Narrow", Arial, sans-serif;
         color: #000000;
-        font-size: 1.2em;
+        font-size: 1em;
         line-height: 1.4em;
         font-weight: bold;
-        padding-top: 40px;
-      }
-
-      .names {
-        font-family: "Arial Narrow", Arial, sans-serif;
-        color: #9B9B9B;
-        font-size: 1.2em;
-        line-height: 1.4em;
-        font-weight: bold;
-        text-align: center;
-        margin: 0 0 0 0;
-        padding-top: 5px;
-        text-decoration: underline; /* Agregar subrayado */
+        margin-top: 40px;
       }
 
       #project {
@@ -159,16 +139,9 @@
       #project span {
         text-align: right;
         text-decoration: normal; /* Agregar subrayado */
-        width: 175px;
-        margin-right: 20px;
+        width: 180px;
+        margin-right: 15px;
         display: inline-block;
-      }
-
-      #involved {
-        float: left;
-        padding: 5px;
-        color: #000;
-        font-size: 0.9em;
       }
 
        .blue {
@@ -179,18 +152,12 @@
         color: #FF0000;
        }
 
-      .izq {
-        text-align: right;
-        width: 140px;
-        margin-right: 10px;
-        display: inline-block;
-      }
-
       #project div {
         white-space: nowrap;      
       }
 
       table {
+        overflow-x: auto; /* Permite desplazarse horizontalmente si el contenido es más ancho que el contenedor */
         width: 100%;
         border-collapse: collapse;
         border-spacing: 0;
@@ -205,7 +172,7 @@
       table th {
         font-family: "Arial Narrow", Arial, sans-serif;
         text-align: center;
-        padding: 0px 5px;
+        margin: 0px 5px;
         color: #FFFFFF;
         font-size: 1.1em;
         border: 1px solid #000;
@@ -218,9 +185,9 @@
         font-family: Arial, sans-serif;
         text-align: left;
         font-size: 1em;
-        padding-left: 40px;
+        margin-left: 40px;
       }
-
+      
       table .observ {
         font-family: Arial, sans-serif;
         text-align: center;
@@ -230,7 +197,7 @@
       }
 
       table td {
-        padding: 0px 5px;
+        margin: 0px 5px;
         border: 1px solid #000;
       }
     </style>
@@ -239,52 +206,51 @@
     <header class="clearfix">
       <div class="column-1">
         <div id="logo">
-          <img src="{{ asset('imgPDF/logo.png') }}">
+          <img class="logoImg" src="{{ $logoImage }}">
         </div>
       </div>
       <div class="column-2">
         <p class="blueTitle">TRAMUSA CARRIER S.A. DE C.V.</p>
         <p class="title">ORDEN DE PEDIDO</p>
-        <h2>ÁREA: LOGÍSTICA F-03-33/R2 PERIODICIDAD: CUANDO SE REQUIERA RESGUARDO: 3 AÑOS/ELECTRÓNICO REVISIÓN: AGOSTO 2021</h2>
+        <h2>ÁREA: LOGÍSTICA F-03-01/R2 PERIODICIDAD: CADA PEDIDO RESGURADO: 3 AÑOS/ELECTRONICO REVISION: JUNIO 2019</h2>
       </div>      
     </header>
     <main>
       <div id="project">
-        <div><span>FECHA:</span><a class="blue">viernes, 7 de julio de 2023</a></div>
-        <div><span>ESTACION:</span><a class="red">E08945 D0979</a></div>
+        <div><span>FECHA:</span><a class="blue">{{ $trip->date }}</a></div>
+        <div><span>ESTACION:</span><a class="red">{{ $trip->destination->name }}</a></div>
       </div>
       <p class="leyenda">Entregar unicamente al portador cuyo nombre e identificación y demas datos personales se plasman a continuación, el cargamento para transportar con destino a:</p>
       <h1>GENERALES</h1> 
       <div id="project">
-        <div><span>NOMBRE DEL SOLICITANTE:</span> FZN 4401</div>
-        <div><span>MEDIO DE SOLICITUD: </span> Autobús</div>
-        <div><span>NOMBRE O RAZÓN SOCIAL:</span>17-RC-1A</div>
-        <div><span>DIRECCION: </span> Mercedes Benz</div>
-        <div><span>CIUDAD:</span> 2015</div>
-        <div><span>ESTACIÓN:</span> Blanco</div>
-        <div><span>SIIC:</span> FZN 4401</div>
-        <div><span>ENCARGADO DE ESTACION:</span> Autobús</div>
-        <div><span>E-MAIL:</span>17-RC-1A</div>
-        <div><span>TERMINAL ORIGEN:</span><a class="blue">E08945 D0979</a></div>
-        <div><span>TRANSPORTISTA:</span><a class="blue">E08945 D0979</a></div>
-        <div><span>EQUIPO:</span><a class="blue">E08945 D0979</a></div>
-        <div><span>PLACAS TRACTOR:</span> FZN 4401</div>
-        <div><span>PLACAS TONEL 1: </span> Autobús</div>
-        <div><span>PLACAS TONEL 2: </span> Autobús</div>
-        <div><span>VOLUMEN:</span>17-RC-1A</div>
-        <div><span>PRODUCTO:</span><a class="blue">E08945 D0979</a></div>
-        <div><span>OPERADOR:</span> 2015</div>
-        <div><span>RFC OPERADOR:</span> Blanco</div>
-      </div> <br> <br>
-      <div class="row2">
-        <div class="column-2-1"><br></div>
+        <div><span>NOMBRE DEL SOLICITANTE:</span>{{ $trip->name }}</div>
+        <div><span>MEDIO DE SOLICITUD:</span>>>> SIN DATO</div>
+        <div><span>NOMBRE O RAZÓN SOCIAL:</span>{{ $customer->name }}</div>
+        <div><span>DIRECCION:</span>{{$trip->destination->street.' '.$trip->destination->suburb}}</div>
+        <div><span>CIUDAD:</span>{{$trip->destination->city.', '.$trip->destination->state.', '.$trip->destination->cp}}</div>
+        <div><span>ESTACIÓN:</span>{{ $trip->destination->name }}</div>
+        <div><span>SIIC:</span>>>> SIN DATO</div>
+        <div><span>ENCARGADO DE ESTACION:</span>>>> SIN DATO</div>
+        <div><span>E-MAIL:</span>pagos@masgas.com.mx/ventas@masgas.com.mx/e08945@masgas.com.mx</div>
+        <div><span>TERMINAL ORIGEN:</span><a class="blue">{{ $trip->origin->name }}</a></div>
+        <div><span>TRANSPORTISTA:</span><a class="blue">>>>SIN DATO</a></div>
+        <div><span>EQUIPO:</span><a class="blue">{{ $unit['no_economic'] }}</a></div>
+        <div><span>PLACAS TRACTOR:</span>{{ $unit['placaTracto'] }}</div>
+        <div><span>PLACAS TONEL 1:</span>{{ $unit['placaT1'] }}</div>
+        <div><span>PLACAS TONEL 2:</span>{{ $unit['placaT2'] }}</div>
+        <div><span>VOLUMEN:</span>>>>SIN DATO</div>
+        <div><span>PRODUCTO:</span><a class="blue">{{ $trip->product }}</a></div>
+        <div><span>OPERADOR:</span>{{$operator->name.' '.$operator->a_paterno.' '.$operator->a_materno}}</div>
+        <div><span>RFC OPERADOR:</span>{{$operator->rfc}}</div>
+      </div> <br>
+      <div class="row">
+        <div class="column-2-1"></div>
         <table class="column-2-2">
-          <tr><th>Orden de Viaje / Trip number</th></tr>
-          <tr><td class="blueTitle">P 5983</td></tr>
+          <tr><th>Orden N°</th></tr>
+          <tr><td class="blueTitle">C {{$trip->id}}</td></tr>
         </table>
-      </div><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-      
-      <table>
+      </div>      
+      <table style="clear: both;"><br>
         <tr>
           <th colspan="1">PRODUCTO</th>
           <th colspan="1">EQUIPO </th>
@@ -293,11 +259,11 @@
           <th colspan="1">DESTINO </th>
         </tr>
         <tr>
-          <td colspan="1" class="blackTitle">MAGNA</td>
-          <td colspan="1" class="blackTitle">FZN 3423 43.500</td>
-          <td colspan="1" class="blackTitle">44</td>
-          <td colspan="1" class="blackTitle">TREE FUEL</td>
-          <td colspan="1" class="blackTitle">E08945 D0979 SAIN ALTO, ZAC.</td>
+          <td colspan="1" class="blackTitle">{{ $trip->product }}</td>
+          <td colspan="1" class="blackTitle">{{ $unit['no_economic'] }}</td>
+          <td colspan="1" class="blackTitle">>>>SIN DATO</td>
+          <td colspan="1" class="blackTitle">{{ $trip->origin->name }}</td>
+          <td colspan="1" class="blackTitle">{{$trip->destination->street.' '.$trip->destination->suburb.', '.$trip->destination->city.', '.$trip->destination->state.', '.$trip->destination->cp}}</td>
         </tr>
       </table>
       <div class="desc">Favor de cerciorarse estar completamente lleno este formato antes de la carga.</div>
@@ -306,11 +272,11 @@
       <div class="desc"><b>SEGUNDA.</b> El remitente deberá revisar bajo su responsabilidad la documentación personal del conductor y del vehículo.</div><br>
       <table class="columnTable-50">        
         <tr>
-          <td colspan="1" style="text-align: center;">
-            <div>FECHA Y HORA                         06/07/2023 </div>
-            <div><br><br><br><br><br><br><br><br><br></div>
+          <td colspan="1" style="text-align: center;"><br>
+            <div>FECHA Y FIRMA . . . . . . . . . . . . . . . . . . . . . . . . {{ $hoy }}</div>
+            <div><br><br><br><br><br><br><br><br></div>
             <div>__________________________________________</div>
-            <div>ING. ELÍAS JARETH ROCHA JIMÉNEZ</div>
+            <div>ING. ELÍAS JARETH ROCHA JIMÉNEZ</div><br>
           </td>
         </tr>
         <tr><th colspan="1">COORDINADOR DE LOGÍSTICA</th></tr>
@@ -337,7 +303,10 @@
       <table>
         <tr><th colspan="1">OBSERVACIONES / Observations:</th></tr>
         <tr><td colspan="1">
-          <br><br><br><br><br><br><br><br><br>
+          <br><br><br>
+          <div class="observ">
+            {{$trip->detaills}}
+          </div><br><br><br><br>
         </td></tr>
       </table>
     </main>

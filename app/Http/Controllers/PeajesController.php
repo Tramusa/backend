@@ -38,7 +38,7 @@ class PeajesController extends Controller
     public function addPeaje(Request $request)
     {
         // Validar que la caseta id no se repita en el mismo id de ruta
-        $validatedData = $request->validate([
+        $request->validate([
             'caseta_id' => 'unique:peajes__rutas,caseta_id,0,id,ruta_id,' . $request->input('ruta_id'),
         ]);
 

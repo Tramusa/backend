@@ -42,7 +42,7 @@ class CustomersController extends Controller
     public function addceco(Request $request)
     {
         // Validar campo único antes de crear el CECO
-        $validatedData = $request->validate([
+        $request->validate([
             'description' => 'unique:c_e_c_os,description',
         ]);
         $ceco = new CECOs($request->all());

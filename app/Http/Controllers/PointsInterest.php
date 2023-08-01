@@ -35,7 +35,7 @@ class PointsInterest extends Controller
             //SELECCIONAMOS LA RUTA SI LO ENCUENTRA, LE AGREGAMOS EL ID A LOS PEAJES
             $ruta = DB::table('rutas')->where('origin', $request->origin)->where('destination', $request->destination)->first();
             if ($ruta) {
-                $peajes = DB::table('peajes__rutas')->where('ruta_id', null)->get();
+                $peajes = DB::table('peajes__rutas')->where('ruta_id', 0)->get();
                 foreach ($peajes as $peaje) {
                     //Agregar ID
                     Peajes_Ruta::find($peaje->id)->update(['ruta_id'=> $ruta->id]);

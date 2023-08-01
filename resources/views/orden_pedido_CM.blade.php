@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>PDF PEDIDO CM</title>
+    <title>PDF Pedido CM</title>
     <style>
       .clearfix:after {
         content: "";
@@ -12,31 +12,34 @@
 
       header {
         padding: 10px 0px;
-        display: flex;
       }
 
       .column-1 {
-        flex: 3;
+        width: 20%;
+        float: left;
         text-align: center;
         border: 2.5px solid #D1D1D1;
       }
 
       .column-2 {
-        flex: 9;      
+        width: 80%;
+        float: left;
         border: 2.5px solid #D1D1D1;
       }
 
-      .row2 {
-        display: flex;
+      .row{
+        display: table;
+        width: 100%;
       }
 
       .column-2-1 {
-        flex: 9;
-        text-align: center;
+        width: 15%;
+        float: left; 
       }
 
       .column-2-2 {
-        flex: 2;      
+        width: 15%;
+        float: left;
         border: 1px solid #000;
       }
 
@@ -47,85 +50,42 @@
 
       body {
         position: relative;
-        width: 21cm;  
+        width: 19cm;  
         height: 29.7cm; 
         margin: 0 auto; 
         color: #001028;
         background: #FFFFFF; 
-        font-family: Arial, sans-serif; 
-        font-size: 12px; 
-        font-family: Arial;
-      }
-
-      /* Estilos para la imagen de perfil */
-      #perfil {
-        text-align: left;
-        display: inline-block;
-        border: 2px solid #F26726;
-        border-radius: 15%; /* Añade un borde redondeado */
-        overflow: hidden; /* Oculta las esquinas sobrantes de la imagen */
-        padding: 3px; /* Agrega un pequeño espacio alrededor de la imagen de perfil */
-    
-      }
-
-      #perfil img {
-        width: 80px; /* Ajusta el tamaño de la imagen según lo que desees */
-        vertical-align: top;
-      }
-
-      /* Estilos para la imagen de logo */
-      #logoID {
-        text-align: right;
-        display: inline-block;
-        margin-top: 20px;
-        padding-left: 5px;
-        vertical-align: top;
-      }
-
-      #logoID img {
-        width: 75px; /* Ajusta el tamaño de la imagen según lo que desees */        
+        font-size: 11px; 
+        font-family: "Arial Narrow", Arial, sans-serif;
       }
 
       #logo {
         flex: 3;
-        text-align: left;
+        text-align: left;       
       }     
 
-      #logo img {
+      .logoImg{
         width: 100%;
-      }
-
-      h6 {
-        border-top: 2.5px solid  #5D6975;
-        border-bottom: 2.5px solid  #5D6975;
-        color: #5D6975;
-        font-size: 2.4em;
-        line-height: 1.4em;
-        font-weight: normal;
-        text-align: center;
-        margin: 0 0 20px 0;
-        background: url(dimension.png);
+        margin: 10px 0 10px 0;
       }
 
       h1 {
         font-family: "Arial Narrow", Arial, sans-serif;
-        border-top: 2.5px solid  #D1D1D1;
-        border-bottom: 2.5px solid  #D1D1D1;
-        border-right: 2.5px solid  #D1D1D1;
-        border-left: 2.5px solid  #D1D1D1;
+        border: 2.5px solid  #D1D1D1;
         color: #FFFFFF;
         font-size: 1.2em;
         line-height: 1.4em;
         font-weight: bold;
         text-align: center;
-        margin: 0 0 20px 0;
+        margin-top: -8px;
         background: #1E4E79;
+        clear: both;
       }
 
       h2 {
         font-family: "Arial Narrow", Arial, sans-serif;
         color: #FFFFFF;
-        font-size: 0.9em;
+        font-size: 0.8em;
         line-height: 1.4em;
         font-weight: bold;
         text-align: center;
@@ -142,6 +102,15 @@
         margin: 10px 0 10px 0;
       }
 
+      .blackTitle {
+        font-family: "Arial Narrow", Arial, sans-serif;
+        color: #000;
+        font-size: 1.3em;
+        font-weight: bold;
+        text-align: center;
+        padding: 10px 10px 10px 10px;
+      }
+
       .title {
         font-family: "Arial Narrow", Arial, sans-serif;
         color: #000000;
@@ -152,59 +121,28 @@
         margin: 0 0 0 0;
       }
 
-      .names {
-        font-family: "Arial Narrow", Arial, sans-serif;
-        color: #9B9B9B;
-        font-size: 1.2em;
-        line-height: 1.4em;
+      #project {
+        float: left;
         font-weight: bold;
-        text-align: center;
-        margin: 0 0 0 0;
-        padding-top: 5px;
+        color: #000;
         text-decoration: underline; /* Agregar subrayado */
       }
 
-      #project #kardex {
-        float: left;
-        font-family: "Arial Narrow", Arial, sans-serif;
-        padding: 10px;
-        color: #F26726;
-        font-weight: bold;
-      }
-
       #project span {
-        color: #000;
         text-align: right;
+        text-decoration: normal; /* Agregar subrayado */
         width: 220px;
-        margin-right: 10px;
-        display: inline-block;
-        font-size: 0.9em;
-      }
-
-      #involved {
-        float: left;
-        padding: 5px;
-        color: #000;
-        font-size: 0.9em;
-      }
-
-      .izq {
-        text-align: right;
-        width: 140px;
-        margin-right: 10px;
+        margin-right: 20px;
         display: inline-block;
       }
 
-      .izqKadrex {
-        border-radius: 15%; /* Añade un borde redondeado */
-        color: #FFFFFF;
-        overflow: hidden; /* Oculta las esquinas sobrantes de la imagen */
-        text-align: center;
-        width: 45px;
-        margin-right: 10px;
-        display: inline-block;
-        background-color: #F26726;
-      }
+       .blue {
+        color: #0073B5;
+       }
+
+       .red {
+        color: #FF0000;
+       }
 
       #project div {
         white-space: nowrap;      
@@ -217,32 +155,9 @@
         margin-bottom: 10px;
       }
 
-      .columnTable-1 {
-        width: 45%; /* 5/12 */
-      }
-
-      .columnTable-2 {
-        width: 32%; /* 4/12 */
-      }
-
-      .line {
-        border-left: 20px solid #F26726;
-      }
-
-      .columnTable-3 .columnTable-2-1 .columnTable-2-2 .columnTable-2-4 {
-        width: 23%; 
-      }
-
-      .columnTable-2-3 {
-        width: 31%; 
-      }
-
-      .columnTable-3-1 {
+      .columnTable-50 {
         width: 50%; 
-      }
-
-      .columnTable-3-2 .columnTable-3-3{
-        width: 25%; 
+        float: left; /* Agrega esta propiedad para alinear las tablas una al lado de la otra */
       }
 
       table th {
@@ -257,31 +172,11 @@
         background: #1E4E79;
       }
 
-      table .desc {
+      .desc {
         font-family: Arial, sans-serif;
         text-align: left;
         font-size: 1em;
-        padding-left: 10px;
-        line-height: 0.9;
-      }
-
-      table .info {
-        font-family: Arial, sans-serif;
-        text-align: left;
-        font-size: 1em;
-        line-height: 0.9;
-        padding-left: 30px;
-        color: #F26726;
-        font-weight: bold; /* Negrita */
-        text-decoration: underline; /* Subrayado */
-      }
-
-      table .observ {
-        font-family: Arial, sans-serif;
-        text-align: center;
-        padding: 10px;
-        color: #F26726;
-        font-weight: bold; /* Negrita */
+        padding-left: 40px;
       }
 
       table td {
@@ -291,137 +186,116 @@
     </style>
   </head>
   <body>
-    <header class="clearfix">
+  <header class="clearfix">
       <div class="column-1">
         <div id="logo">
-          <img src="{{ asset('imgPDF/logo.png') }}">
+          <img class="logoImg" src="{{ $logoImage }}">
         </div>
       </div>
       <div class="column-2">
         <p class="blueTitle">TRAMUSA CARRIER S.A. DE C.V.</p>
-        <p class="title">ORDEN DE PEDIDO CONCENTRADO MINERAL</p>
-        <h2>ÁREA: LOGÍSTICA F-03-33/R2 PERIODICIDAD: CUANDO SE REQUIERA RESGUARDO: 3 AÑOS/ELECTRÓNICO REVISIÓN: AGOSTO 2021</h2>
+        <p class="title">ORDEN DE PEDIDO CONCENTRADO DE MINERAL</p>
+        <h2>ÁREA: LOGÍSTICA F-03-26 FRECUENCIA: CADA PEDIDO RESGUARDO: 3 AÑOS ELECTRÓNICO REVISIÓN: MARZO 2020</h2>
       </div>      
     </header>
     <main>
       <div id="project">
-        <div><span>FECHA:</span> FZN 4401</div>
-        <div><span>ESTACION:</span> Autobús</div>
+        <div><span>FECHA:</span><a class="blue">viernes, 7 de julio de 2023</a></div>
+        <div><span>LUGAR DE CARGA:</span><a class="blue">MINA LA COLORADA</a></div>
+      </div><br><br><br>
+      <h1>GENERALES</h1> 
+      <div id="project">
+        <div><span>MEDIO DE SOLICITUD:</span><a class="blue">MINA LA COLORADA</a></div>
+        <div><span>NOMBRE O RAZÓN SOCIAL:</span>PLATA PANAMERICANA, S.A. DE C.V.</div>
+        <div><span>CIUDAD:</span><a class="blue">MINA LA COLORADA</a></div>
+        <div><span>CONTACTO:</span><a class="blue">MINA LA COLORADA</a></div>
+        <div><span>E-MAIL:</span><a class="blue">homero.adamecruz@mx.panamericansilver.com</a></div>
       </div>
-      <h1>GENERALES</h1>
-      <div class="row2">
+      <div class="row">
         <div class="column-2-1"><br></div>
         <table class="column-2-2">
-          <tr><th>Orden de Viaje / Trip number</th></tr>
-          <tr><td class="blueTitle">P 5983</td></tr>
+          <tr><th>N° DE ORDEN</th></tr>
+          <tr><td class="blueTitle">MPA 198</td></tr>
+          <tr><td class="blueTitle">ORDINARIO</td></tr>
         </table>
       </div>
+
+      <h1>TERMINALES DE DESCARGA:</h1> 
+      <div id="project">
+        <div><span>1) NOMBRE DE TERMINAL DESTINO:</span>IMPALA TERMINALS MEXICO, S.A. DE C.V</div>
+        <div><span>DOMICILIO DE ENTREGA:</span><a class="blue">Carr. Manzanillo-Minatitlán KM 1.5 Col. Tepeixtles Manzanillo, Col. C.P. 28239</a></div>
+        <div><span>2) NOMBRE DE TERMINAL DESTINO:</span>IMPALA TERMINALS MEXICO, S.A. DE C.V</div>
+        <div><span>DOMICILIO DE ENTREGA:</span><a class="blue">Carr. Manzanillo-Minatitlán KM 1.5 Col. Tepeixtles Manzanillo, Col. C.P. 28239</a></div>
+        <div><span>3) NOMBRE DE TERMINAL DESTINO:</span>IMPALA TERMINALS MEXICO, S.A. DE C.V</div>
+        <div><span>DOMICILIO DE ENTREGA:</span><a class="blue">Carr. Manzanillo-Minatitlán KM 1.5 Col. Tepeixtles Manzanillo, Col. C.P. 28239</a></div>
+        <div><span>4) NOMBRE DE TERMINAL DESTINO: </span>IMPALA TERMINALS MEXICO, S.A. DE C.V</div>
+        <div><span>DOMICILIO DE ENTREGA:</span><a class="blue">Carr. Manzanillo-Minatitlán KM 1.5 Col. Tepeixtles Manzanillo, Col. C.P. 28239</a></div>
+        <div><span>5) NOMBRE DE TERMINAL DESTINO: </span>IMPALA TERMINALS MEXICO, S.A. DE C.V</div>
+        <div><span>DOMICILIO DE ENTREGA:</span><a class="blue">Carr. Federal Libre Manzanillo-Minatitlan KM 4.5 Col. Tepeixtles Manzanillo, Col. C.P. 28239</a></div>
+        <div><span>NO. DE EQUIPO:</span>FZN4102</div>
+        <div><span>PLACAS TRACTOR:</span><a class="blue">65AR3V</a></div>
+        <div><span>MARCA:</span><a class="blue">KENWORTH</a></div>
+        <div><span>AÑO:</span><a class="blue">2020</a></div>
+        <div><span>PLACAS REMOLQUE 1: </span><a class="blue">17UF8K</a></div>
+        <div><span>MARCA:</span><a class="blue">FRUEHAUF</a></div>
+        <div><span>AÑO:</span><a class="blue">2020</a></div>
+        <div><span>PLACAS REMOLQUE 2:</span><a class="blue">N / A</a></div>
+        <div><span>VOLUMEN DE CARGA:</span><a class="blue">36 TON</a></div>
+        <div><span>PRODUCTO/MATERIAL:</span>CONCENTRADO DE MINERAL</div>
+        <div><span>OPERADOR UNIDAD TRANSPORTE: </span><a class="blue">SERGIO SIMENTAL GARCÍA</a></div>
+        <div><span>RFC OPERADOR:</span><a class="blue">SIGS841221GL1</a></div>
+      </div><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+      
       <table>
         <tr>
-          <td class="columnTable-2-1 " colspan="1"><br>
-            <div class="desc">Lugar de origen / Place of origen: </div>
-            <div class="info">Saltillo (Plaza Sendero Sur)</div><br><br>
-            <div class="desc">Dirección de punto de reunión en origen / Adress of meeting point:</div>
-            <div class="info">Blvd. Antonio Cárdenas 4159, Parques de la Cañada, 25080 Saltillo, Coah.</div><br>
-          </td>
-          <td class="columnTable-2-1" colspan="1"><br>
-            <div class="desc">Paradas intermedias / Intermediate stops:  </div>
-            <div class="info">N/A</div><br><br>
-            <div class="desc">Dirección de punto de reunión intermedio/ Adress of intermediate meeting point:</div>
-            <div class="info">N/A</div><br>
-          </td>
-          <td class="columnTable-2-3" colspan="1"><br>
-            <div class="desc">Paradores autorizados / Authorized stops:</div>
-            <div class="info">N/A</div><br><br>
-            <div class="desc">Dirección de paradores autorizados / Adress of Authorized stops: </div>
-            <div class="info">N/A</div><br>
-          </td>
-          <td class="columnTable-2-4" colspan="1"><br>
-            <div class="desc">Lugar de destino / Place of destiny:   </div>
-            <div class="info">Minera Peñasquito</div><br><br>
-            <div class="desc">Dirección de destino / Destiny adress: </div>
-            <div class="info">Domicilio Conocido, Mazapil, Zac. C.P. 98230</div><br>
-          </td>
+          <th colspan="1">PRODUCTO</th>
+          <th colspan="1">EQUIPO </th>
+          <th colspan="1">VOL DE CARGA</th>
+          <th colspan="1">LUGAR DE DESCARGA </th>
+          <th colspan="1">DIRECCIÓN DE DESCARGA </th>
+        </tr>
+        <tr>
+          <td colspan="1" class="blackTitle">CONCENTRADO DE MINERAL</td>
+          <td colspan="1" class="blackTitle">FZN4102</td>
+          <td colspan="1" class="blackTitle">44 TON</td>
+          <td colspan="1" class="blackTitle">IMPALA TERMINALS MEXICO, S.A. DE C.V.</td>
+          <td colspan="1" class="blackTitle">Carr. Manzanillo-Minatitlán KM 1.5 Col. Tepeixtles Manzanillo, Col. C.P. 28239</td>
         </tr>
       </table>
-      <table>
+      <div class="desc">Favor de cerciorarse estar completamente lleno este formato antes de la carga.</div>
+      <div class="desc"><b>Notas:</b></div>
+      <div class="desc"><b>PRIMERA.</b> Este formato queda sin valor si presenta tachaduras o enmendaduras.</div>
+      <div class="desc"><b>SEGUNDA.</b> El remitente deberá revisar bajo su responsabilidad la documentación personal del conductor y del vehículo.</div>
+      <div class="desc"><b>TERCERA.</b> La Terminal de descarga de mercancías, se asigna a decisión del cliente con posibles cambios a petición del mismo.</div><br>
+      <table class="columnTable-50">        
         <tr>
-          <th colspan="3">INFORMACIÓN DE LA UNIDAD DE TRANSPORTE / Transport unit information</th>
-        </tr>
-        <tr>
-          <td class="columnTable-3-1 " colspan="1">
-            <div id="project">
-              <div><span>No. Economico / Vehicle ID:</span> FZN 4401</div>
-              <div><span>Tipo de unidad / Vehicle type:</span> Autobús</div>
-              <div><span>Matrícula / License plate:</span>17-RC-1A</div>
-              <div><span>Marca / Vehicle brand: </span> Mercedes Benz</div>
-              <div><span>Modelo / Year:</span> 2015</div>
-              <div><span>Color / Color:</span> Blanco</div>
-              <div><span>Capacidad de pasajeros / Passenger capacity: </span> 39 Pasajeros</div>
-            </div>
+          <td colspan="1" style="text-align: center;"><br>
+            <div>FECHA Y FIRMA . . . . . . . . . . . . . . . . . . . . . . . . 06/07/2023 </div>
+            <div><br><br><br><br><br><br><br></div>
+            <div>__________________________________________</div>
+            <div>ING. ELÍAS JARETH ROCHA JIMÉNEZ</div><br>
           </td>
-          <td class="columnTable-3-2" colspan="1"></td>
-          <td class="columnTable-3-3" colspan="1"></td>
         </tr>
+        <tr><th colspan="1">COORDINADOR DE LOGÍSTICA</th></tr>
       </table>
-      <table>
+      <table class="columnTable-50">        
         <tr>
-          <th colspan="1">NOMBRE DE QUIÉN SOLICITA EL SERVICIO / Applicant's services name</th>
-          <th colspan="1">COORDINADOR DE LOGÍSTICA / Logistic cordinator</th>
+          <th colspan="1">DOCUMENTO</th>  
+          <th colspan="1">CUMPLE</th>  
+          <th colspan="1">  N / A  </th>
         </tr>
         <tr>
-          <td colspan="1">
-            <div class="names">Luis Antonio Enriquez F. </div>
-            <div id="involved">
-              <div><span class="izq">Área / Area:</span> Supervisor Transporte Personal</div>
-              <div><span class="izq">Logística / Monitoreo</span> 433-103-8319</div>
-              <div><span class="izq">Correo electrónico / E-mail:</span> <a href="mailto:luis.enriquez@Newmont.com">luis.enriquez@Newmont.com</a></div>
-              <div><span class="izq">Orden de Compra / CECO:</span> 465465468</div>
-            </div>
+          <td style="text-align: right;"><br>
+            <b><div>Carta porte</div> <br>
+            <div>Bitácora de conducción</div> <br>
+            <div>Reglas de oro</div> <br>
+            <div>Tarjeta de 5 puntos</div> </b><br>
           </td>
-          <td colspan="1">
-            <div class="names">Jose Yair Ceceñas Grijalva </div>
-            <div id="involved">
-              <div><span class="izq">Área / Area:</span> Supervisor Transporte Personal</div>
-              <div><span class="izq">Logística / Monitoreo</span> 433-103-8319</div>
-              <div><span class="izq">Correo electrónico / E-mail:</span> <a href="mailto:monitoreo.personal@tramusacarrier.com.mx">monitoreo.personal@tramusacarrier.com.mx</a></div>
-            </div>
-          </td>
-        </tr>
-      </table>
-      <table>
-        <tr>
-          <th colspan="1">MONITOR / Travel monitor</th>
-          <th colspan="1">SUPERVISOR DE SEGURIDAD / Security supervisor</th>
-        </tr>
-        <tr>
-          <td colspan="1">
-            <div class="names">Juan Manuel Mireles Ríos</div>
-            <div id="involved">
-              <div><span class="izq">Área / Area:</span> Logística / Monitoreo</div>
-              <div><span class="izq">Logística / Monitoreo</span> 433-103-8319</div>
-              <div><span class="izq">Correo electrónico / E-mail:</span> <a href="mailto:monitoreo.personal@tramusacarrier.com.mx">monitoreo.personal@tramusacarrier.com.mx</a></div>
-            </div>
-          </td>
-          <td colspan="1">
-            <div class="names">Vanessa Solís Amador</div>
-            <div id="involved">
-              <div><span class="izq">Área / Area:</span> Logística / Monitoreo</div>
-              <div><span class="izq">Logística / Monitoreo</span> 433-103-8319</div>
-              <div><span class="izq">Correo electrónico / E-mail:</span> <a href="mailto:monitoreo.personal@tramusacarrier.com.mx">monitoreo.personal@tramusacarrier.com.mx</a></div>
-            </div>
-          </td>
-        </tr>
-      </table>
-      <table>
-        <tr><th colspan="1">OBSERVACIONES / Observations:</th></tr>
-        <tr><td colspan="1">
-          <div class="observ">
-            Velocidad Máxima Permitida.<br>
-            95 km/h en tramos carreteros permitidos.
-          </div>
-        </td></tr>
-      </table>
+          <td colspan="2"></td>
+        </tr>        
+      </table>      
+      <div class="title">SEGUIMIENTO A QUEJAS Y/O SUGERENCIAS</div>
+      <div class="title red">calidad@tramusacarrier.com.mx</div>
     </main>
   </body>
 </html>

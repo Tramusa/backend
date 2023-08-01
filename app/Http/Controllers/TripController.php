@@ -19,6 +19,7 @@ use App\Models\Trips;
 use App\Models\Units_Trips;
 use App\Models\Utilitarios;
 use App\Models\Volteos;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Dompdf\Dompdf;
@@ -492,6 +493,154 @@ class TripController extends Controller
 
         // Devolver el contenido del PDF
         return response($pdfContent, 200)->header('Content-Type', 'application/pdf');
+    }
+
+    public function generarPDF($trip)
+    {
+        $tripData = Trips::find($trip);//PRIMERO SACAMOS LA INFO DEL VIAJE
+        $customer = Customers::where('id', $tripData->customer)->first();// 2DO SACAMOS LA INFO DEL CLIENTE PAR SABER QUE TIPO DE DOC SE HARA(PERFIJO)
+        // Create a Carbon instance from the combined date and time string
+        $dateTime = Carbon::createFromFormat('Y-m-d H:i', $tripData->date.' '.$tripData->hour)->locale('es');
+        // Add the formatted date and time to the $tripData object
+        $tripData->date = $dateTime->isoFormat('dddd, DD [de] MMMM [de] YYYY');// Format the date to "dddd, DD [de] MMMM [de] YYYY"
+        $tripData->hour = $dateTime->format('H:i:s');// Format the time to "HH:mm.ss"
+
+        $origin = ModelsPointsInterest::where('id', $tripData->origin)->first();
+        $destination = ModelsPointsInterest::where('id', $tripData->destination)->first();
+        
+        if ($origin) {   $tripData->origin = $origin;   }
+        if ($destination) {   $tripData->destination = $destination;   }
+
+        $logoImagePath = public_path('imgPDF/logo.png');
+        $logoImage = $this->getImageBase64($logoImagePath);// Convertir las imágenes a base64
+
+        // COMPARAMOS SEGUN EL PREFIJO DEL CLIENTE QUE INFO SACAR Y QUE ARCHIVO MANDAR LLAMAR
+        if ($customer->prefijo == 'TP') {           
+            $operatorData = DB::table('users') // Tabla 'users'
+                        ->join('others', 'users.id', '=', 'others.user_id') // Unir con tabla 'others'
+                        ->join('addresses', 'users.id', '=', 'addresses.user_id') // Unir con tabla 'addresses'
+                        ->where('users.id', $tripData->operator) // Filtrar por el ID del operador
+                        ->first(); // Obtener el primer resultado                        
+            $UTs = Units_Trips::where('trip', $trip)->get();
+            if ($UTs) {
+                $tablas = ['','tractocamiones','remolques','dollys','volteos','toneles','tortons','autobuses','sprinters','utilitarios','maquinarias'];
+                foreach ($UTs as $item) {
+                    $unit = DB::table($tablas[$item->type_unit])->where('id', $item->unit)->first();
+                    if ($unit) {   $item->unitInfo = $unit;   }// Agregar la información de la unidad a cada elemento de $item
+                }
+            }
+
+            $ceco = CECOs::where('id', $tripData->ceco)->first();
+            $ruta = Rutas::where('origin', $tripData->origin->id)->where('destination', $tripData->destination->id)->first();
+
+            $horas = floor($ruta->time / 60);
+            $minutos = $ruta->time % 60;
+            // Convertir minutos a horas y minutos usando Carbon
+            $time = Carbon::createFromTime($horas, $minutos, 0);
+            $ruta->time = $time->format('H:i:s');            
+            $sum = $dateTime->add($time->hour, 'hour')->add($time->minute, 'minute');// Sumar las horas
+            
+            if ($sum->hour >= 24) {    // Verificar si pasa al día siguiente            
+                $sum->sub(24, 'hour');// Si la suma de horas supera 24, ajustar al día siguiente
+            }
+
+            // Obtener la suma final en formato 'H:i:s'
+            $tripData->end_date = $sum->format('H:i:s');
+            
+            // Obtener la ruta de la imágen
+            $perfilImagePath = public_path(str_replace("public", 'storage', $operatorData->avatar));
+            $perfilImage = $this->getImageBase64($perfilImagePath);// Convertir las imágenes a base64
+
+            // Cargar la vista y pasar todos los datos necesarios
+            $data = [
+                'trip' => $tripData,
+                'perfilImage' => $perfilImage, 
+                'logoImage' => $logoImage,
+                'operator' => $operatorData,
+                'ruta' => $ruta,
+                'units' => $UTs,
+                'ceco' => $ceco,
+            ];
+
+            $html = view('orden_viaje', $data)->render();
+        }        
+
+        if ($customer->prefijo == 'TC') {
+            $operatorData = DB::table('users') // Tabla 'users'
+                        ->join('others', 'users.id', '=', 'others.user_id') // Unir con tabla 'others'
+                        ->where('users.id', $tripData->operator) // Filtrar por el ID del operador
+                        ->first(); // Obtener el primer resultado
+
+
+            $UTs = Units_Trips::where('trip', $trip)->get();
+            if ($UTs) {
+                $tablas = ['', 'tractocamiones', 'remolques', 'dollys', 'volteos', 'toneles', 'tortons', 'autobuses', 'sprinters', 'utilitarios', 'maquinarias'];
+                $infoUnits = []; // Array para acumular la información de la unidad
+                foreach ($UTs as $item) {
+                    $unit = DB::table($tablas[$item->type_unit])->where('id', $item->unit)->first();
+                    if ($unit) {
+                        // Agregar la información de la unidad al array $infoUnits
+                        if ($item->type_unit === 1) {
+                            $infoUnits['no_economic'] = $unit->no_economic;
+                            $infoUnits['placaTracto'] = $unit->no_placas;
+                        } elseif ($item->type_unit === 5) {
+                            if (isset($infoUnits['placaT1'])) {
+                                $infoUnits['placaT2'] = $unit->no_placas;
+                            }else{
+                                $infoUnits['placaT1'] = $unit->no_placas;
+                            }                                                        
+                        }
+                    }
+                }                
+                if (!isset($infoUnits['placaT2'])) {// Comprobar si hay placaT2 y asignar 'N/A' si no existe
+                    $infoUnits['placaT2'] = 'N/A';
+                } 
+                if (!isset($infoUnits['placaT1'])) {// Comprobar si hay placaT2 y asignar 'N/A' si no existe
+                    $infoUnits['placaT1'] = 'N/A';
+                }                
+            }
+            $currentDate = date('d/m/Y');
+            // Cargar la vista y pasar todos los datos necesarios
+            $data = [
+                'trip' => $tripData,
+                'logoImage' => $logoImage,
+                'customer' => $customer,
+                'operator' => $operatorData,
+                'unit' => $infoUnits,
+                'hoy' => $currentDate,
+            ];
+
+            $html = view('orden_pedido', $data)->render();
+        }
+
+        if ($customer->prefijo == 'TM') {
+            // Cargar la vista y pasar todos los datos necesarios
+            $data = [
+                'trip' => $tripData,
+                'logoImage' => $logoImage,
+                'customer' => $customer,
+            ];
+
+            $html = view('orden_pedido_CM', $data)->render();
+        }
+
+        $dompdf = new Dompdf();
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+        
+        $pdfContent = $dompdf->output();
+        Storage::disk('public')->put('trips/Orden_Viaje N°' . $trip . '.pdf', $pdfContent);
+
+        return response($pdfContent, 200)->header('Content-Type', 'application/pdf');// Devolver el contenido del PDF
+    }
+
+    private function getImageBase64($imagePath)
+    {
+        $file = file_get_contents($imagePath);
+        $base64 = base64_encode($file);
+
+        return 'data:image/png;base64,' . $base64;
     }
 
     public function deleteUnit($id)
