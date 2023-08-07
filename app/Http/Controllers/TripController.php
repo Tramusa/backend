@@ -23,6 +23,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Dompdf\Dompdf;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class TripController extends Controller
@@ -672,10 +673,10 @@ class TripController extends Controller
         //CAMBIAMOS EL ESTATUS DE LAS UNIDADES INVOLUCRADAS EN EL TRIP ['status'] = 'inspection'
         $units = DB::table('units__trips')->where('trip', $trip)->get();
         $data['status'] = 'inspection';
+        //TAMBIEN GENERAMOS UNA INSPECCION FISICOMECANICA POR CADA UNIDAD INVOLUCRADA
+        $trip =Trips::find($trip);
         foreach ($units as $item) {
-            $id = $item->unit;
-            //TAMBIEN GENERAMOS UNA INSPECCION FISICOMECANICA POR CADA UNIDAD INVOLUCRADA
-            $trip =Trips::find($trip);
+            $id = $item->unit;           
             $data_inspection['responsible'] = $trip->operator;
             $data_inspection['type'] = $item->type_unit;
             $data_inspection['unit'] = $id;
@@ -718,6 +719,8 @@ class TripController extends Controller
                     break;
             }
         }        
-        return response()->json(['message' => 'Viaje terminado exitosamente.']);
+        $user = Auth::user();
+        $inspections = DB::table('inspections')->where('status', 1)->where('responsible', $user->id)->get();
+        return response()->json(['message' => 'Viaje terminado exitosamente.', 'total' => count($inspections)]);
     }
 }
