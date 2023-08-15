@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('city');
             $table->string('state');
             $table->string('cp');
+            $table->string('siic');
+            $table->string('no_season');
             $table->timestamps();
         });
     }
