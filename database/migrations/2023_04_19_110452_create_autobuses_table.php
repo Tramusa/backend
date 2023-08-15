@@ -6,11 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         Schema::create('autobuses', function (Blueprint $table) {
@@ -24,17 +19,13 @@ return new class extends Migration
             $table->string('circulation_card');
             $table->date('expiration_circulation');
             $table->integer('ejes');
+            $table->integer('no_passengers');
             $table->integer('user');
             $table->string('status')->default('available');
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::dropIfExists('autobuses');
