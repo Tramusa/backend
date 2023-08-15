@@ -36,6 +36,55 @@ class AuthController extends Controller
         return $user;
     }
 
+    public function proceedings($id)
+    {
+        $user = User::find($id);
+        $address = Addresses::where('user_id', $id)->first();
+        $other = Others::where('user_id', $id)->first();
+        $beneficiary = Beneficiarie::where('user_id', $id)->first();
+        $contacts = Contacts::where('user_id', $id)->get();
+    
+        return response()->json([
+            'user' => $user,
+            'address' => $address,
+            'other' => $other,
+            'beneficiary' => $beneficiary,
+            'contacts' => $contacts
+        ], 201);
+    }
+
+    public function proceedingsUp(Request $request)
+    {
+        //Logger($request->user['id']);
+        $id = $request->user['id'];
+        $response = $this->proceedings($id); // Obtener la respuesta JSON completa
+        $data = $response->getData(); // Extraer el contenido JSON
+
+        if ($data->user) {
+            User::find($id)->update($request->user);//Actualizar el usuario
+        }
+
+        if ($data->address) {
+            Addresses::where('user_id', $id)->first()->update($request->address);//Actualizar la dirección
+        } else {           
+            Addresses::create(array_merge(['user_id' => $id], $request->address)); //Crear una nueva dirección
+        }
+
+        if ($data->other) {
+            Others::where('user_id', $id)->first()->update($request->other);// Actualizar other
+        } else {            
+            Others::create(array_merge(['user_id' => $id], $request->other));// Crear un nuevo "other" 
+        }
+
+        if ($data->beneficiary) {
+            Beneficiarie::where('user_id', $id)->first()->update($request->beneficiary);// Actualizar beneficiary
+        } else {
+            Beneficiarie::create(array_merge(['user_id' => $id], $request->beneficiary));// Crear nuevo Beneficiarie
+        }
+
+        return response()->json(['message' => 'Usuario actualizado con éxito!'], 201);
+    }
+
     public function update(Request $request)
     {   
         #Logger($request);
@@ -44,7 +93,7 @@ class AuthController extends Controller
         $user->update($data); 
 
         $request->validate([
-            'avatar' => 'required|image|max:5000', // 5MB Asegúrate de que se haya cargado una imagen y que sea de un tipo válido.
+            'avatar' => 'required|image|max:3000', // 3MB Asegúrate de que se haya cargado una imagen y que sea de un tipo válido.
         ]);
 
         if ($request->file('avatar')){

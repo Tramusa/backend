@@ -20,6 +20,11 @@ return new class extends Migration
             $table->string('scholarship');
             $table->string('title');
             $table->string('ine');
+            $table->string('license')->nullable();
+            $table->string('type_license')->nullable();
+            $table->string('expiration_license')->nullable();
+            $table->string('expiration_psychophysical')->nullable();
+            $table->string('expiration_general')->nullable();
             $table->string('rfc');
             $table->string('curp');
             $table->string('socia_health');
