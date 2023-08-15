@@ -7,6 +7,8 @@ use App\Models\PointsInterest as ModelsPointsInterest;
 use App\Models\Rutas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Facades\Image;
 
 class PointsInterest extends Controller
 {
@@ -29,8 +31,20 @@ class PointsInterest extends Controller
         if ($existingRuta) {
             return response()->json(['message' => 'La ruta ya existe'], 422);
         }else{
-            $ruta = new Rutas($request->all());
+            $request->validate(['image' => 'image|max:3000',]); // 3MB Asegúrate de que se haya cargado una imagen y que sea de un tipo válido.
+            
+            $data = $request->only(['origin', 'p_intermediate', 'p_authorized', 'destination', 'km', 'time', 'observation']);
+        
+            $ruta = new Rutas($data);
             $ruta->save();
+            
+            if ($request->file('image')){            
+                $path = $request->file('image')->store('public/rutas');        
+                $ruta->image = $path;
+                $ruta->save();
+                $imagen_rectangular = Image::make($request->file('image'))->fit(250, 380);
+                $imagen_rectangular->save(public_path(Storage::url($path)));
+            }  
             
             //SELECCIONAMOS LA RUTA SI LO ENCUENTRA, LE AGREGAMOS EL ID A LOS PEAJES
             $ruta = DB::table('rutas')->where('origin', $request->origin)->where('destination', $request->destination)->first();
@@ -53,10 +67,11 @@ class PointsInterest extends Controller
             $destination = $ruta->destination;
             
             $orig = DB::table('points_interests')->where('id', $origin)->first();
-            $ruta->origin = $orig->street.' '.$orig->suburb.', '.$orig->city.', '.$orig->state;
+            $ruta->origin = $orig->name;          
         
             $des = DB::table('points_interests')->where('id', $destination)->first();
-            $ruta->destination = $des->street.' '.$des->suburb.', '.$des->city.', '.$des->state;
+            $ruta->destination = $des->name;
+           
         }
         return response()->json($rutas);
     }
@@ -66,6 +81,7 @@ class PointsInterest extends Controller
         $ruta = Rutas::find($id); 
         $origin = $ruta->origin;
         $destination = $ruta->destination;
+        $image = $ruta->image;
             
         $orig = DB::table('points_interests')->where('id', $origin)->first();
         $ruta->origin_name = $orig->name;
@@ -73,18 +89,35 @@ class PointsInterest extends Controller
         $des = DB::table('points_interests')->where('id', $destination)->first();
         $ruta->destination_name = $des->name;
 
+        if ($image) {
+            $ruta->image = asset(Storage::url($image));
+        }
+
         return response()->json($ruta);
     }
 
     
     public function updateRuta(Request $request)
     {
-        $requestData = $request->all(); // Obtén todos los datos del objeto $request como un arreglo asociativo
-        unset($requestData['origin_name']); // Elimina 'inspection' del objeto $request
-        unset($requestData['destination_name']); // Elimina 'inspection' del objeto $request
-        
-        Rutas::find($request->id)->update($requestData); 
+        $request->validate(['image' => 'image|max:3000']); // Asegúrate de que se haya cargado una imagen y que sea de un tipo válido.
+
+        $data = $request->only(['origin', 'destination', 'km', 'time', 'observation']);
+
+        $ruta = Rutas::find($request->id);
+        $ruta->update($data);
+
+        if ($request->file('image')) {
+            if ($ruta->image) { Storage::delete($ruta->image); }
+
+            $path = $request->file('image')->store('public/rutas');
+            $ruta->image = $path;
+            $ruta->save();
+
+            $imagen_rectangular = Image::make($request->file('image'))->fit(250, 380);
+            $imagen_rectangular->save(public_path(Storage::url($path)));
+        }
     }
+    
     public function destroyRuta($id)
     {
         Rutas::find($id)->delete();

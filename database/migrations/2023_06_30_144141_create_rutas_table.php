@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('km');
             $table->string('time');
             $table->string('observation');
+            $table->string('image')->nullable();
             $table->timestamps();
         });
     }
