@@ -14,9 +14,12 @@ return new class extends Migration
             $table->string('ceco')->nullable();
             $table->string('name')->nullable();
             $table->string('mail')->nullable();
+            $table->string('application_medium')->nullable();
             $table->string('phone')->nullable();
             $table->string('position')->nullable();            
             $table->string('origin')->nullable();
+            $table->integer('p_intermediate')->nullable();
+            $table->integer('p_authorized')->nullable();
             $table->string('destination')->nullable();
             $table->string('date')->nullable();
             $table->string('hour')->nullable();
