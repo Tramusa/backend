@@ -10,6 +10,7 @@ return new class extends Migration
     {
         Schema::create('points_interests', function (Blueprint $table) {
             $table->id();
+            $table->string('group');
             $table->string('name');
             $table->string('street');
             $table->string('suburb');

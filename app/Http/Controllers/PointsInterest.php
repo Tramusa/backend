@@ -42,7 +42,7 @@ class PointsInterest extends Controller
                 $path = $request->file('image')->store('public/rutas');        
                 $ruta->image = $path;
                 $ruta->save();
-                $imagen_rectangular = Image::make($request->file('image'))->fit(250, 380);
+                $imagen_rectangular = Image::make($request->file('image'))->fit(280, 320);
                 $imagen_rectangular->save(public_path(Storage::url($path)));
             }  
             

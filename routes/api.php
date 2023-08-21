@@ -1,5 +1,6 @@
 <?php
-use Illuminate\Http\Request;
+
+use App\Http\Controllers\AddressGroupController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CustomersController;
@@ -114,3 +115,9 @@ Route::middleware('auth:sanctum')->get('/peajes/{id}', [PeajesController::class,
 Route::middleware('auth:sanctum')->delete('/peajeR/{id}/{ruta}', [PeajesController::class, 'destroyRuta']);
 Route::middleware('auth:sanctum')->delete('/peaje/{id}', [PeajesController::class, 'destroy']);
 Route::middleware('auth:sanctum')->get('/generar-pdf', [PeajesController::class, 'generarPDF']);
+
+Route::middleware('auth:sanctum')->get('/groups', [AddressGroupController::class, 'index']);
+Route::middleware('auth:sanctum')->post('/createGroup', [AddressGroupController::class, 'create']);
+Route::middleware('auth:sanctum')->get('/group/{id}', [AddressGroupController::class, 'show']);
+Route::middleware('auth:sanctum')->put('/group/{id}', [AddressGroupController::class, 'update']);
+Route::middleware('auth:sanctum')->delete('/group/{id}', [AddressGroupController::class, 'destroy']);

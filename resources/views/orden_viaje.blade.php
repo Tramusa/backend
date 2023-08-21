@@ -104,8 +104,8 @@
         color: #FFFFFF;
         overflow: hidden; /* Oculta las esquinas sobrantes de la imagen */
         text-align: center;
-        width: 45px;
-        margin-right: 10px;
+        width: 40px;
+        margin-right: 6px;
         display: inline-block;
         background-color: #F26726;
       }
@@ -118,6 +118,17 @@
       .logoImg{
         width: 100%;
         margin: 10px 0 10px 0;
+      }
+
+      #ruta {
+        flex: 3;   
+        text-align: center;      
+      }     
+
+      .rutaImg{
+        width: 100%;
+        height: 25%;
+        margin: 0;
       }
 
       h1 {
@@ -343,7 +354,11 @@
             <div class="desc">Nombre de los pasajeros a transportar / Passangers Name: </div>
             <div class="blueTitle">SE ANEXA LISTA DE PASAJEROS</div>
           </td>
-          <td colspan="1"></td>
+          <td colspan="1">
+            <div id="ruta">
+              <img class="rutaImg" src="{{ $ruta->image }}">
+            </div>          
+          </td>
           <td class="line" colspan="1">
             <div id="perfil">
               <img src="{{ $perfilImage }}">
@@ -356,7 +371,7 @@
               <div><span class="izqKadrex">NSS </span>{{$operator->socia_health}}</div>
               <div><span class="izqKadrex">RFC</span>{{$operator->rfc}}</div>
               <div><span class="izqKadrex">CURP</span>{{$operator->curp}}</div>
-              <div><span class="izqKadrex">LIC</span>>>>SIN DATO</div>
+              <div><span class="izqKadrex">LIC</span>{{$operator->license}}</div>
               <div><span class="izqKadrex">PHONE</span>{{$operator->cell}}</div>
             </div>
           </td>
@@ -364,28 +379,28 @@
       </table>
       <table>
         <tr>
-          <td class="columnTable-2-1 " colspan="1"><br>
-            <div class="desc">Lugar de origen / Place of origen: </div>
-            <div class="info">{{ $trip->origin->name}}</div><br><br>
+          <td class="columnTable-2-1 " colspan="1">
+            <div class="desc">Lugar de origen / Place of origen:</div>
+            <div class="info">{{$trip->origin->name}}</div><br>
             <div class="desc">Dirección de punto de reunión en origen / Adress of meeting point:</div>
             <div class="info">{{$trip->origin->street.' '.$trip->origin->suburb.', '.$trip->origin->city.', '.$trip->origin->state.', '.$trip->origin->cp}}</div><br>
           </td>
-          <td class="columnTable-2-1" colspan="1"><br>
+          <td class="columnTable-2-1" colspan="1">
             <div class="desc">Paradas intermedias / Intermediate stops:  </div>
-            <div class="info">>>>SIN DATO</div><br><br>
+            <div class="info">{{($trip->p_intermediate == 'N/A')? $trip->p_intermediate :$trip->p_intermediate->name}}</div><br>
             <div class="desc">Dirección de punto de reunión intermedio/ Adress of intermediate meeting point:</div>
-            <div class="info">>>>SIN DATO</div><br>
+            <div class="info">{{($trip->p_intermediate == 'N/A')? $trip->p_intermediate :$trip->p_intermediate->street.' '.$trip->p_intermediate->suburb.', '.$trip->p_intermediate->city.', '.$trip->p_intermediate->state.', '.$trip->p_intermediate->cp}}</div><br>
           </td>
-          <td class="columnTable-2-3" colspan="1"><br>
+          <td class="columnTable-2-3" colspan="1">
             <div class="desc">Paradores autorizados / Authorized stops:</div>
-            <div class="info">>>>SIN DATO</div><br><br>
+            <div class="info">{{($trip->p_authorized == 'N/A')? $trip->p_authorized : $trip->p_authorized->name}}</div><br>
             <div class="desc">Dirección de paradores autorizados / Adress of Authorized stops: </div>
-            <div class="info">>>>SIN DATO</div><br>
+            <div class="info">{{($trip->p_authorized == 'N/A')? $trip->p_authorized :$trip->p_authorized->street.' '.$trip->p_authorized->suburb.', '.$trip->p_authorized->city.', '.$trip->p_authorized->state.', '.$trip->p_authorized->cp}}</div><br>
           </td>
-          <td class="columnTable-2-4" colspan="1"><br>
-            <div class="desc">Lugar de destino / Place of destiny:   </div>
-            <div class="info">{{ $trip->destination->name}}</div><br><br>
-            <div class="desc">Dirección de destino / Destiny adress: </div>
+          <td class="columnTable-2-4" colspan="1">
+            <div class="desc">Lugar de destino / Place of destiny:</div>
+            <div class="info">{{$trip->destination->name}}</div><br>
+            <div class="desc">Dirección de destino / Destiny adress:</div>
             <div class="info">{{$trip->destination->street.' '.$trip->destination->suburb.', '.$trip->destination->city.', '.$trip->destination->state.', '.$trip->destination->cp}}</div><br>
           </td>
         </tr>
@@ -404,7 +419,7 @@
                 <div><span>Marca / Vehicle brand: </span>{{ $unit->unitInfo->brand }}</div>
                 <div><span>Modelo / Year:</span>{{ $unit->unitInfo->model }}</div>
                 <div><span>Color / Color:</span>Blanco</div>
-                <div><span>Capacidad de pasajeros / Passenger capacity: </span>>>>SIN DATO</div>
+                <div><span>Capacidad de pasajeros / Passenger capacity: </span>{{ $unit->unitInfo->no_passengers }}</div>
               @endforeach
             </div>
             <div style="clear: both;"></div>            
@@ -423,18 +438,18 @@
             <div class="names">{{$trip->name}}</div>
             <div id="involved">
               <div><span class="izq">Área / Area:</span>{{$trip->position}}</div>
-              <div><span class="izq">Logística / Monitoreo</span>{{$trip->phone}}</div>
-              <div><span class="izq">Correo electrónico / E-mail:</span> <a href="mailto:{{$trip->mail}}">{{$trip->mail}}</a></div>
-              <div><span class="izq">Orden de Compra / CECO:</span>{{$ceco->description}}</div>
+              <div><span class="izq">Tel / Mobile phone:</span>{{$trip->phone}}</div>
+              <div><span class="izq">Correo electrónico / E-mail:</span><a href="mailto:{{$trip->mail}}">{{$trip->mail}}</a></div>
+              <div><span class="izq">Orden de Compra / CECO:</span>{{$ceco?->description}}</div>
             </div>
             <div style="clear: both;"></div>
           </td>
           <td colspan="1">
-            <div class="names">Jose Yair Ceceñas Grijalva </div>
+            <div class="names">{{$coodinador?->name.' '.$coodinador?->a_paterno.' '.$coodinador?->a_materno}}</div>
             <div id="involved">
-              <div><span class="izq">Área / Area:</span> Supervisor Transporte Personal</div>
-              <div><span class="izq">Logística / Monitoreo</span> 433-103-8319</div>
-              <div><span class="izq">Correo electrónico / E-mail:</span> <a href="mailto:monitoreo.personal@tramusacarrier.com.mx">monitoreo.personal@tramusacarrier.com.mx</a></div>
+              <div><span class="izq">Área / Area:</span>{{$coodinador?->rol}}</div>
+              <div><span class="izq">Tel / Mobile phone:</span>433-109-9996</div>
+              <div><span class="izq">Correo electrónico / E-mail:</span><a href="mailto:{{$coodinador?->email}}">{{$coodinador?->email}}</a></div>
             </div>
             <div style="clear: both;"></div>
           </td>
@@ -447,20 +462,20 @@
         </tr>
         <tr>
           <td colspan="1">
-            <div class="names">Juan Manuel Mireles Ríos</div>
+            <div class="names">{{$monitor?->name.' '.$monitor?->a_paterno.' '.$monitor?->a_materno}}</div>
             <div id="involved">
-              <div><span class="izq">Área / Area:</span> Logística / Monitoreo</div>
-              <div><span class="izq">Logística / Monitoreo</span> 433-103-8319</div>
-              <div><span class="izq">Correo electrónico / E-mail:</span> <a href="mailto:monitoreo.personal@tramusacarrier.com.mx">monitoreo.personal@tramusacarrier.com.mx</a></div>
+              <div><span class="izq">Área / Area:</span>{{$monitor?->rol}}</div>
+              <div><span class="izq">Tel / Mobile phone:</span>433-103-8319</div>
+              <div><span class="izq">Correo electrónico / E-mail:</span><a href="mailto:{{$monitor?->email}}">{{$monitor?->email}}</a></div>
             </div>
             <div style="clear: both;"></div>
           </td>
           <td colspan="1">
-            <div class="names">Vanessa Solís Amador</div>
+            <div class="names">{{$seguridad?->name.' '.$seguridad?->a_paterno.' '.$seguridad?->a_materno}}</div>
             <div id="involved">
-              <div><span class="izq">Área / Area:</span> Logística / Monitoreo</div>
-              <div><span class="izq">Logística / Monitoreo</span> 433-103-8319</div>
-              <div><span class="izq">Correo electrónico / E-mail:</span> <a href="mailto:monitoreo.personal@tramusacarrier.com.mx">monitoreo.personal@tramusacarrier.com.mx</a></div>
+              <div><span class="izq">Área / Area:</span>{{$seguridad?->rol}}</div>
+              <div><span class="izq">Tel / Mobile phone:</span>433-108-1732</div>
+              <div><span class="izq">Correo electrónico / E-mail:</span><a href="mailto:{{$seguridad?->email}}">{{$seguridad?->email}}</a></div>
             </div>
             <div style="clear: both;"></div>
           </td>

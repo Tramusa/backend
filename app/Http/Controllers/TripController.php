@@ -17,6 +17,7 @@ use App\Models\Tortons;
 use App\Models\Tractocamiones;
 use App\Models\Trips;
 use App\Models\Units_Trips;
+use App\Models\User;
 use App\Models\Utilitarios;
 use App\Models\Volteos;
 use Carbon\Carbon;
@@ -516,7 +517,15 @@ class TripController extends Controller
         $logoImage = $this->getImageBase64($logoImagePath);// Convertir las imágenes a base64
 
         // COMPARAMOS SEGUN EL PREFIJO DEL CLIENTE QUE INFO SACAR Y QUE ARCHIVO MANDAR LLAMAR
-        if ($customer->prefijo == 'TP') {           
+        if ($customer->prefijo == 'TP') {     
+            $p_intermediate = ModelsPointsInterest::where('id', $tripData->p_intermediate)->first();
+            $p_authorized = ModelsPointsInterest::where('id', $tripData->p_authorized)->first();
+            
+            if ($p_intermediate) {   $tripData->p_intermediate = $p_intermediate;   
+            }else{   $tripData->p_intermediate = 'N/A';   }
+            if ($p_authorized) {   $tripData->p_authorized = $p_authorized;   
+            }else{   $tripData->p_authorized = 'N/A';   }  
+
             $operatorData = DB::table('users') // Tabla 'users'
                         ->join('others', 'users.id', '=', 'others.user_id') // Unir con tabla 'others'
                         ->join('addresses', 'users.id', '=', 'addresses.user_id') // Unir con tabla 'addresses'
@@ -533,6 +542,13 @@ class TripController extends Controller
 
             $ceco = CECOs::where('id', $tripData->ceco)->first();
             $ruta = Rutas::where('origin', $tripData->origin->id)->where('destination', $tripData->destination->id)->first();
+            if($ruta->image){//IMAGEN DEL OPERADOR O DEFAULT
+                $rutaImagePath = public_path(str_replace("public", 'storage', $ruta->image));
+            }else{
+                $rutaImagePath = public_path('imgPDF/ruta.png');
+            }            
+            $ruta->image = $this->getImageBase64($rutaImagePath);// Convertir las imágenes a base64
+
 
             $horas = floor($ruta->time / 60);
             $minutos = $ruta->time % 60;
@@ -548,9 +564,16 @@ class TripController extends Controller
             // Obtener la suma final en formato 'H:i:s'
             $tripData->end_date = $sum->format('H:i:s');
             
-            // Obtener la ruta de la imágen
-            $perfilImagePath = public_path(str_replace("public", 'storage', $operatorData->avatar));
+            if($operatorData->avatar){//IMAGEN DEL OPERADOR O DEFAULT
+                $perfilImagePath = public_path(str_replace("public", 'storage', $operatorData->avatar));
+            }else{
+                $perfilImagePath = public_path('imgPDF/avatar.png');
+            }            
             $perfilImage = $this->getImageBase64($perfilImagePath);// Convertir las imágenes a base64
+
+            $coodinador = User::where('rol', 'Coordinador Logistica Personal')->first();
+            $seguridad = User::where('rol', 'Supervisor de Seguridad Personal')->first();
+            $monitor = User::where('rol', 'Monitor Personal')->first();            
 
             // Cargar la vista y pasar todos los datos necesarios
             $data = [
@@ -561,6 +584,9 @@ class TripController extends Controller
                 'ruta' => $ruta,
                 'units' => $UTs,
                 'ceco' => $ceco,
+                'coodinador' => $coodinador,
+                'seguridad' => $seguridad,
+                'monitor' => $monitor,
             ];
 
             $html = view('orden_viaje', $data)->render();
@@ -571,7 +597,6 @@ class TripController extends Controller
                         ->join('others', 'users.id', '=', 'others.user_id') // Unir con tabla 'others'
                         ->where('users.id', $tripData->operator) // Filtrar por el ID del operador
                         ->first(); // Obtener el primer resultado
-
 
             $UTs = Units_Trips::where('trip', $trip)->get();
             if ($UTs) {
