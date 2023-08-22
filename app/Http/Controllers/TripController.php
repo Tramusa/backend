@@ -530,7 +530,8 @@ class TripController extends Controller
                         ->join('others', 'users.id', '=', 'others.user_id') // Unir con tabla 'others'
                         ->join('addresses', 'users.id', '=', 'addresses.user_id') // Unir con tabla 'addresses'
                         ->where('users.id', $tripData->operator) // Filtrar por el ID del operador
-                        ->first(); // Obtener el primer resultado                        
+                        ->first(); // Obtener el primer resultado 
+                                               
             $UTs = Units_Trips::where('trip', $trip)->get();
             if ($UTs) {
                 $tablas = ['','tractocamiones','remolques','dollys','volteos','toneles','tortons','autobuses','sprinters','utilitarios','maquinarias'];
