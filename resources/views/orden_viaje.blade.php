@@ -131,6 +131,17 @@
         margin: 0;
       }
 
+      #unit {
+        flex: 3;   
+        text-align: center;      
+      }     
+
+      .unitImg{
+        width: 100%;
+        height: 12%;
+        margin: 0;
+      }
+
       h1 {
         font-family: "Arial Narrow", Arial, sans-serif;
         border-top: 2.5px solid  #D1D1D1;
@@ -412,20 +423,26 @@
         <tr>
           <td class="columnTable-3-1 " colspan="1">
             <div id="project">
-              @foreach ($units as $unit)
-                <div><span>No. Economico / Vehicle ID:</span>{{ $unit->unitInfo->no_economic }}</div>
-                <div><span>Tipo de unidad / Vehicle type:</span>Autobús</div>
-                <div><span>Matrícula / License plate:</span>{{ $unit->unitInfo->no_placas }}</div>
-                <div><span>Marca / Vehicle brand: </span>{{ $unit->unitInfo->brand }}</div>
-                <div><span>Modelo / Year:</span>{{ $unit->unitInfo->model }}</div>
-                <div><span>Color / Color:</span>Blanco</div>
-                <div><span>Capacidad de pasajeros / Passenger capacity: </span>{{ $unit->unitInfo->no_passengers }}</div>
-              @endforeach
+              <div><span>No. Economico / Vehicle ID:</span>{{ $unit->unitInfo->no_economic }}</div>
+              <div><span>Tipo de unidad / Vehicle type:</span>Autobús</div>
+              <div><span>Matrícula / License plate:</span>{{ $unit->unitInfo->no_placas }}</div>
+              <div><span>Marca / Vehicle brand: </span>{{ $unit->unitInfo->brand }}</div>
+              <div><span>Modelo / Year:</span>{{ $unit->unitInfo->model }}</div>
+              <div><span>Color / Color:</span>Blanco</div>
+              <div><span>Capacidad de pasajeros / Passenger capacity: </span>{{ $unit->unitInfo->no_passengers }}</div>
             </div>
             <div style="clear: both;"></div>            
           </td>
-          <td class="columnTable-3-2" colspan="1"></td>
-          <td class="columnTable-3-3" colspan="1"></td>
+          <td class="columnTable-3-2" colspan="1">
+            <div id="unit">
+              <img class="unitImg" src="{{ $unit->unitInfo->left }}">
+            </div>
+          </td>
+          <td class="columnTable-3-3" colspan="1">
+            <div id="unit">
+              <img class="unitImg" src="{{ $unit->unitInfo->front }}">
+            </div>
+          </td>
         </tr>
       </table>
       <table style="width: 100%;">

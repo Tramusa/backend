@@ -20,6 +20,10 @@ return new class extends Migration
             $table->date('expiration_circulation');
             $table->integer('ejes');
             $table->integer('no_passengers');
+            $table->string('front')->nullable();
+            $table->string('rear')->nullable();
+            $table->string('left')->nullable();
+            $table->string('right')->nullable();
             $table->integer('user');
             $table->string('status')->default('available');
             $table->timestamps();

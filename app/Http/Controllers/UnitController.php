@@ -16,6 +16,7 @@ use App\Models\Volteos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Facades\Image;
 
 class UnitController extends Controller
 {
@@ -87,12 +88,76 @@ class UnitController extends Controller
                 $unit->save();
                 break;
             case 7:
-                $unit = new Autobuses($request->all());                
+                $request->validate(['front' => 'image|max:3000', 'rear' => 'image|max:3000', 'left' => 'image|max:3000', 'right' => 'image|max:3000',]); // 3MB Asegúrate de que se haya cargado una imagen y que sea de un tipo válido.
+                $data = $request->only(['no_economic', 'brand', 'model', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'ejes', 'no_passengers', 'user']);
+            
+                $unit = new Autobuses($data);                
                 $unit->save();
+                
+                if ($request->file('front')){            
+                    $path = $request->file('front')->store('public/units');        
+                    $unit->front = $path;
+                    $unit->save();
+                    $imagen_rectangular = Image::make($request->file('front'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                }
+                if ($request->file('rear')){            
+                    $path = $request->file('rear')->store('public/units');        
+                    $unit->rear = $path;
+                    $unit->save();
+                    $imagen_rectangular = Image::make($request->file('rear'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                } 
+                if ($request->file('left')){            
+                    $path = $request->file('left')->store('public/units');        
+                    $unit->left = $path;
+                    $unit->save();
+                    $imagen_rectangular = Image::make($request->file('left'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                } 
+                if ($request->file('right')){            
+                    $path = $request->file('right')->store('public/units');        
+                    $unit->right = $path;
+                    $unit->save();
+                    $imagen_rectangular = Image::make($request->file('right'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                }                 
                 break;
             case 8:
-                $unit = new Sprinters($request->all());                
+                $request->validate(['front' => 'image|max:3000', 'rear' => 'image|max:3000', 'left' => 'image|max:3000', 'right' => 'image|max:3000',]); // 3MB Asegúrate de que se haya cargado una imagen y que sea de un tipo válido.
+                $data = $request->only(['no_economic', 'brand', 'model', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'ejes', 'no_passengers', 'user']);
+            
+                $unit = new Sprinters($data);                
                 $unit->save();
+                
+                if ($request->file('front')){            
+                    $path = $request->file('front')->store('public/units');        
+                    $unit->front = $path;
+                    $unit->save();
+                    $imagen_rectangular = Image::make($request->file('front'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                }
+                if ($request->file('rear')){            
+                    $path = $request->file('rear')->store('public/units');        
+                    $unit->rear = $path;
+                    $unit->save();
+                    $imagen_rectangular = Image::make($request->file('rear'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                } 
+                if ($request->file('left')){            
+                    $path = $request->file('left')->store('public/units');        
+                    $unit->left = $path;
+                    $unit->save();
+                    $imagen_rectangular = Image::make($request->file('left'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                } 
+                if ($request->file('right')){            
+                    $path = $request->file('right')->store('public/units');        
+                    $unit->right = $path;
+                    $unit->save();
+                    $imagen_rectangular = Image::make($request->file('right'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                }   
                 break;
             case 9:
                 $unit = new Utilitarios($request->all());                
@@ -149,10 +214,34 @@ class UnitController extends Controller
                 break;
             case 7:
                 $unit = Autobuses::find($request->id); 
+                $front = $unit->front; 
+                unset($unit->front);
+                if ($front) {  $unit->front_img = asset(Storage::url($front));  }
+                $rear = $unit->rear;
+                unset($unit->rear);
+                if ($rear) {  $unit->rear_img = asset(Storage::url($rear));  }
+                $left = $unit->left;
+                unset($unit->left);
+                if ($left) {  $unit->left_img = asset(Storage::url($left));  }
+                $right = $unit->right;
+                unset($unit->right);
+                if ($right) {  $unit->right_img = asset(Storage::url($right));  }
                 return $unit;
                 break;
             case 8:
                 $unit = Sprinters::find($request->id); 
+                $front = $unit->front;
+                unset($unit->front);
+                if ($front) {  $unit->front_img = asset(Storage::url($front));  }
+                $rear = $unit->rear;
+                unset($unit->rear);
+                if ($rear) {  $unit->rear_img = asset(Storage::url($rear));  }
+                $left = $unit->left;
+                unset($unit->left);
+                if ($left) {  $unit->left_img = asset(Storage::url($left));  }
+                $right = $unit->right;
+                unset($unit->right);
+                if ($right) {  $unit->right_img = asset(Storage::url($right));  }
                 return $unit;
                 break;
             case 9:
@@ -189,11 +278,68 @@ class UnitController extends Controller
             case 6:       
                 Tortons::find($request->id)->update($request->all());
                 break;
-            case 7:       
-                Autobuses::find($request->id)->update($request->all());
+            case 7:   
+                Logger($request);
+                $request->validate(['front' => 'image|max:3000', 'rear' => 'image|max:3000', 'left' => 'image|max:3000', 'right' => 'image|max:3000',]); // 3MB Asegúrate de que se haya cargado una imagen y que sea de un tipo válido.
+                $data = $request->only(['no_economic', 'brand', 'model', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'ejes', 'no_passengers', 'user']);
+            
+                Autobuses::find($request->id)->update($data); 
+                
+                if ($request->file('front')){            
+                    $path = $request->file('front')->store('public/units');
+                    Autobuses::find($request->id)->update(['front' => $path]);
+                    $imagen_rectangular = Image::make($request->file('front'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                }
+                if ($request->file('rear')){            
+                    $path = $request->file('rear')->store('public/units');        
+                    Autobuses::find($request->id)->update(['rear' => $path]);;
+                    $imagen_rectangular = Image::make($request->file('rear'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                } 
+                if ($request->file('left')){            
+                    $path = $request->file('left')->store('public/units');        
+                    Autobuses::find($request->id)->update(['left' => $path]);
+                    $imagen_rectangular = Image::make($request->file('left'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                } 
+                if ($request->file('right')){            
+                    $path = $request->file('right')->store('public/units');        
+                    Autobuses::find($request->id)->update(['right' => $path]);
+                    $imagen_rectangular = Image::make($request->file('right'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                }       
                 break;
-            case 8:       
-                Sprinters::find($request->id)->update($request->all());
+            case 8:
+                $request->validate(['front' => 'image|max:3000', 'rear' => 'image|max:3000', 'left' => 'image|max:3000', 'right' => 'image|max:3000',]); // 3MB Asegúrate de que se haya cargado una imagen y que sea de un tipo válido.
+                $data = $request->only(['no_economic', 'brand', 'model', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'ejes', 'no_passengers', 'user']);
+            
+                Sprinters::find($request->id)->update($data); 
+                
+                if ($request->file('front')){            
+                    $path = $request->file('front')->store('public/units');
+                    Sprinters::find($request->id)->update(['front' => $path]);
+                    $imagen_rectangular = Image::make($request->file('front'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                }
+                if ($request->file('rear')){            
+                    $path = $request->file('rear')->store('public/units');        
+                    Sprinters::find($request->id)->update(['rear' => $path]);;
+                    $imagen_rectangular = Image::make($request->file('rear'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                } 
+                if ($request->file('left')){            
+                    $path = $request->file('left')->store('public/units');        
+                    Sprinters::find($request->id)->update(['left' => $path]);
+                    $imagen_rectangular = Image::make($request->file('left'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                } 
+                if ($request->file('right')){            
+                    $path = $request->file('right')->store('public/units');        
+                    Sprinters::find($request->id)->update(['right' => $path]);
+                    $imagen_rectangular = Image::make($request->file('right'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                }         
                 break;
             case 9:       
                 Utilitarios::find($request->id)->update($request->all());

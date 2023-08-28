@@ -157,6 +157,7 @@ class TripController extends Controller
             ], 422);
         }  
     }
+
     public function rutaTrip(Request $request)
     {
         $origin = $request->input('origin');
@@ -177,54 +178,28 @@ class TripController extends Controller
 
     public function create(Request $request)
     {      
-        $id = $request->unit;
-        switch ($request->type_unit) {
-            case 1:
-                $available= Tractocamiones::find($id);
-                break;   
-            case 2:
-                $available= Remolques::find($id);
-                break;
-            case 3:
-                $available= Dollys::find($id);
-                break;
-            case 4:       
-                $available=Volteos::find($id);
-                break;
-            case 5:       
-                $available=Toneles::find($id);
-                break;
-            case 6:       
-                $available=Tortons::find($id);
-                break;
-            case 7:       
-                $available=Autobuses::find($id);
-                break;
-            case 8:       
-                $available=Sprinters::find($id);
-                break;
-            case 9:       
-                $available=Utilitarios::find($id);
-                break;
-            case 10:       
-                $available=Maquinarias::find($id);
-                break;
-            default:
-                break;
-        }
-        if ($available->status == 'available') {        
-            $unit = DB::table('units__trips')
-                ->join('trips', 'units__trips.trip', '=', 'trips.id')
-                ->where('type_unit', $request->type_unit)
-                ->where('unit', $request->unit)
-                ->where('status', 1)
-                ->get();
-            if (count($unit) > 0) {
-                return response()->json([
-                    'message' => 'La unidad ya se encuentra en algun viaje'
-                ], 422); 
-            }else{
-                $trip = new Trips(); 
+        //VERIFICAR QUE LA UNIDAD NO TENGA INSPECCIONES PENDIENTES
+        $unitClass = [
+            1 => Tractocamiones::class,
+            2 => Remolques::class,
+            3 => Dollys::class,
+            4 => Volteos::class,
+            5 => Toneles::class,
+            6 => Tortons::class,
+            7 => Autobuses::class,
+            8 => Sprinters::class,
+            9 => Utilitarios::class,
+            10 => Maquinarias::class,
+        ][$request->type_unit];
+        
+        $inspection = $unitClass::find($request->unit);
+
+        if ($inspection->status === 'inspection') {  
+            return response()->json([
+                'message' => 'La unidad no se encuentra disponible para viaje (Estatus = "Inspeccion")'
+            ], 422);       
+        }else{
+            $trip = new Trips(); 
                 $trip->user = $request->user;                   
                 $trip->save();
                 if($trip){
@@ -232,13 +207,8 @@ class TripController extends Controller
                     $data['trip'] = $trip->id;
                     $unit_trip = new Units_Trips($data);
                     $unit_trip->save();
-                } 
-            }       
+            } 
             return $trip->id;
-        }else{
-            return response()->json([
-                'message' => 'La unidad no se encuentra disponible para viaje'
-            ], 422); 
         }
     }
 
@@ -337,6 +307,26 @@ class TripController extends Controller
                     $destination = ModelsPointsInterest::find($item->destination);
                     $item->origin = $origin->name;
                     $item->destination = $destination->name;
+                    $units = DB::table('units__trips')->where('trip', $item->id)->get();    
+                    $unitTypeToClass = [
+                        1 => Tractocamiones::class,
+                        2 => Remolques::class,
+                        3 => Dollys::class,
+                        4 => Volteos::class,
+                        5 => Toneles::class,
+                        6 => Tortons::class,
+                        7 => Autobuses::class,
+                        8 => Sprinters::class,
+                        9 => Utilitarios::class,
+                        10 => Maquinarias::class,
+                    ];
+                    foreach ($units as $unit) {                      
+                        $unitClass = $unitTypeToClass[$unit->type_unit];
+                        $inspection = $unitClass::find($unit->unit);
+                        if ($inspection->status != 'inspection') {
+                            $unitClass::find($unit->unit)->update(['status' => 'trip']);
+                        }
+                    }
                 }
                 break;
         }        
@@ -372,129 +362,9 @@ class TripController extends Controller
 
     public function update(Request $request, $trip)
     {   
-        $units = DB::table('units__trips')->where('trip', $trip)->get();    
-        $data['status'] = 'trip';
-        foreach ($units as $item) {
-            $id = $item->unit;
-            switch ($item->type_unit) {
-                case 1:
-                    Tractocamiones::find($id)->update($data);
-                    break;   
-                case 2:
-                    Remolques::find($id)->update($data);
-                    break;
-                case 3:
-                    Dollys::find($id)->update($data);
-                    break;
-                case 4:       
-                    Volteos::find($id)->update($data);
-                    break;
-                case 5:       
-                    Toneles::find($id)->update($data);
-                    break;
-                case 6:       
-                    Tortons::find($id)->update($data);
-                    break;
-                case 7:       
-                    Autobuses::find($id)->update($data);
-                    break;
-                case 8:       
-                    Sprinters::find($id)->update($data);
-                    break;
-                case 9:       
-                    Utilitarios::find($id)->update($data);
-                    break;
-                case 10:       
-                    Maquinarias::find($id)->update($data);
-                    break;
-                default:
-                    break;
-            }
-        }
         Trips::find($trip)->update($request->all()); 
         
-        $dompdf = new Dompdf();
-        $html = '
-        <html>
-        <head>
-            <style>
-                /* Estilos personalizados */
-                .header {
-                    text-align: center;
-                    margin-bottom: 20px;
-                }
-                .logo {
-                    max-width: 150px;
-                    height: auto;
-                }
-                .list {
-                    margin-bottom: 20px;
-                }
-                .table {
-                    width: 100%;
-                    border-collapse: collapse;
-                }
-                .table th, .table td {
-                    border: 1px solid #000;
-                    padding: 5px;
-                }
-                .footer {
-                    text-align: center;
-                    position: fixed;
-                    bottom: 20px;
-                    width: 100%;
-                }
-            </style>
-        </head>
-        <body>
-            <div class="header">
-                <img class="logo" src="ruta/al/logo.png" alt="Logo">
-                <h1>¡Hola, PDF!</h1>
-            </div>
-            <div class="content">
-                <h2>VIAJE DE PRUEBA N°' . $trip . '</h2>
-                <ul class="list">
-                    <li>Elemento 1</li>
-                    <li>Elemento 2</li>
-                    <li>Elemento 3</li>
-                </ul>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Columna 1</th>
-                            <th>Columna 2</th>
-                            <th>Columna 3</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Dato 1</td>
-                            <td>Dato 2</td>
-                            <td>Dato 3</td>
-                        </tr>
-                        <tr>
-                            <td>Dato 4</td>
-                            <td>Dato 5</td>
-                            <td>Dato 6</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="footer">
-                Pie de página
-            </div>
-        </body>
-        </html>';
-    
-        $dompdf->loadHtml($html);
-        $dompdf->setPaper('A4', 'portrait');
-        $dompdf->render();
-        
-        $pdfContent = $dompdf->output();
-        Storage::disk('public')->put('trips/ViajePrueba N°' . $trip . '_pdf.pdf', $pdfContent);
-
-        // Devolver el contenido del PDF
-        return response($pdfContent, 200)->header('Content-Type', 'application/pdf');
+        $this->generarPDF($trip);
     }
 
     public function generarPDF($trip)
@@ -532,14 +402,24 @@ class TripController extends Controller
                         ->where('users.id', $tripData->operator) // Filtrar por el ID del operador
                         ->first(); // Obtener el primer resultado 
                                                
-            $UTs = Units_Trips::where('trip', $trip)->get();
+            $UTs = Units_Trips::where('trip', $trip)->first();            
             if ($UTs) {
                 $tablas = ['','tractocamiones','remolques','dollys','volteos','toneles','tortons','autobuses','sprinters','utilitarios','maquinarias'];
-                foreach ($UTs as $item) {
-                    $unit = DB::table($tablas[$item->type_unit])->where('id', $item->unit)->first();
-                    if ($unit) {   $item->unitInfo = $unit;   }// Agregar la información de la unidad a cada elemento de $item
-                }
+                $unit = DB::table($tablas[$UTs->type_unit])->where('id', $UTs->unit)->first();
+                if ($unit) {   $UTs->unitInfo = $unit;   }// Agregar la información de la unidad a cada elemento de 
             }
+            if($UTs->unitInfo->front){//IMAGEN DEL OPERADOR O DEFAULT
+                $UnitImagePath = public_path(str_replace("public", 'storage', $UTs->unitInfo->front));
+            }else{
+                $UnitImagePath = public_path('imgPDF/bus.jpg');
+            }            
+            $UTs->unitInfo->front = $this->getImageBase64($UnitImagePath);// Convertir las imágenes a base64
+            if($UTs->unitInfo->left){//IMAGEN DEL OPERADOR O DEFAULT
+                $UnitImagePath = public_path(str_replace("public", 'storage', $UTs->unitInfo->left));
+            }else{
+                $UnitImagePath = public_path('imgPDF/bus.jpg');
+            }            
+            $UTs->unitInfo->left = $this->getImageBase64($UnitImagePath);// Convertir las imágenes a base64
 
             $ceco = CECOs::where('id', $tripData->ceco)->first();
             $ruta = Rutas::where('origin', $tripData->origin->id)->where('destination', $tripData->destination->id)->first();
@@ -583,7 +463,7 @@ class TripController extends Controller
                 'logoImage' => $logoImage,
                 'operator' => $operatorData,
                 'ruta' => $ruta,
-                'units' => $UTs,
+                'unit' => $UTs,
                 'ceco' => $ceco,
                 'coodinador' => $coodinador,
                 'seguridad' => $seguridad,
@@ -657,7 +537,7 @@ class TripController extends Controller
         $dompdf->render();
         
         $pdfContent = $dompdf->output();
-        Storage::disk('public')->put('trips/Orden_Viaje N°' . $trip . '.pdf', $pdfContent);
+        Storage::disk('public')->put('trips/Orden N°'. $trip+10000 . '.pdf', $pdfContent);
 
         return response($pdfContent, 200)->header('Content-Type', 'application/pdf');// Devolver el contenido del PDF
     }
@@ -701,49 +581,27 @@ class TripController extends Controller
         $data['status'] = 'inspection';
         //TAMBIEN GENERAMOS UNA INSPECCION FISICOMECANICA POR CADA UNIDAD INVOLUCRADA
         $trip =Trips::find($trip);
-        foreach ($units as $item) {
-            $id = $item->unit;           
+        foreach ($units as $item) {        
             $data_inspection['responsible'] = $trip->operator;
             $data_inspection['type'] = $item->type_unit;
-            $data_inspection['unit'] = $id;
+            $data_inspection['unit'] = $item->unit;
             $data_inspection['is'] = 'fisico mecanica';
             $inspection = new Inspections($data_inspection);
             $inspection->save();
-            
-            switch ($item->type_unit) {
-                case 1:
-                    Tractocamiones::find($id)->update($data);
-                    break;   
-                case 2:
-                    Remolques::find($id)->update($data);
-                    break;
-                case 3:
-                    Dollys::find($id)->update($data);
-                    break;
-                case 4:       
-                    Volteos::find($id)->update($data);
-                    break;
-                case 5:       
-                    Toneles::find($id)->update($data);
-                    break;
-                case 6:       
-                    Tortons::find($id)->update($data);
-                    break;
-                case 7:       
-                    Autobuses::find($id)->update($data);
-                    break;
-                case 8:       
-                    Sprinters::find($id)->update($data);
-                    break;
-                case 9:       
-                    Utilitarios::find($id)->update($data);
-                    break;
-                case 10:       
-                    Maquinarias::find($id)->update($data);
-                    break;
-                default:
-                    break;
-            }
+            $unitClass = [
+                1 => Tractocamiones::class,
+                2 => Remolques::class,
+                3 => Dollys::class,
+                4 => Volteos::class,
+                5 => Toneles::class,
+                6 => Tortons::class,
+                7 => Autobuses::class,
+                8 => Sprinters::class,
+                9 => Utilitarios::class,
+                10 => Maquinarias::class,
+            ][$item->type_unit];
+
+            $unitClass::find($item->unit)->update($data);
         }        
         $user = Auth::user();
         $inspections = DB::table('inspections')->where('status', 1)->where('responsible', $user->id)->get();

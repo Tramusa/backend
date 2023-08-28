@@ -35,7 +35,7 @@ Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logo
 Route::middleware('auth:sanctum')->post('/createUnit', [UnitController::class, 'create']);
 Route::middleware('auth:sanctum')->post('/unit', [UnitController::class, 'unit']);
 Route::middleware('auth:sanctum')->get('/units/{type}', [UnitController::class, 'units']);
-Route::middleware('auth:sanctum')->put('/unit/{type}', [UnitController::class, 'update']);
+Route::middleware('auth:sanctum')->post('/unit/{type}', [UnitController::class, 'update']);
 Route::middleware('auth:sanctum')->delete('/unit/{id}', [UnitController::class, 'destroy']);
 Route::middleware('auth:sanctum')->post('/upload-pdf', [UnitController::class, 'upload']);
 Route::middleware('auth:sanctum')->post('/docsUnits', [UnitController::class, 'show']);
