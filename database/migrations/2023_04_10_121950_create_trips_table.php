@@ -24,10 +24,11 @@ return new class extends Migration
             $table->string('date')->nullable();
             $table->string('hour')->nullable();
             $table->integer('operator')->nullable();
-            $table->longText('type')->nullable();
-            $table->longText('product')->nullable();
+            $table->string('type')->nullable();
+            $table->string('product')->nullable();
             $table->longText('detaills')->nullable();
             $table->boolean('status')->default(1);
+            $table->string('reason')->nullable();
             $table->string('end_date')->nullable();
             $table->integer('user');
             $table->timestamps();
