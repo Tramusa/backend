@@ -68,9 +68,11 @@ class PointsInterest extends Controller
             
             $orig = DB::table('points_interests')->where('id', $origin)->first();
             $ruta->origin = $orig->name;          
+            $ruta->group_o = $orig->group;          
         
             $des = DB::table('points_interests')->where('id', $destination)->first();
             $ruta->destination = $des->name;
+            $ruta->group_d = $des->group;
            
         }
         return response()->json($rutas);
@@ -81,6 +83,7 @@ class PointsInterest extends Controller
         $ruta = Rutas::find($id); 
         $origin = $ruta->origin;
         $destination = $ruta->destination;
+        $image = $ruta->image;
             
         $orig = DB::table('points_interests')->where('id', $origin)->first();
         $ruta->origin_name = $orig->name;
@@ -88,7 +91,7 @@ class PointsInterest extends Controller
         $des = DB::table('points_interests')->where('id', $destination)->first();
         $ruta->destination_name = $des->name;
 
-        if ($ruta->image) {
+        if ($image) {
             $ruta->image = asset(Storage::url($image));
         }
 
