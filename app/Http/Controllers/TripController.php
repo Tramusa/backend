@@ -341,8 +341,7 @@ class TripController extends Controller
         
         $origin = ModelsPointsInterest::find($trip->origin);
         $destination = ModelsPointsInterest::find($trip->destination);
-        $customer = Customers::find($trip->customer);
-        $CECO = CECOs::find($trip->ceco);    
+        $customer = Customers::find($trip->customer);            
         $ruta = Rutas::where('origin', $trip->origin)
             ->where('destination', $trip->destination)
             ->first();
@@ -353,8 +352,25 @@ class TripController extends Controller
         $trip->ruta = $ruta->id;
         $trip->km = $ruta->km;
         $trip->time = $ruta->time;
-        $trip->ceco = $CECO->description;
+        if ($trip->ceco == 0) {
+            $trip->ceco = "N/A";
+        } else {
+            $CECO = CECOs::find($trip->ceco);
+            $trip->ceco = $CECO->description;
+        }
         $trip->origin = $origin->name;
+        if ($trip->p_intermediate == 0) {
+            $trip->p_intermediate = "N/A";
+        } else {
+            $p_intermediate = ModelsPointsInterest::find($trip->p_intermediate);
+            $trip->p_intermediate = $p_intermediate->description;
+        }
+        if ($trip->p_authorized == 0) {
+            $trip->p_authorized = "N/A";
+        } else {
+            $p_authorized = ModelsPointsInterest::find($trip->p_authorized);
+            $trip->p_authorized = $p_authorized->description;
+        }
         $trip->destination = $destination->name;
         
         return response()->json($trip);
@@ -364,10 +380,17 @@ class TripController extends Controller
     {   
         Trips::find($trip)->update($request->all()); 
         
-        $this->generarPDF($trip);
+        $pdfContent = $this->PDF($trip);
+        Storage::disk('public')->put('trips/Orden N°'. ($trip + 10000) . '.pdf', $pdfContent);
+        return response($pdfContent, 200)->header('Content-Type', 'application/pdf');// Devolver el contenido del PDF
     }
 
-    public function generarPDF($trip)
+    public function updateCancel(Request $request, $trip)
+    {   
+        Trips::find($trip)->update($request->all()); 
+    }
+
+    private function PDF($trip)
     {
         $tripData = Trips::find($trip);//PRIMERO SACAMOS LA INFO DEL VIAJE
         $customer = Customers::where('id', $tripData->customer)->first();// 2DO SACAMOS LA INFO DEL CLIENTE PAR SABER QUE TIPO DE DOC SE HARA(PERFIJO)
@@ -441,9 +464,21 @@ class TripController extends Controller
             if ($sum->hour >= 24) {    // Verificar si pasa al día siguiente            
                 $sum->sub(24, 'hour');// Si la suma de horas supera 24, ajustar al día siguiente
             }
-
             // Obtener la suma final en formato 'H:i:s'
             $tripData->end_date = $sum->format('H:i:s');
+            
+            // Obtener la hora de inicio del viaje desde $tripData->hour
+            $tripHour = Carbon::createFromFormat('H:i:s', $tripData->hour);
+            // Calcular la hora recomendada
+            if ($tripHour->lte(Carbon::createFromTime(7, 0, 0))) {
+                // Si $tripHour es menor o igual a las 7:00:00, resta 8 horas
+                $horaRecomendada = $tripHour->subHours(8);
+            } else {
+                // Si no se cumple la condición, establece la hora en 23:00:00
+                $horaRecomendada = Carbon::createFromTime(23, 0, 0);
+            }
+            // Obtener la hora recomendada en formato 'H:i:s'
+            $tripData->recommended_hour = $horaRecomendada->format('H:i:s');
             
             if($operatorData->avatar){//IMAGEN DEL OPERADOR O DEFAULT
                 $perfilImagePath = public_path(str_replace("public", 'storage', $operatorData->avatar));
@@ -536,8 +571,13 @@ class TripController extends Controller
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
         
-        $pdfContent = $dompdf->output();
-        Storage::disk('public')->put('trips/Orden N°'. $trip+10000 . '.pdf', $pdfContent);
+        return $dompdf->output();       
+    }
+
+    public function generarPDF($trip){
+        $pdfContent = $this->PDF($trip);
+
+        Storage::disk('public')->put('trips/Orden N°'. ($trip + 10000) . '.pdf', $pdfContent);
 
         return response($pdfContent, 200)->header('Content-Type', 'application/pdf');// Devolver el contenido del PDF
     }
@@ -546,7 +586,6 @@ class TripController extends Controller
     {
         $file = file_get_contents($imagePath);
         $base64 = base64_encode($file);
-
         return 'data:image/png;base64,' . $base64;
     }
 
@@ -557,16 +596,14 @@ class TripController extends Controller
         return response()->json(['message' => 'Unidad eliminada exitosamente.']);
     }
 
-    public function cancel($trip)
+    public function cancel(Request $request, $trip)
     {
-        $status['status'] = 0;
-        $units = DB::table('units__trips')->where('trip', $trip)->get();
-        foreach ($units as $item) {
-            $id = $item->id;
-            $unit = Units_Trips::find($id);
-            $unit->delete();            
-        }
-        $trip = Trips::find($trip)->update($status);
+        $data = $request->all();
+        $data['status'] = 0;        
+        // Eliminar las unidades asociadas al viaje
+        DB::table('units__trips')->where('trip', $trip)->delete();        
+        // Actualizar el estado del viaje
+        $trip = Trips::find($trip)->update($data);        
         return response()->json(['message' => 'Viaje cancelado exitosamente.']);
     }
 

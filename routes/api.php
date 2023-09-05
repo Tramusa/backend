@@ -48,8 +48,8 @@ Route::middleware('auth:sanctum')->post('/addUnit', [TripController::class, 'add
 Route::middleware('auth:sanctum')->get('/unitsTrip/{trip}', [TripController::class, 'show']);
 Route::middleware('auth:sanctum')->delete('/deleteUnit/{id}', [TripController::class, 'deleteUnit']);
 Route::middleware('auth:sanctum')->put('/createTrip/{trip}', [TripController::class, 'update']);
+Route::middleware('auth:sanctum')->put('/updateCancel/{trip}', [TripController::class, 'cancel']);
 Route::middleware('auth:sanctum')->get('/trips/{type}', [TripController::class, 'showTrips']);
-Route::middleware('auth:sanctum')->get('/cancelTrip/{trip}', [TripController::class, 'cancel']);
 Route::middleware('auth:sanctum')->get('/finishTrip/{trip}', [TripController::class, 'finish']);
 Route::middleware('auth:sanctum')->get('/trip/{id}', [TripController::class, 'showTrip']);
 Route::middleware('auth:sanctum')->get('/rutaTrip', [TripController::class, 'rutaTrip']);

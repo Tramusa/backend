@@ -361,7 +361,7 @@
             <div class="desc">Hora esperada de llegada a destino / Arriving time: </div>
             <div class="info">{{$trip->end_date}}</div><br>
             <b><div class="desc">Hora recomendada de inicio de sueño </div>
-            <div class="info">>>>SIN DATO</div></b><br>
+            <div class="info">{{$trip->recommended_hour}}</div></b><br>
             <div class="desc">Nombre de los pasajeros a transportar / Passangers Name: </div>
             <div class="blueTitle">SE ANEXA LISTA DE PASAJEROS</div>
           </td>
