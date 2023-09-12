@@ -68,7 +68,7 @@ class PointsInterest extends Controller
             
             $orig = DB::table('points_interests')->where('id', $origin)->first();
             $ruta->origin = $orig->name;          
-            $ruta->group_o = $orig->group;          
+            $ruta->group_o = $orig->group;         
         
             $des = DB::table('points_interests')->where('id', $destination)->first();
             $ruta->destination = $des->name;

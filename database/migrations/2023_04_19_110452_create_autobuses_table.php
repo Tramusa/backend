@@ -18,6 +18,14 @@ return new class extends Migration
             $table->date('expiration_placas');
             $table->string('circulation_card');
             $table->date('expiration_circulation');
+            $table->string('insurance_policy');
+            $table->date('safe_expiration');
+            $table->string('policy_receipt');
+            $table->date('expiration_receipt');
+            $table->string('physical_mechanical');
+            $table->date('physical_expiration');
+            $table->string('pollutant_emission');
+            $table->date('contaminant_expiration'); 
             $table->integer('ejes');
             $table->integer('no_passengers');
             $table->string('front')->nullable();

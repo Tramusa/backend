@@ -64,8 +64,40 @@ class UnitController extends Controller
 
         switch ($request->tipo) {
             case 1:
-                $unit = new Tractocamiones($request->all());                
+                $request->validate(['front' => 'image|max:3000', 'rear' => 'image|max:3000', 'left' => 'image|max:3000', 'right' => 'image|max:3000',]); // 3MB Asegúrate de que se haya cargado una imagen y que sea de un tipo válido.
+                $data = $request->only(['no_economic', 'brand', 'model', 'year', 'no_motor', 'no_seriously', 'motor', 'color', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'state_tenure', 'expiration_tenure', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'cre', 'expiration_cre', 'engine_capacity', 'speeds', 'differential_pitch', 'transmission', 'ecm', 'esn', 'cpl', 'extent_tire', 'tire', 'ejes', 'user']);
+                
+                $unit = new Tractocamiones($data);                
                 $unit->save();
+
+                if ($request->file('front')){            
+                    $path = $request->file('front')->store('public/units');        
+                    $unit->front = $path;
+                    $unit->save();
+                    $imagen_rectangular = Image::make($request->file('front'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                }
+                if ($request->file('rear')){            
+                    $path = $request->file('rear')->store('public/units');        
+                    $unit->rear = $path;
+                    $unit->save();
+                    $imagen_rectangular = Image::make($request->file('rear'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                } 
+                if ($request->file('left')){            
+                    $path = $request->file('left')->store('public/units');        
+                    $unit->left = $path;
+                    $unit->save();
+                    $imagen_rectangular = Image::make($request->file('left'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                } 
+                if ($request->file('right')){            
+                    $path = $request->file('right')->store('public/units');        
+                    $unit->right = $path;
+                    $unit->save();
+                    $imagen_rectangular = Image::make($request->file('right'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                }
                 break;
             case 2:
                 $unit = new Remolques($request->all());
@@ -84,12 +116,44 @@ class UnitController extends Controller
                 $unit->save();
                 break;
             case 6:
-                $unit = new Tortons($request->all());                
+                $request->validate(['front' => 'image|max:3000', 'rear' => 'image|max:3000', 'left' => 'image|max:3000', 'right' => 'image|max:3000',]); // 3MB Asegúrate de que se haya cargado una imagen y que sea de un tipo válido.
+                $data = $request->only(['no_economic', 'brand', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'state_tenure', 'expiration_tenure', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'engine_capacity', 'speeds', 'differential_pitch', 'transmission', 'ecm', 'esn', 'cpl', 'extent_tire', 'tire', 'ejes', 'no_passengers', 'user']);
+                
+                $unit = new Tortons($data);                
                 $unit->save();
+
+                if ($request->file('front')){            
+                    $path = $request->file('front')->store('public/units');        
+                    $unit->front = $path;
+                    $unit->save();
+                    $imagen_rectangular = Image::make($request->file('front'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                }
+                if ($request->file('rear')){            
+                    $path = $request->file('rear')->store('public/units');        
+                    $unit->rear = $path;
+                    $unit->save();
+                    $imagen_rectangular = Image::make($request->file('rear'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                } 
+                if ($request->file('left')){            
+                    $path = $request->file('left')->store('public/units');        
+                    $unit->left = $path;
+                    $unit->save();
+                    $imagen_rectangular = Image::make($request->file('left'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                } 
+                if ($request->file('right')){            
+                    $path = $request->file('right')->store('public/units');        
+                    $unit->right = $path;
+                    $unit->save();
+                    $imagen_rectangular = Image::make($request->file('right'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                }
                 break;
             case 7:
                 $request->validate(['front' => 'image|max:3000', 'rear' => 'image|max:3000', 'left' => 'image|max:3000', 'right' => 'image|max:3000',]); // 3MB Asegúrate de que se haya cargado una imagen y que sea de un tipo válido.
-                $data = $request->only(['no_economic', 'brand', 'model', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'ejes', 'no_passengers', 'user']);
+                $data = $request->only(['no_economic', 'brand', 'model', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'ejes', 'no_passengers', 'user']);
             
                 $unit = new Autobuses($data);                
                 $unit->save();
@@ -125,7 +189,7 @@ class UnitController extends Controller
                 break;
             case 8:
                 $request->validate(['front' => 'image|max:3000', 'rear' => 'image|max:3000', 'left' => 'image|max:3000', 'right' => 'image|max:3000',]); // 3MB Asegúrate de que se haya cargado una imagen y que sea de un tipo válido.
-                $data = $request->only(['no_economic', 'brand', 'model', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'ejes', 'no_passengers', 'user']);
+                $data = $request->only(['no_economic', 'brand', 'model', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'state_tenure', 'expiration_tenure', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'ejes', 'no_passengers', 'user']);
             
                 $unit = new Sprinters($data);                
                 $unit->save();
@@ -160,8 +224,39 @@ class UnitController extends Controller
                 }   
                 break;
             case 9:
-                $unit = new Utilitarios($request->all());                
+                $request->validate(['front' => 'image|max:3000', 'rear' => 'image|max:3000', 'left' => 'image|max:3000', 'right' => 'image|max:3000',]); // 3MB Asegúrate de que se haya cargado una imagen y que sea de un tipo válido.
+                $data = $request->only(['no_economic', 'brand', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'state_tenure', 'expiration_tenure', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'ejes', 'user']);
+            
+                $unit = new Utilitarios($data);            
                 $unit->save();
+                if ($request->file('front')){            
+                    $path = $request->file('front')->store('public/units');        
+                    $unit->front = $path;
+                    $unit->save();
+                    $imagen_rectangular = Image::make($request->file('front'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                }
+                if ($request->file('rear')){            
+                    $path = $request->file('rear')->store('public/units');        
+                    $unit->rear = $path;
+                    $unit->save();
+                    $imagen_rectangular = Image::make($request->file('rear'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                } 
+                if ($request->file('left')){            
+                    $path = $request->file('left')->store('public/units');        
+                    $unit->left = $path;
+                    $unit->save();
+                    $imagen_rectangular = Image::make($request->file('left'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                } 
+                if ($request->file('right')){            
+                    $path = $request->file('right')->store('public/units');        
+                    $unit->right = $path;
+                    $unit->save();
+                    $imagen_rectangular = Image::make($request->file('right'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                }
                 break;
             case 10:
                 $unit = new Maquinarias($request->all());                
@@ -210,6 +305,18 @@ class UnitController extends Controller
                 break;
             case 6:
                 $unit = Tortons::find($request->id); 
+                $front = $unit->front; 
+                unset($unit->front);
+                if ($front) {  $unit->front_img = asset(Storage::url($front));  }
+                $rear = $unit->rear;
+                unset($unit->rear);
+                if ($rear) {  $unit->rear_img = asset(Storage::url($rear));  }
+                $left = $unit->left;
+                unset($unit->left);
+                if ($left) {  $unit->left_img = asset(Storage::url($left));  }
+                $right = $unit->right;
+                unset($unit->right);
+                if ($right) {  $unit->right_img = asset(Storage::url($right));  }
                 return $unit;
                 break;
             case 7:
@@ -246,6 +353,18 @@ class UnitController extends Controller
                 break;
             case 9:
                 $unit = Utilitarios::find($request->id); 
+                $front = $unit->front;
+                unset($unit->front);
+                if ($front) {  $unit->front_img = asset(Storage::url($front));  }
+                $rear = $unit->rear;
+                unset($unit->rear);
+                if ($rear) {  $unit->rear_img = asset(Storage::url($rear));  }
+                $left = $unit->left;
+                unset($unit->left);
+                if ($left) {  $unit->left_img = asset(Storage::url($left));  }
+                $right = $unit->right;
+                unset($unit->right);
+                if ($right) {  $unit->right_img = asset(Storage::url($right));  }
                 return $unit;
                 break;
             case 10:
@@ -275,13 +394,41 @@ class UnitController extends Controller
             case 5:       
                 Toneles::find($request->id)->update($request->all());
                 break;
-            case 6:       
-                Tortons::find($request->id)->update($request->all());
+            case 6:   
+                $request->validate(['front' => 'image|max:3000', 'rear' => 'image|max:3000', 'left' => 'image|max:3000', 'right' => 'image|max:3000',]); // 3MB Asegúrate de que se haya cargado una imagen y que sea de un tipo válido.
+                $data = $request->only(['no_economic', 'brand', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'state_tenure', 'expiration_tenure', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'engine_capacity', 'speeds', 'differential_pitch', 'transmission', 'ecm', 'esn', 'cpl', 'extent_tire', 'tire', 'ejes', 'no_passengers', 'user']);
+                
+                Tortons::find($request->id)->update($data);
+
+                if ($request->file('front')){            
+                    $path = $request->file('front')->store('public/units');
+                    Tortons::find($request->id)->update(['front' => $path]);
+                    $imagen_rectangular = Image::make($request->file('front'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                }
+                if ($request->file('rear')){            
+                    $path = $request->file('rear')->store('public/units');        
+                    Tortons::find($request->id)->update(['rear' => $path]);;
+                    $imagen_rectangular = Image::make($request->file('rear'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                } 
+                if ($request->file('left')){            
+                    $path = $request->file('left')->store('public/units');        
+                    Tortons::find($request->id)->update(['left' => $path]);
+                    $imagen_rectangular = Image::make($request->file('left'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                } 
+                if ($request->file('right')){            
+                    $path = $request->file('right')->store('public/units');        
+                    Tortons::find($request->id)->update(['right' => $path]);
+                    $imagen_rectangular = Image::make($request->file('right'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                }  
                 break;
             case 7:   
                 Logger($request);
                 $request->validate(['front' => 'image|max:3000', 'rear' => 'image|max:3000', 'left' => 'image|max:3000', 'right' => 'image|max:3000',]); // 3MB Asegúrate de que se haya cargado una imagen y que sea de un tipo válido.
-                $data = $request->only(['no_economic', 'brand', 'model', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'ejes', 'no_passengers', 'user']);
+                $data = $request->only(['no_economic', 'brand', 'model', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'ejes', 'no_passengers', 'user']);
             
                 Autobuses::find($request->id)->update($data); 
                 
@@ -312,7 +459,7 @@ class UnitController extends Controller
                 break;
             case 8:
                 $request->validate(['front' => 'image|max:3000', 'rear' => 'image|max:3000', 'left' => 'image|max:3000', 'right' => 'image|max:3000',]); // 3MB Asegúrate de que se haya cargado una imagen y que sea de un tipo válido.
-                $data = $request->only(['no_economic', 'brand', 'model', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'ejes', 'no_passengers', 'user']);
+                $data = $request->only(['no_economic', 'brand', 'model', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'state_tenure', 'expiration_tenure', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'ejes', 'no_passengers', 'user']);
             
                 Sprinters::find($request->id)->update($data); 
                 
@@ -341,8 +488,36 @@ class UnitController extends Controller
                     $imagen_rectangular->save(public_path(Storage::url($path)));
                 }         
                 break;
-            case 9:       
-                Utilitarios::find($request->id)->update($request->all());
+            case 9:  
+                $request->validate(['front' => 'image|max:3000', 'rear' => 'image|max:3000', 'left' => 'image|max:3000', 'right' => 'image|max:3000',]); // 3MB Asegúrate de que se haya cargado una imagen y que sea de un tipo válido.
+                $data = $request->only(['no_economic', 'brand', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'state_tenure', 'expiration_tenure', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'ejes', 'user']);
+                 
+                Utilitarios::find($request->id)->update($data);
+
+                if ($request->file('front')){            
+                    $path = $request->file('front')->store('public/units');
+                    Utilitarios::find($request->id)->update(['front' => $path]);
+                    $imagen_rectangular = Image::make($request->file('front'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                }
+                if ($request->file('rear')){            
+                    $path = $request->file('rear')->store('public/units');        
+                    Utilitarios::find($request->id)->update(['rear' => $path]);;
+                    $imagen_rectangular = Image::make($request->file('rear'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                } 
+                if ($request->file('left')){            
+                    $path = $request->file('left')->store('public/units');        
+                    Utilitarios::find($request->id)->update(['left' => $path]);
+                    $imagen_rectangular = Image::make($request->file('left'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                } 
+                if ($request->file('right')){            
+                    $path = $request->file('right')->store('public/units');        
+                    Utilitarios::find($request->id)->update(['right' => $path]);
+                    $imagen_rectangular = Image::make($request->file('right'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                } 
                 break;
             case 10:       
                 Maquinarias::find($request->id)->update($request->all());
