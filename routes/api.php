@@ -20,7 +20,7 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::get('/users', [AuthController::class, 'usersAll']);
     Route::put('/updateStatus', [AuthController::class, 'updateStatus']);
-    Route::put('/upData', [AuthController::class, 'proceedingsUp']);
+    Route::post('/upData', [AuthController::class, 'proceedingsUp']);
     Route::get('/user/{id}', [AuthController::class, 'show']);
     Route::get('/userProceedings/{id}', [AuthController::class, 'proceedings']);
     Route::post('/userAdmin', [AuthController::class, 'updateAdmin']);

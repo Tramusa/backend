@@ -513,8 +513,11 @@ class TripController extends Controller
                         ->join('others', 'users.id', '=', 'others.user_id') // Unir con tabla 'others'
                         ->where('users.id', $tripData->operator) // Filtrar por el ID del operador
                         ->first(); // Obtener el primer resultado
-
+            $coordinadorData = DB::table('users') 
+                        ->where('rol', 'Coordinador Logistica Concentrado')
+                        ->first(); // Obtener el primer resultado
             $UTs = Units_Trips::where('trip', $trip)->get();
+            $volume = 0;
             if ($UTs) {
                 $tablas = ['', 'tractocamiones', 'remolques', 'dollys', 'volteos', 'toneles', 'tortons', 'autobuses', 'sprinters', 'utilitarios', 'maquinarias'];
                 $infoUnits = []; // Array para acumular la información de la unidad
@@ -530,17 +533,26 @@ class TripController extends Controller
                                 $infoUnits['placaT2'] = $unit->no_placas;
                             }else{
                                 $infoUnits['placaT1'] = $unit->no_placas;
-                            }                                                        
+                            }  
+                            $volume += $unit->volume;                                                     
                         }
                     }
-                }                
+                }  
+                $infoUnits['volume'] = $volume;                           
                 if (!isset($infoUnits['placaT2'])) {// Comprobar si hay placaT2 y asignar 'N/A' si no existe
                     $infoUnits['placaT2'] = 'N/A';
                 } 
                 if (!isset($infoUnits['placaT1'])) {// Comprobar si hay placaT2 y asignar 'N/A' si no existe
                     $infoUnits['placaT1'] = 'N/A';
-                }                
-            }
+                }  
+            }              
+            if($coordinadorData->signature){//IMAGEN DEL OPERADOR O DEFAULT
+                $ImgSignaturePath = public_path(str_replace("public", 'storage', $coordinadorData->signature));
+            }else{
+                $ImgSignaturePath = public_path('imgPDF/bus.jpg');
+            } 
+            $coordinadorData->signature=$this->getImageBase64($ImgSignaturePath);// Convertir las imágenes a base64
+
             $currentDate = date('d/m/Y');
             // Cargar la vista y pasar todos los datos necesarios
             $data = [
@@ -548,6 +560,7 @@ class TripController extends Controller
                 'logoImage' => $logoImage,
                 'customer' => $customer,
                 'operator' => $operatorData,
+                'coordinador' => $coordinadorData,
                 'unit' => $infoUnits,
                 'hoy' => $currentDate,
             ];

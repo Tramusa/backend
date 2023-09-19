@@ -69,6 +69,14 @@
         margin: 10px 0 10px 0;
       }
 
+      #signature {
+        text-align: center;
+      }     
+
+      .signatureImg{
+        width: 40%;
+      }
+
       h1 {
         font-family: "Arial Narrow", Arial, sans-serif;
         border: 2.5px solid  #D1D1D1;
@@ -218,18 +226,18 @@
     <main>
       <div id="project">
         <div><span>FECHA:</span><a class="blue">{{ $trip->date }}</a></div>
-        <div><span>ESTACION:</span><a class="red">{{ $trip->destination->name }}</a></div>
+        <div><span>ESTACION:</span><a class="red">{{ $trip->destination->no_season }}</a></div>
       </div>
       <p class="leyenda">Entregar unicamente al portador cuyo nombre e identificación y demas datos personales se plasman a continuación, el cargamento para transportar con destino a:</p>
       <h1>GENERALES</h1> 
       <div id="project">
         <div><span>NOMBRE DEL SOLICITANTE:</span>{{ $trip->name }}</div>
-        <div><span>MEDIO DE SOLICITUD:</span>>>> SIN DATO</div>
+        <div><span>MEDIO DE SOLICITUD:</span>{{ $trip->application_medium }}</div>
         <div><span>NOMBRE O RAZÓN SOCIAL:</span>{{ $customer->name }}</div>
         <div><span>DIRECCION:</span>{{$trip->destination->street.' '.$trip->destination->suburb}}</div>
         <div><span>CIUDAD:</span>{{$trip->destination->city.', '.$trip->destination->state.', '.$trip->destination->cp}}</div>
         <div><span>ESTACIÓN:</span>{{ $trip->destination->name }}</div>
-        <div><span>SIIC:</span>>>> SIN DATO</div>
+        <div><span>SIIC:</span>{{ $trip->destination->siic }}</div>
         <div><span>ENCARGADO DE ESTACION:</span>>>> SIN DATO</div>
         <div><span>E-MAIL:</span>pagos@masgas.com.mx/ventas@masgas.com.mx/e08945@masgas.com.mx</div>
         <div><span>TERMINAL ORIGEN:</span><a class="blue">{{ $trip->origin->name }}</a></div>
@@ -238,7 +246,7 @@
         <div><span>PLACAS TRACTOR:</span>{{ $unit['placaTracto'] }}</div>
         <div><span>PLACAS TONEL 1:</span>{{ $unit['placaT1'] }}</div>
         <div><span>PLACAS TONEL 2:</span>{{ $unit['placaT2'] }}</div>
-        <div><span>VOLUMEN:</span>>>>SIN DATO</div>
+        <div><span>VOLUMEN:</span>{{ $unit['volume'] }}</div>
         <div><span>PRODUCTO:</span><a class="blue">{{ $trip->product }}</a></div>
         <div><span>OPERADOR:</span>{{$operator->name.' '.$operator->a_paterno.' '.$operator->a_materno}}</div>
         <div><span>RFC OPERADOR:</span>{{$operator->rfc}}</div>
@@ -261,7 +269,7 @@
         <tr>
           <td colspan="1" class="blackTitle">{{ $trip->product }}</td>
           <td colspan="1" class="blackTitle">{{ $unit['no_economic'] }}</td>
-          <td colspan="1" class="blackTitle">>>>SIN DATO</td>
+          <td colspan="1" class="blackTitle">{{ $unit['volume'] }}</td>
           <td colspan="1" class="blackTitle">{{ $trip->origin->name }}</td>
           <td colspan="1" class="blackTitle">{{$trip->destination->street.' '.$trip->destination->suburb.', '.$trip->destination->city.', '.$trip->destination->state.', '.$trip->destination->cp}}</td>
         </tr>
@@ -274,9 +282,11 @@
         <tr>
           <td colspan="1" style="text-align: center;"><br>
             <div>FECHA Y FIRMA . . . . . . . . . . . . . . . . . . . . . . . . {{ $hoy }}</div>
-            <div><br><br><br><br><br><br><br><br></div>
+            <div id="signature">
+              <img class="signatureImg" src="{{ $coordinador->signature }}">
+            </div>
             <div>__________________________________________</div>
-            <div>ING. ELÍAS JARETH ROCHA JIMÉNEZ</div><br>
+            <div>ING. {{$coordinador->name.' '.$coordinador->a_paterno.' '.$coordinador->a_materno}}</div>
           </td>
         </tr>
         <tr><th colspan="1">COORDINADOR DE LOGÍSTICA</th></tr>

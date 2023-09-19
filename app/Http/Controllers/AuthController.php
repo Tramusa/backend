@@ -39,6 +39,9 @@ class AuthController extends Controller
     public function proceedings($id)
     {
         $user = User::find($id);
+        if($user->signature){
+            $user->signature= asset(Storage::url($user->signature));
+        }
         $address = Addresses::where('user_id', $id)->first();
         $other = Others::where('user_id', $id)->first();
         $beneficiary = Beneficiarie::where('user_id', $id)->first();
@@ -52,16 +55,23 @@ class AuthController extends Controller
             'contacts' => $contacts
         ], 201);
     }
-
     public function proceedingsUp(Request $request)
     {
-        //Logger($request->user['id']);
         $id = $request->user['id'];
         $response = $this->proceedings($id); // Obtener la respuesta JSON completa
         $data = $response->getData(); // Extraer el contenido JSON
 
         if ($data->user) {
+            unset($request->user->signature);
             User::find($id)->update($request->user);//Actualizar el usuario
+            if ($request->file('signature')){   
+                Storage::delete($data->user->signature); 
+                Logger('IFF SIII');         
+                $path = $request->file('signature')->store('public/signatures');        
+                User::find($id)->update(['signature' => $path]);
+                $imagen_rectangular = Image::make($request->file('signature'))->fit(280, 240);
+                $imagen_rectangular->save(public_path(Storage::url($path)));
+            } 
         }
 
         if ($data->address) {

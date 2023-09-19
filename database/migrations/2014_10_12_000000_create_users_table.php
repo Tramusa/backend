@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('rol')->nullable();
             $table->string('avatar')->nullable();
+            $table->string('signature')->nullable();
             $table->boolean('active')->default(0);
             $table->rememberToken();
             $table->timestamps();

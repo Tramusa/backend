@@ -224,9 +224,11 @@ class UnitController extends Controller
                 }   
                 break;
             case 9:
+                Logger($request->all()) ;  
+
                 $request->validate(['front' => 'image|max:3000', 'rear' => 'image|max:3000', 'left' => 'image|max:3000', 'right' => 'image|max:3000',]); // 3MB Asegúrate de que se haya cargado una imagen y que sea de un tipo válido.
-                $data = $request->only(['no_economic', 'brand', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'state_tenure', 'expiration_tenure', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'ejes', 'user']);
-            
+                $data = $request->only(['no_economic', 'brand', 'model', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'state_tenure', 'expiration_tenure', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'ejes', 'user']);
+                
                 $unit = new Utilitarios($data);            
                 $unit->save();
                 if ($request->file('front')){            
@@ -285,6 +287,19 @@ class UnitController extends Controller
         switch ($request->type) {
             case 1:
                 $unit = Tractocamiones::find($request->id);
+                $front = $unit->front; 
+                unset($unit->front);
+                if ($front) {  $unit->front_img = asset(Storage::url($front));  }
+                $rear = $unit->rear;
+                unset($unit->rear);
+                if ($rear) {  $unit->rear_img = asset(Storage::url($rear));  }
+                $left = $unit->left;
+                unset($unit->left);
+                if ($left) {  $unit->left_img = asset(Storage::url($left));  }
+                $right = $unit->right;
+                unset($unit->right);
+                if ($right) {  $unit->right_img = asset(Storage::url($right));  }
+                return $unit;
                 return $unit;
                 break;
             case 2:
@@ -380,12 +395,56 @@ class UnitController extends Controller
     {   
         switch ($type) {
             case 1:
-                Tractocamiones::find($request->id)->update($request->all()); 
+                $request->validate(['front' => 'image|max:3000', 'rear' => 'image|max:3000', 'left' => 'image|max:3000', 'right' => 'image|max:3000',]); // 3MB Asegúrate de que se haya cargado una imagen y que sea de un tipo válido.
+                $data = $request->only(['no_economic', 'brand', 'model', 'year', 'no_motor', 'no_seriously', 'motor', 'color', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'state_tenure', 'expiration_tenure', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'cre', 'expiration_cre', 'engine_capacity', 'speeds', 'differential_pitch', 'transmission', 'ecm', 'esn', 'cpl', 'extent_tire', 'tire', 'ejes', 'user']);
+                
+                Tractocamiones::find($request->id)->update($data);
+                // Obtén el registro actual
+                $tractocamion = Tractocamiones::find($request->id);
+
+                // Elimina las imágenes antiguas si se proporcionan nuevas imágenes
+                if ($request->hasFile('front')) {
+                    Storage::delete($tractocamion->front);
+                }
+                if ($request->hasFile('rear')) {
+                    Storage::delete($tractocamion->rear);
+                }
+                if ($request->hasFile('left')) {
+                    Storage::delete($tractocamion->left);
+                }
+                if ($request->hasFile('right')) {
+                    Storage::delete($tractocamion->right);
+                }
+
+                if ($request->file('front')){            
+                    $path = $request->file('front')->store('public/units');
+                    Tractocamiones::find($request->id)->update(['front' => $path]);
+                    $imagen_rectangular = Image::make($request->file('front'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                }
+                if ($request->file('rear')){            
+                    $path = $request->file('rear')->store('public/units');        
+                    Tractocamiones::find($request->id)->update(['rear' => $path]);;
+                    $imagen_rectangular = Image::make($request->file('rear'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                } 
+                if ($request->file('left')){            
+                    $path = $request->file('left')->store('public/units');        
+                    Tractocamiones::find($request->id)->update(['left' => $path]);
+                    $imagen_rectangular = Image::make($request->file('left'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                } 
+                if ($request->file('right')){            
+                    $path = $request->file('right')->store('public/units');        
+                    Tractocamiones::find($request->id)->update(['right' => $path]);
+                    $imagen_rectangular = Image::make($request->file('right'))->fit(280, 250);
+                    $imagen_rectangular->save(public_path(Storage::url($path)));
+                }   
                 break;
             case 2:       
                 Remolques::find($request->id)->update($request->all());  
                 break;
-            case 3:       
+            case 3:    
                 Dollys::find($request->id)->update($request->all());
                 break;
             case 4:       
@@ -399,6 +458,23 @@ class UnitController extends Controller
                 $data = $request->only(['no_economic', 'brand', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'state_tenure', 'expiration_tenure', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'engine_capacity', 'speeds', 'differential_pitch', 'transmission', 'ecm', 'esn', 'cpl', 'extent_tire', 'tire', 'ejes', 'no_passengers', 'user']);
                 
                 Tortons::find($request->id)->update($data);
+
+                // Obtén el registro actual
+                $torton = Tortons::find($request->id);
+
+                // Elimina las imágenes antiguas si se proporcionan nuevas imágenes
+                if ($request->hasFile('front')) {
+                    Storage::delete($torton->front);
+                }
+                if ($request->hasFile('rear')) {
+                    Storage::delete($torton->rear);
+                }
+                if ($request->hasFile('left')) {
+                    Storage::delete($torton->left);
+                }
+                if ($request->hasFile('right')) {
+                    Storage::delete($torton->right);
+                }
 
                 if ($request->file('front')){            
                     $path = $request->file('front')->store('public/units');
@@ -426,11 +502,27 @@ class UnitController extends Controller
                 }  
                 break;
             case 7:   
-                Logger($request);
                 $request->validate(['front' => 'image|max:3000', 'rear' => 'image|max:3000', 'left' => 'image|max:3000', 'right' => 'image|max:3000',]); // 3MB Asegúrate de que se haya cargado una imagen y que sea de un tipo válido.
                 $data = $request->only(['no_economic', 'brand', 'model', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'ejes', 'no_passengers', 'user']);
             
                 Autobuses::find($request->id)->update($data); 
+
+                // Obtén el registro actual
+                $autobus = Autobuses::find($request->id);
+
+                // Elimina las imágenes antiguas si se proporcionan nuevas imágenes
+                if ($request->hasFile('front')) {
+                    Storage::delete($autobus->front);
+                }
+                if ($request->hasFile('rear')) {
+                    Storage::delete($autobus->rear);
+                }
+                if ($request->hasFile('left')) {
+                    Storage::delete($autobus->left);
+                }
+                if ($request->hasFile('right')) {
+                    Storage::delete($autobus->right);
+                }
                 
                 if ($request->file('front')){            
                     $path = $request->file('front')->store('public/units');
@@ -462,6 +554,23 @@ class UnitController extends Controller
                 $data = $request->only(['no_economic', 'brand', 'model', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'state_tenure', 'expiration_tenure', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'ejes', 'no_passengers', 'user']);
             
                 Sprinters::find($request->id)->update($data); 
+
+                // Obtén el registro actual
+                $sprinter = Sprinters::find($request->id);
+
+                // Elimina las imágenes antiguas si se proporcionan nuevas imágenes
+                if ($request->hasFile('front')) {
+                    Storage::delete($sprinter->front);
+                }
+                if ($request->hasFile('rear')) {
+                    Storage::delete($sprinter->rear);
+                }
+                if ($request->hasFile('left')) {
+                    Storage::delete($sprinter->left);
+                }
+                if ($request->hasFile('right')) {
+                    Storage::delete($sprinter->right);
+                }
                 
                 if ($request->file('front')){            
                     $path = $request->file('front')->store('public/units');
@@ -489,10 +598,28 @@ class UnitController extends Controller
                 }         
                 break;
             case 9:  
+
                 $request->validate(['front' => 'image|max:3000', 'rear' => 'image|max:3000', 'left' => 'image|max:3000', 'right' => 'image|max:3000',]); // 3MB Asegúrate de que se haya cargado una imagen y que sea de un tipo válido.
                 $data = $request->only(['no_economic', 'brand', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'state_tenure', 'expiration_tenure', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'ejes', 'user']);
                  
                 Utilitarios::find($request->id)->update($data);
+
+                // Obtén el registro actual
+                $utilitario = Utilitarios::find($request->id);
+
+                // Elimina las imágenes antiguas si se proporcionan nuevas imágenes
+                if ($request->hasFile('front')) {
+                    Storage::delete($utilitario->front);
+                }
+                if ($request->hasFile('rear')) {
+                    Storage::delete($utilitario->rear);
+                }
+                if ($request->hasFile('left')) {
+                    Storage::delete($utilitario->left);
+                }
+                if ($request->hasFile('right')) {
+                    Storage::delete($utilitario->right);
+                }
 
                 if ($request->file('front')){            
                     $path = $request->file('front')->store('public/units');
