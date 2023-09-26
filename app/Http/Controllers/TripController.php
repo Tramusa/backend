@@ -31,21 +31,41 @@ class TripController extends Controller
 {
     public function addUnit(Request $request)
     {
-        $unit = DB::table('units__trips')
-            ->join('trips', 'units__trips.trip', '=', 'trips.id')
+       //VERIFICAR QUE LA UNIDAD NO TENGA INSPECCIONES PENDIENTES
+       $unitClass = [
+            1 => Tractocamiones::class,
+            2 => Remolques::class,
+            3 => Dollys::class,
+            4 => Volteos::class,
+            5 => Toneles::class,
+            6 => Tortons::class,
+            7 => Autobuses::class,
+            8 => Sprinters::class,
+            9 => Utilitarios::class,
+            10 => Maquinarias::class,
+        ][$request->type_unit];
+        
+        $inspection = $unitClass::find($request->unit);
+
+        if ($inspection->status === 'inspection') {  
+            return response()->json([
+                'message' => 'La unidad no se encuentra disponible para viaje (Estatus = "Inspeccion")'
+            ], 422);       
+        }else{
+            $unit = DB::table('units__trips')
             ->where('type_unit', $request->type_unit)
             ->where('unit', $request->unit)
-            ->where('status', 1)
+            ->where('trip', $request->trip)
             ->get();
-        if (count($unit) > 0) {
-            return response()->json([
-                'message' => 'La unidad ya se encuentra en la lista de unidades'
-            ], 422); 
-        }else{
-            $unit = new Units_Trips($request->all());                
-            $unit->save();
+            if (count($unit) > 0) {
+                return response()->json([
+                    'message' => 'La unidad ya se encuentra en la lista de unidades dentro del mismo viaje'
+                ], 422); 
+            }else{    
+                $unit = new Units_Trips($request->all());                
+                $unit->save();
+            }
         }
-        return response()->json($request);
     }
 
     public function search(Request $request)

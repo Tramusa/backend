@@ -2,18 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Autobuses;
-use App\Models\Dollys;
-use App\Models\Earrings;
 use App\Models\Inspections;
-use App\Models\Maquinarias;
-use App\Models\Remolques;
-use App\Models\Sprinters;
-use App\Models\Toneles;
-use App\Models\Tortons;
-use App\Models\Tractocamiones;
-use App\Models\Utilitarios;
-use App\Models\Volteos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -39,11 +28,29 @@ class InspectionsController extends Controller
 
     public function create(Request $request)
     {
-       #Logger($request);
-       $program = new Inspections($request->all());                
-       $program->save();
-       return response()->json(['message' => 'Insepeccion generada existosamente.']);
-   
+        #Logger($request);
+        try {
+            // Obtén el tipo y el ID de la unidad de la solicitud
+            $type = $request->input('type');
+            $unitId = $request->input('unit');
+
+            // Determina la tabla correspondiente según el tipo de unidad
+            $tablas = ['', 'tractocamiones', 'remolques', 'dollys', 'volteos', 'toneles', 'tortons', 'autobuses', 'sprinters', 'utilitarios', 'maquinarias'];
+            $tablaUnidad = $tablas[$type];
+
+            // Actualiza el estado de la unidad a "inspection" en la tabla correspondiente
+            if (!empty($tablaUnidad)) {
+                DB::table($tablaUnidad)->where('id', $unitId)->update(['status' => 'inspection']);
+            }
+
+            // Guarda la inspección
+            $program = new Inspections($request->all());
+            $program->save();
+
+            return response()->json(['message' => 'Inspección generada exitosamente.']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al generar la inspección.'], 500);
+        }
     }
 
     public function show($id)
@@ -51,5 +58,4 @@ class InspectionsController extends Controller
         $inspection = Inspections::find($id);
         return response()->json($inspection);
     }
-
 }
