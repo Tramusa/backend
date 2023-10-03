@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Validation\ValidationException;
 use App\Models\CECOs;
 use App\Models\Customers;
 use Illuminate\Http\Request;
@@ -19,12 +18,12 @@ class CustomersController extends Controller
     public function create(Request $request)
     {
         // Validar campos únicos antes de crear el cliente
-        $validatedData = $request->validate([
+        $request->validate([
             'name' => 'unique:customers,name,NULL,id,prefijo,' . $request->prefijo,
             'prefijo' => 'unique:customers,prefijo,NULL,id,name,' . $request->name,
         ]);
 
-        $customer = new Customers($validatedData);
+        $customer = new Customers($request->all());
         $customer->save();
         
         //SELECCIONAMOS EL CLIENTE SI LO ENCUENTRA, LE AGREGAMOS EL ID A LOS CECOs

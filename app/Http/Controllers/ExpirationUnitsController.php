@@ -22,26 +22,6 @@ class ExpirationUnitsController extends Controller
         return response()->json($expirations);
     }
 
-    public function create()
-    {
-        //
-    }
-
-    public function store(Request $request)
-    {
-        //
-    }
-
-    public function show($id)
-    {
-        //
-    }
- 
-    public function edit($id)
-    {
-        //
-    }
-
     public function update(Request $request, $id)
     {
         //
@@ -49,6 +29,7 @@ class ExpirationUnitsController extends Controller
 
     public function destroy($id)
     {
-        //
+        ExpirationUnits::find($id)->delete();
+        return response()->json(['message' => 'Vencimiento eliminado'], 201);
     }
 }

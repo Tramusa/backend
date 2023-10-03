@@ -43,6 +43,7 @@ return new class extends Migration
             $table->string('esn');
             $table->string('cpl');
             $table->integer('ejes');
+            $table->string('carrier');
             $table->string('front')->nullable();
             $table->string('rear')->nullable();
             $table->string('left')->nullable();

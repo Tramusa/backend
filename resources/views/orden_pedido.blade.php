@@ -33,7 +33,7 @@
       }
 
       .column-2-1 {
-        width: 2%;
+        width: 12%;
         float: left; 
       }
 
@@ -238,10 +238,10 @@
         <div><span>CIUDAD:</span>{{$trip->destination->city.', '.$trip->destination->state.', '.$trip->destination->cp}}</div>
         <div><span>ESTACIÓN:</span>{{ $trip->destination->name }}</div>
         <div><span>SIIC:</span>{{ $trip->destination->siic }}</div>
-        <div><span>ENCARGADO DE ESTACION:</span>>>> SIN DATO</div>
-        <div><span>E-MAIL:</span>pagos@masgas.com.mx/ventas@masgas.com.mx/e08945@masgas.com.mx</div>
+        <div><span>ENCARGADO DE ESTACION:</span>{{ $customer->manager_base }}</div>
+        <div><span>E-MAIL:</span>{{ $customer->email }}</div>
         <div><span>TERMINAL ORIGEN:</span><a class="blue">{{ $trip->origin->name }}</a></div>
-        <div><span>TRANSPORTISTA:</span><a class="blue">>>>SIN DATO</a></div>
+        <div><span>TRANSPORTISTA:</span><a class="blue">{{ $unit['carrier'] }}</a></div>
         <div><span>EQUIPO:</span><a class="blue">{{ $unit['no_economic'] }}</a></div>
         <div><span>PLACAS TRACTOR:</span>{{ $unit['placaTracto'] }}</div>
         <div><span>PLACAS TONEL 1:</span>{{ $unit['placaT1'] }}</div>

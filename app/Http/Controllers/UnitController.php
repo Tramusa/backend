@@ -65,7 +65,7 @@ class UnitController extends Controller
         switch ($request->tipo) {
             case 1:
                 $request->validate(['front' => 'image|max:3000', 'rear' => 'image|max:3000', 'left' => 'image|max:3000', 'right' => 'image|max:3000',]); // 3MB Asegúrate de que se haya cargado una imagen y que sea de un tipo válido.
-                $data = $request->only(['no_economic', 'brand', 'model', 'year', 'no_motor', 'no_seriously', 'motor', 'color', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'state_tenure', 'expiration_tenure', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'cre', 'expiration_cre', 'engine_capacity', 'speeds', 'differential_pitch', 'transmission', 'ecm', 'esn', 'cpl', 'extent_tire', 'tire', 'ejes', 'user']);
+                $data = $request->only(['no_economic', 'brand', 'model', 'year', 'no_motor', 'no_seriously', 'motor', 'color', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'state_tenure', 'expiration_tenure', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'cre', 'expiration_cre', 'engine_capacity', 'speeds', 'differential_pitch', 'transmission', 'ecm', 'esn', 'cpl', 'extent_tire', 'tire', 'ejes', 'carrier', 'user']);
                 
                 $unit = new Tractocamiones($data);                
                 $unit->save();
@@ -396,7 +396,7 @@ class UnitController extends Controller
         switch ($type) {
             case 1:
                 $request->validate(['front' => 'image|max:3000', 'rear' => 'image|max:3000', 'left' => 'image|max:3000', 'right' => 'image|max:3000',]); // 3MB Asegúrate de que se haya cargado una imagen y que sea de un tipo válido.
-                $data = $request->only(['no_economic', 'brand', 'model', 'year', 'no_motor', 'no_seriously', 'motor', 'color', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'state_tenure', 'expiration_tenure', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'cre', 'expiration_cre', 'engine_capacity', 'speeds', 'differential_pitch', 'transmission', 'ecm', 'esn', 'cpl', 'extent_tire', 'tire', 'ejes', 'user']);
+                $data = $request->only(['no_economic', 'brand', 'model', 'year', 'no_motor', 'no_seriously', 'motor', 'color', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'state_tenure', 'expiration_tenure', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'cre', 'expiration_cre', 'engine_capacity', 'speeds', 'differential_pitch', 'transmission', 'ecm', 'esn', 'cpl', 'extent_tire', 'tire', 'ejes', 'carrier', 'user']);
                 
                 Tractocamiones::find($request->id)->update($data);
                 // Obtén el registro actual

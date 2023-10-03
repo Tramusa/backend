@@ -12,6 +12,8 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('prefijo');
+            $table->string('manager_base')->nullable();
+            $table->string('email')->nullable();
             $table->timestamps();
         });
     }

@@ -25,6 +25,8 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::get('/user/{id}', [AuthController::class, 'show']);
     Route::get('/userProceedings/{id}', [AuthController::class, 'proceedings']);
     Route::post('/userAdmin', [AuthController::class, 'updateAdmin']);
+    Route::delete('/expirationsUnits/{id}', [ExpirationUnitsController::class, 'destroy']);
+
 });
 
 Route::middleware('auth:sanctum')->post('/change-password', [ProfileController::class, 'changePassword']);

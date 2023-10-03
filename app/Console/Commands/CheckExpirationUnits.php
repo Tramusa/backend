@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use App\Models\ExpirationUnits;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class CheckExpirationUnits extends Command

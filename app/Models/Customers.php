@@ -9,7 +9,7 @@ class Customers extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'prefijo'];
+    protected $fillable = ['name', 'prefijo', 'manager_base', 'email'];
 
     public function cecos()
     {

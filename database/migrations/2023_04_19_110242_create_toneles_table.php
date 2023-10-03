@@ -24,6 +24,10 @@ return new class extends Migration
             $table->date('expiration_receipt');
             $table->string('physical_mechanical');
             $table->date('physical_expiration');
+            $table->string('airtightness_tests');
+            $table->date('expiration_airtightness');
+            $table->string('volumetric_calibration');
+            $table->date('expiration_volumetric');
             $table->integer('ejes');
             $table->string('volume');
             $table->integer('user');

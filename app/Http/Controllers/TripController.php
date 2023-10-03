@@ -547,6 +547,7 @@ class TripController extends Controller
                         // Agregar la información de la unidad al array $infoUnits
                         if ($item->type_unit === 1) {
                             $infoUnits['no_economic'] = $unit->no_economic;
+                            $infoUnits['carrier'] = $unit->carrier;
                             $infoUnits['placaTracto'] = $unit->no_placas;
                         } elseif ($item->type_unit === 5) {
                             if (isset($infoUnits['placaT1'])) {
