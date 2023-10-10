@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Autobuses;
 use App\Models\CECOs;
+use App\Models\ChekDocs;
 use App\Models\Customers;
 use App\Models\Dollys;
 use App\Models\Inspections;
@@ -293,17 +294,11 @@ class TripController extends Controller
         switch ($type) {
             case 1:
                 $trips = DB::table('trips')
-                    ->where('origin', null)
-                    ->where('destination', null)
-                    ->where('operator', null)
-                    ->where('status', 1)
+                    ->where('status', 0)
                     ->get();
                 break;   
             case 2:
                 $trips = DB::table('trips')
-                    ->where('origin', '!=', null)
-                    ->where('destination', '!=', null)
-                    ->where('operator', '!=', null)
                     ->where('date', '>', $Hoy)
                     ->where('status', 1)
                     ->get();
@@ -316,9 +311,6 @@ class TripController extends Controller
                 break;
             case 3:
                 $trips = DB::table('trips')
-                    ->where('origin', '!=', null)
-                    ->where('destination', '!=', null)
-                    ->where('operator', '!=', null)
                     ->where('date', '<=', $Hoy)
                     ->where('status', 1)
                     ->get();
@@ -356,58 +348,109 @@ class TripController extends Controller
     public function showTrip($id)
     {
         $trip = Trips::find($id);
-        $operator = DB::table('users')->where('id', $trip->operator)->get();
-        $trip->operator = $operator[0]->name.' '.$operator[0]->a_paterno; 
+        if ($trip->operator) {
+            $operator = DB::table('users')->where('id', $trip->operator)->get();
+            $trip->operator_name = $operator[0]->name.' '.$operator[0]->a_paterno; 
+        }else{
+            $trip->operator_name = '';
+        }             
         
-        $origin = ModelsPointsInterest::find($trip->origin);
-        $destination = ModelsPointsInterest::find($trip->destination);
-        $customer = Customers::find($trip->customer);            
+        if ($trip->origin) {
+            $origin = ModelsPointsInterest::find($trip->origin);
+            $trip->origin_desc = $origin->name;
+        }else{
+            $trip->origin_desc = '';
+        }
+
+        if ($trip->destination) {
+            $destination = ModelsPointsInterest::find($trip->destination);
+            $trip->destination_desc = $destination->name;
+        } else{
+            $trip->destination_desc = '';
+        }     
+
+        if ($trip->customer) {
+            $customer = Customers::find($trip->customer); 
+            $trip->customer_name = $customer->name;
+            $trip->prefijo = $customer->prefijo;
+        }else{
+            $trip->customer_name = '';
+            $trip->prefijo = '';
+        }   
+
         $ruta = Rutas::where('origin', $trip->origin)
             ->where('destination', $trip->destination)
-            ->first();
-        $trip->customer_id = $customer->id;
-        $trip->customer = $customer->name;
-        $trip->prefijo = $customer->prefijo;
-        $trip->prefijo = $customer->prefijo;
-        $trip->ruta = $ruta->id;
-        $trip->km = $ruta->km;
-        $trip->time = $ruta->time;
-        if ($trip->ceco == 0) {
-            $trip->ceco = "N/A";
-        } else {
+            ->first();     
+        if ($ruta) {
+            $trip->ruta = $ruta->id;
+            $trip->km = $ruta->km;
+            $trip->time = $ruta->time;
+        }else{
+            $trip->ruta = '';
+            $trip->km = '';
+            $trip->time = '';
+        }
+
+        $docs = ChekDocs::where('trip', $id)->first();     
+        if ($docs AND $trip->prefijo == 'TC') {
+            $trip->programming_doc = $docs->programming_doc;
+            $trip->vale_doc = $docs->vale_doc;
+            $trip->letter_doc = $docs->letter_doc;
+            $trip->stamp_doc = $docs->stamp_doc;
+        }else if($trip->prefijo == 'TC'){
+            $trip->programming_doc = '';
+            $trip->vale_doc = '';
+            $trip->letter_doc = '';
+            $trip->stamp_doc = '';
+        }
+
+        if ($trip->ceco != 0) {
             $CECO = CECOs::find($trip->ceco);
-            $trip->ceco = $CECO->description;
+            $trip->ceco_desc = $CECO->description;
+        }else{
+            $trip->ceco_desc = '';
         }
-        $trip->origin = $origin->name;
-        if ($trip->p_intermediate == 0) {
-            $trip->p_intermediate = "N/A";
-        } else {
+        if ($trip->p_intermediate != 0) {
             $p_intermediate = ModelsPointsInterest::find($trip->p_intermediate);
-            $trip->p_intermediate = $p_intermediate->description;
+            $trip->p_intermediate_desc = $p_intermediate->description;
+        }else{
+            $trip->p_intermediate_desc = '';
         }
-        if ($trip->p_authorized == 0) {
-            $trip->p_authorized = "N/A";
-        } else {
+        if ($trip->p_authorized != 0) {
             $p_authorized = ModelsPointsInterest::find($trip->p_authorized);
-            $trip->p_authorized = $p_authorized->description;
+            $trip->p_authorized_desc = $p_authorized->description;
+        }else{
+            $trip->p_authorized_desc = '';
         }
-        $trip->destination = $destination->name;
         
         return response()->json($trip);
     }
-
+    
     public function update(Request $request, $trip)
-    {   
-        Trips::find($trip)->update($request->all()); 
-        
-        $pdfContent = $this->PDF($trip);
-        Storage::disk('public')->put('trips/Orden N°'. ($trip + 10000) . '.pdf', $pdfContent);
-        return response($pdfContent, 200)->header('Content-Type', 'application/pdf');// Devolver el contenido del PDF
-    }
+    { 
+        Trips::find($trip)->update($request->data);//ACTUALIZAMOS LA INFO
+        Trips::find($trip)->update(['status' => $request->status]);//ACTUALIZAMOS EL ESTATUS
+        // Si $request->docs no es un array vacío, insertar o actualizar en ChekDocs
+        if (!empty($request->docs)) {
+            $existingEntry = ChekDocs::where('trip', $trip)->first();
+            if ($existingEntry) {
+                // Si ya existe una entrada, actualiza los datos
+                $existingEntry->update($request->docs);
+            } else {
+                // Si no existe una entrada, crea una nueva
+                $dataDocs['trip'] = $trip;
+                $dataDocs = array_merge($dataDocs, $request->docs);
 
-    public function updateCancel(Request $request, $trip)
-    {   
-        Trips::find($trip)->update($request->all()); 
+                ChekDocs::create($dataDocs);
+            }
+        }
+        if ($request->status === 0 OR $request->status === 3) {
+            return response()->json(['message' => 'Viaje actualizado exitosamente.']);
+        }else if ($request->status === 1) {
+            $pdfContent = $this->PDF($trip);
+            Storage::disk('public')->put('trips/Orden N°'. ($trip + 10000) . '.pdf', $pdfContent);
+            return response($pdfContent, 200)->header('Content-Type', 'application/pdf');// Devolver el contenido del PDF
+        }
     }
 
     private function PDF($trip)
@@ -537,6 +580,27 @@ class TripController extends Controller
                         ->where('rol', 'Coordinador Logistica Concentrado')
                         ->first(); // Obtener el primer resultado
             $UTs = Units_Trips::where('trip', $trip)->get();
+            $Docs = ChekDocs::where('trip', $trip)->first();
+
+            if ($Docs) {
+                $ImgSi = $this->getImageBase64(public_path('imgPDF/si.png'));
+                $ImgNo = $this->getImageBase64(public_path('imgPDF/no.png'));
+                $ImgNA = $this->getImageBase64(public_path('imgPDF/n-a.png'));
+
+                $array = ['CUMPLE' => $ImgSi, 'NO' => $ImgNo, 'N/A' => $ImgNA];
+
+                $Docs->programming_doc = $array[$Docs->programming_doc] ?? $ImgSi;
+                $Docs->vale_doc = $array[$Docs->vale_doc] ?? $ImgSi;
+                $Docs->letter_doc = $array[$Docs->letter_doc] ?? $ImgSi;
+                $Docs->stamp_doc = $array[$Docs->stamp_doc] ?? $ImgSi;
+            } else {
+                $ImgDefault = $this->getImageBase64(public_path('imgPDF/si.png'));
+                $Docs->trip = $trip;
+                $Docs->programming_doc = $ImgDefault;
+                $Docs->vale_doc = $ImgDefault;
+                $Docs->letter_doc = $ImgDefault;
+                $Docs->stamp_doc = $ImgDefault;
+            }
             $volume = 0;
             if ($UTs) {
                 $tablas = ['', 'tractocamiones', 'remolques', 'dollys', 'volteos', 'toneles', 'tortons', 'autobuses', 'sprinters', 'utilitarios', 'maquinarias'];
@@ -584,6 +648,7 @@ class TripController extends Controller
                 'coordinador' => $coordinadorData,
                 'unit' => $infoUnits,
                 'hoy' => $currentDate,
+                'docs' => $Docs,
             ];
 
             $html = view('orden_pedido', $data)->render();
@@ -641,41 +706,62 @@ class TripController extends Controller
         return response()->json(['message' => 'Viaje cancelado exitosamente.']);
     }
 
-    public function finish($trip)
+    public function finish($tripId)
     {
-        //CAMBIAMOS EL ESTATUS A 2 QUE ES TERMINADO Y AGREGAMOS LA FECHA DE TERMINO DEL VIAJE
-        $data_trip['status'] = 2;
-        $data_trip['end_date'] = date('Y-m-d');
-        Trips::find($trip)->update($data_trip);
-        //CAMBIAMOS EL ESTATUS DE LAS UNIDADES INVOLUCRADAS EN EL TRIP ['status'] = 'inspection'
-        $units = DB::table('units__trips')->where('trip', $trip)->get();
-        $data['status'] = 'inspection';
-        //TAMBIEN GENERAMOS UNA INSPECCION FISICOMECANICA POR CADA UNIDAD INVOLUCRADA
-        $trip =Trips::find($trip);
-        foreach ($units as $item) {        
-            $data_inspection['responsible'] = $trip->operator;
-            $data_inspection['type'] = $item->type_unit;
-            $data_inspection['unit'] = $item->unit;
-            $data_inspection['is'] = 'fisico mecanica';
-            $inspection = new Inspections($data_inspection);
-            $inspection->save();
-            $unitClass = [
-                1 => Tractocamiones::class,
-                2 => Remolques::class,
-                3 => Dollys::class,
-                4 => Volteos::class,
-                5 => Toneles::class,
-                6 => Tortons::class,
-                7 => Autobuses::class,
-                8 => Sprinters::class,
-                9 => Utilitarios::class,
-                10 => Maquinarias::class,
-            ][$item->type_unit];
+        // Change the status of the trip to 2 (finished) and record the end date and time.
+        $trip = Trips::find($tripId);
+        if ($trip) {
+            $trip->status = 2;
+            $trip->end_date = date('Y-m-d');
+            $trip->end_hour = date('H:i:s');
+            $trip->save();
 
-            $unitClass::find($item->unit)->update($data);
-        }        
-        $user = Auth::user();
-        $inspections = DB::table('inspections')->where('status', 1)->where('responsible', $user->id)->get();
-        return response()->json(['message' => 'Viaje terminado exitosamente.', 'total' => count($inspections)]);
+            // Change the status of the units involved in the trip to 'inspection'.
+            $units = DB::table('units__trips')->where('trip', $tripId)->get();
+            foreach ($units as $unit) {
+                $unitClass = [
+                    1 => Tractocamiones::class,
+                    2 => Remolques::class,
+                    3 => Dollys::class,
+                    4 => Volteos::class,
+                    5 => Toneles::class,
+                    6 => Tortons::class,
+                    7 => Autobuses::class,
+                    8 => Sprinters::class,
+                    9 => Utilitarios::class,
+                    10 => Maquinarias::class,
+                ][$unit->type_unit];
+
+                if ($unitClass) {
+                    $unitInstance = $unitClass::find($unit->unit);
+                    if ($unitInstance) {
+                        $unitInstance->status = 'inspection';
+                        $unitInstance->save();
+
+                        // Generate a physical-mechanical inspection for each unit involved.
+                        $data_inspection = [
+                            'responsible' => $trip->operator,
+                            'type' => $unit->type_unit,
+                            'unit' => $unit->unit,
+                            'is' => 'fisico mecanica',
+                        ];
+                        // Create and save the inspection using the Inspections model.
+                        $inspection = new Inspections($data_inspection);
+                        $inspection->save();
+                    }
+                }
+            }
+
+            // Retrieve the currently authenticated user and count pending inspections.
+            $user = Auth::user();
+            $inspections = DB::table('inspections')
+                ->where('status', 1)
+                ->where('responsible', $user->id)
+                ->get();
+
+            return response()->json(['message' => 'Viaje terminado exitosamente.', 'total' => count($inspections)]);
+        } else {
+            return response()->json(['message' => 'No se encontró el viaje.']);
+        }
     }
 }

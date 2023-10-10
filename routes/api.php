@@ -50,8 +50,7 @@ Route::middleware('auth:sanctum')->get('/search', [TripController::class, 'searc
 Route::middleware('auth:sanctum')->post('/addUnit', [TripController::class, 'addUnit']);
 Route::middleware('auth:sanctum')->get('/unitsTrip/{trip}', [TripController::class, 'show']);
 Route::middleware('auth:sanctum')->delete('/deleteUnit/{id}', [TripController::class, 'deleteUnit']);
-Route::middleware('auth:sanctum')->put('/createTrip/{trip}', [TripController::class, 'update']);
-Route::middleware('auth:sanctum')->put('/updateCancel/{trip}', [TripController::class, 'cancel']);
+Route::middleware('auth:sanctum')->put('/updateTrip/{trip}', [TripController::class, 'update']);
 Route::middleware('auth:sanctum')->get('/trips/{type}', [TripController::class, 'showTrips']);
 Route::middleware('auth:sanctum')->get('/finishTrip/{trip}', [TripController::class, 'finish']);
 Route::middleware('auth:sanctum')->get('/trip/{id}', [TripController::class, 'showTrip']);
@@ -59,7 +58,7 @@ Route::middleware('auth:sanctum')->get('/rutaTrip', [TripController::class, 'rut
 Route::middleware('auth:sanctum')->get('/generar-pdf/{trip}', [TripController::class, 'generarPDF']);
 
 Route::middleware('auth:sanctum')->get('/tripsCount', function () {
-    $trips = DB::table('trips')->where('status', 1)->get();
+    $trips = DB::table('trips')->whereIn('status', [0, 1])->get();
     return response()->json(['total' => count($trips)]);
 });
 Route::middleware('auth:sanctum')->get('/inspectionCount/{user}', function ($user) {

@@ -77,6 +77,15 @@
         width: 40%;
       }
 
+      #docs {
+        text-align: center;
+      }
+
+      .docsImg {
+        width: 100%; /* Aumenta el ancho al 80% del contenedor */
+        height: 30px; /* Esto mantiene la relación de aspecto original */
+      }
+
       h1 {
         font-family: "Arial Narrow", Arial, sans-serif;
         border: 2.5px solid  #D1D1D1;
@@ -296,7 +305,7 @@
           <th colspan="1">DOCUMENTO</th>  
           <th colspan="1">CUMPLE</th> 
           <th colspan="1">NO CUMPLE</th>  
-          <th colspan="1">N / A</th>
+          <th colspan="1">. N / A .</th>
         </tr>
         <tr>
           <td style="text-align: center;"><br>
@@ -305,7 +314,20 @@
             <div>Carta autorización</div> <br>
             <div>Sello de goma</div> </b><br>
           </td>
-          <td colspan="3"></td>
+          <td colspan="3">
+            <div id="docs">
+              <img class="docsImg" src="{{ $docs->programming_doc }}">
+            </div>
+            <div id="docs">
+              <img class="docsImg" src="{{ $docs->vale_doc }}">
+            </div>
+            <div id="docs">
+              <img class="docsImg" src="{{ $docs->letter_doc }}">
+            </div>
+            <div id="docs">
+              <img class="docsImg" src="{{ $docs->stamp_doc }}">
+            </div>
+          </td>
         </tr>        
       </table>      
       <div class="title">SEGUIMIENTO A QUEJAS Y/O SUGERENCIAS</div>
