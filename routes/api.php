@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\EarringsController;
+use App\Http\Controllers\ExcelController;
 use App\Http\Controllers\ExpirationUnitsController;
 use App\Http\Controllers\InspectionsController;
 use App\Http\Controllers\PeajesController;
@@ -130,3 +131,5 @@ Route::middleware('auth:sanctum')->delete('/group/{id}', [AddressGroupController
 
 Route::middleware('auth:sanctum')->get('/expirationsUnits', [ExpirationUnitsController::class, 'index']);
 
+Route::middleware('auth:sanctum')->post('/upload-excel', [TripController::class, 'import']);
+Route::middleware('auth:sanctum')->get('/download-excel', [TripController::class, 'download']);

@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Imports\TripsImport;
+use App\Jobs\ImportTripsJob;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Autobuses;
 use App\Models\CECOs;
 use App\Models\ChekDocs;
@@ -763,5 +766,31 @@ class TripController extends Controller
         } else {
             return response()->json(['message' => 'No se encontró el viaje.']);
         }
+    }
+
+    public function import(Request $request) 
+    {
+        $request->validate([
+            'excel_file' => 'required|mimes:xlsx,csv',
+        ]);
+
+        $file = $request->file('excel_file')->store('temp');
+
+        //Excel::import(new TripsImport, storage_path('app/' . $file));
+        //$import = Excel::toCollection(new TripsImport, storage_path('app/' . $file));
+
+        ImportTripsJob::dispatch(storage_path('app/' . $file));
+
+        Storage::delete($file);
+
+        return response()->json(['message' => 'El archivo de Excel se esta procesano...']);
+        //return response()->json($import); // Devuelve los datos procesados en formato JSON
+    }
+
+    public function download() 
+    {
+        $filePath = public_path('downloads/Base.xlsx');
+        $fileName = 'Base.xlsx';
+        return response()->download($filePath, $fileName);
     }
 }
