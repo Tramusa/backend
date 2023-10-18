@@ -62,7 +62,20 @@ class AuthController extends Controller
         $data = $response->getData(); // Extraer el contenido JSON
 
         if ($data->user) {
-            unset($data->user->signature);
+            if (is_array($request->user)) {
+                $userObject = (object)$request->user;
+            } else {
+                $userObject = $request->user;
+            }
+            
+            // Verifica si signature y avatar están definidos y no son null antes de eliminar y actualizar
+            if ($userObject->signature !== null) {
+                unset($request->user['signature']);
+            }
+
+            if ($userObject->avatar !== null) {
+                unset($request->user['avatar']);
+            }
             User::find($id)->update($request->user);//Actualizar el usuario
             if ($request->file('signature')){   
                 Storage::delete($data->user->signature);        
