@@ -63,8 +63,8 @@ class AuthController extends Controller
 
         if ($data->user) {
             Logger($request->user);
-            if ($request->user->signature != NULL) {
-                unset($request->user->signature);
+            if ($request->user['signature'] != NULL) {
+                unset($request->user['signature']);
             }            
             User::find($id)->update($request->user);//Actualizar el usuario
             if ($request->file('signature')){   
