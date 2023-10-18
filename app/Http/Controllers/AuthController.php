@@ -63,9 +63,16 @@ class AuthController extends Controller
 
         if ($data->user) {
             Logger($request->user);
-            if ($request->user['signature'] != NULL) {
-                unset($request->user['signature']);
-            }            
+            if (is_array($data->user)) {
+                $userObject = (object)$data->user;
+                if ($userObject->signature) {
+                    unset($request->user['signature']);
+                }
+            } else {
+                if ($data->user->signature) {
+                    unset($request->user['signature']);
+                }
+            }    
             User::find($id)->update($request->user);//Actualizar el usuario
             if ($request->file('signature')){   
                 Storage::delete($data->user->signature);        
