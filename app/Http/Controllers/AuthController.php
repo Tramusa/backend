@@ -39,7 +39,7 @@ class AuthController extends Controller
     public function proceedings($id)
     {
         $user = User::find($id);
-        if (!($user->signature || $user->signature == 'null')) {
+        if (!(is_null($user->signature) || $user->signature === 'null')) {
             $user->signature = asset(Storage::url($user->signature));
         }
         $address = Addresses::where('user_id', $id)->first();
