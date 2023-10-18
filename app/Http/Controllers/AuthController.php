@@ -69,8 +69,8 @@ class AuthController extends Controller
                 $imagen_rectangular->save(public_path(Storage::url($path)));
                 User::find($id)->update(['signature' => $path]);
             } 
-            unset($data->user['avatar']);
-            unset($data->user['avatar']);
+            unset($data->user->avatar);
+            unset($data->user->signature);
 
             User::find($id)->update($request->user);//Actualizar el usuario
         }
