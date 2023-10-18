@@ -62,11 +62,12 @@ class AuthController extends Controller
         $data = $response->getData(); // Extraer el contenido JSON
 
         if ($data->user) {
-            unset($request->user->signature);
+            if ($request->user->signature != NULL) {
+                unset($request->user->signature);
+            }            
             User::find($id)->update($request->user);//Actualizar el usuario
             if ($request->file('signature')){   
-                Storage::delete($data->user->signature); 
-                Logger('IFF SIII');         
+                Storage::delete($data->user->signature);        
                 $path = $request->file('signature')->store('public/signatures');        
                 User::find($id)->update(['signature' => $path]);
                 $imagen_rectangular = Image::make($request->file('signature'))->fit(280, 240);

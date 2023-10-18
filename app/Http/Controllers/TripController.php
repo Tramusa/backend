@@ -302,7 +302,10 @@ class TripController extends Controller
                 break;   
             case 2:
                 $trips = DB::table('trips')
-                    ->where('date', '>', $Hoy)
+                    ->where(function ($query) use ($Hoy) {
+                        $query->where('date', '>', $Hoy)
+                            ->orWhereNull('date'); // This includes records where 'date' is null
+                    })
                     ->where('status', 1)
                     ->get();
                 foreach ($trips as $item) {
