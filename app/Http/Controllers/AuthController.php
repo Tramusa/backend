@@ -62,6 +62,7 @@ class AuthController extends Controller
         $data = $response->getData(); // Extraer el contenido JSON
 
         if ($data->user) {
+            Logger($request->user);
             if ($request->user->signature != NULL) {
                 unset($request->user->signature);
             }            
