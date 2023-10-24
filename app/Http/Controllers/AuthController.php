@@ -62,17 +62,28 @@ class AuthController extends Controller
         $data = $response->getData(); // Extraer el contenido JSON
 
         if ($data->user) {
-            if ($request->file('signature')){   
-                Storage::delete($data->user->signature);        
+            
+            if ($request->file('signature')){ 
+                if ($data->user->signature) {
+                    Storage::delete($data->user->signature); 
+                }                         
                 $path = $request->file('signature')->store('public/signatures');        
-                $imagen_rectangular = Image::make($request->file('signature'))->fit(280, 240);
+                $imagen_rectangular = Image::make($request->file('signature'))->resize(290, 240);
                 $imagen_rectangular->save(public_path(Storage::url($path)));
                 User::find($id)->update(['signature' => $path]);
             } 
-            unset($data->user->avatar);
-            unset($data->user->signature);
+            $userData = [
+                'name' => $request->user['name'] ?? null,
+                'a_paterno' => $request->user['a_paterno'] ?? null,
+                'a_materno' => $request->user['a_materno'] ?? null,
+                'alias' => $request->user['alias'] ?? null,
+                'email' => $request->user['email'] ?? null,
+                'email_verified_at' => $request->user['email_verified_at'] ?? null,
+                'rol' => $request->user['rol'] ?? null,
+                'active' => $request->user['active'] ?? null,
+            ];
 
-            User::find($id)->update($request->user);//Actualizar el usuario
+            User::find($id)->update($userData);//Actualizar el usuario
         }
 
         if ($data->address) {
@@ -113,7 +124,7 @@ class AuthController extends Controller
             $path = $request->file('avatar')->store('public/avatars');        
             $user->avatar = $path;
             $user->save();
-            $imagen_cuadrada = Image::make($request->file('avatar'))->fit(250);
+            $imagen_cuadrada = Image::make($request->file('avatar'))->resize(250);
             $imagen_cuadrada->save(public_path(Storage::url($path)));
         }      
 

@@ -347,6 +347,68 @@ class TripController extends Controller
                     }
                 }
                 break;
+            case 4:
+                $trips = DB::table('trips')
+                    ->where('status', 2)
+                    ->get();
+                foreach ($trips as $item) {
+                    $origin = ModelsPointsInterest::find($item->origin);
+                    $destination = ModelsPointsInterest::find($item->destination);
+                    $item->origin = $origin->name;
+                    $item->destination = $destination->name;
+                    $units = DB::table('units__trips')->where('trip', $item->id)->get();    
+                    $unitTypeToClass = [
+                        1 => Tractocamiones::class,
+                        2 => Remolques::class,
+                        3 => Dollys::class,
+                        4 => Volteos::class,
+                        5 => Toneles::class,
+                        6 => Tortons::class,
+                        7 => Autobuses::class,
+                        8 => Sprinters::class,
+                        9 => Utilitarios::class,
+                        10 => Maquinarias::class,
+                    ];
+                    foreach ($units as $unit) {                      
+                        $unitClass = $unitTypeToClass[$unit->type_unit];
+                        $inspection = $unitClass::find($unit->unit);
+                        if ($inspection->status != 'inspection') {
+                            $unitClass::find($unit->unit)->update(['status' => 'trip']);
+                        }
+                    }
+                }
+                break;
+            case 5:
+                $trips = DB::table('trips')
+                    ->where('status', 3)
+                    ->get();
+                foreach ($trips as $item) {
+                    $origin = ModelsPointsInterest::find($item->origin);
+                    $destination = ModelsPointsInterest::find($item->destination);
+                    $item->origin = $origin->name;
+                    $item->destination = $destination->name;
+                    $units = DB::table('units__trips')->where('trip', $item->id)->get();    
+                    $unitTypeToClass = [
+                        1 => Tractocamiones::class,
+                        2 => Remolques::class,
+                        3 => Dollys::class,
+                        4 => Volteos::class,
+                        5 => Toneles::class,
+                        6 => Tortons::class,
+                        7 => Autobuses::class,
+                        8 => Sprinters::class,
+                        9 => Utilitarios::class,
+                        10 => Maquinarias::class,
+                    ];
+                    foreach ($units as $unit) {                      
+                        $unitClass = $unitTypeToClass[$unit->type_unit];
+                        $inspection = $unitClass::find($unit->unit);
+                        if ($inspection->status != 'inspection') {
+                            $unitClass::find($unit->unit)->update(['status' => 'trip']);
+                        }
+                    }
+                }
+                break;
         }        
         return response()->json($trips);
     }
@@ -464,7 +526,8 @@ class TripController extends Controller
         $tripData = Trips::find($trip);//PRIMERO SACAMOS LA INFO DEL VIAJE
         $customer = Customers::where('id', $tripData->customer)->first();// 2DO SACAMOS LA INFO DEL CLIENTE PAR SABER QUE TIPO DE DOC SE HARA(PERFIJO)
         // Create a Carbon instance from the combined date and time string
-        $dateTime = Carbon::createFromFormat('Y-m-d H:i', $tripData->date.' '.$tripData->hour)->locale('es');
+       
+        $dateTime = Carbon::createFromFormat('Y-m-d H:i:s', $tripData->date.' '.$tripData->hour)->locale('es');
         // Add the formatted date and time to the $tripData object
         $tripData->date = $dateTime->isoFormat('dddd, DD [de] MMMM [de] YYYY');// Format the date to "dddd, DD [de] MMMM [de] YYYY"
         $tripData->hour = $dateTime->format('H:i:s');// Format the time to "HH:mm.ss"
@@ -573,7 +636,6 @@ class TripController extends Controller
                 'seguridad' => $seguridad,
                 'monitor' => $monitor,
             ];
-
             $html = view('orden_viaje', $data)->render();
         }        
 
@@ -600,6 +662,7 @@ class TripController extends Controller
                 $Docs->letter_doc = $array[$Docs->letter_doc] ?? $ImgSi;
                 $Docs->stamp_doc = $array[$Docs->stamp_doc] ?? $ImgSi;
             } else {
+                $Docs = new ChekDocs();
                 $ImgDefault = $this->getImageBase64(public_path('imgPDF/si.png'));
                 $Docs->trip = $trip;
                 $Docs->programming_doc = $ImgDefault;
@@ -640,7 +703,7 @@ class TripController extends Controller
             if($coordinadorData->signature){//IMAGEN DEL OPERADOR O DEFAULT
                 $ImgSignaturePath = public_path(str_replace("public", 'storage', $coordinadorData->signature));
             }else{
-                $ImgSignaturePath = public_path('imgPDF/bus.jpg');
+                $ImgSignaturePath = public_path('imgPDF/dimension.png');
             } 
             $coordinadorData->signature=$this->getImageBase64($ImgSignaturePath);// Convertir las imágenes a base64
 
@@ -656,7 +719,6 @@ class TripController extends Controller
                 'hoy' => $currentDate,
                 'docs' => $Docs,
             ];
-
             $html = view('orden_pedido', $data)->render();
         }
 
@@ -667,7 +729,6 @@ class TripController extends Controller
                 'logoImage' => $logoImage,
                 'customer' => $customer,
             ];
-
             $html = view('orden_pedido_CM', $data)->render();
         }
 

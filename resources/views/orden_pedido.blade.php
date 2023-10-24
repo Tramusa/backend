@@ -33,12 +33,12 @@
       }
 
       .column-2-1 {
-        width: 12%;
+        width: 9%;
         float: left; 
       }
 
       .column-2-2 {
-        width: 15%;
+        width: 14%;
         float: left;
         border: 1px solid #000;
       }
@@ -74,7 +74,7 @@
       }     
 
       .signatureImg{
-        width: 40%;
+        width: 42%;
       }
 
       #docs {
