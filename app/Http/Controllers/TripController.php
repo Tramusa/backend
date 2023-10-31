@@ -664,7 +664,6 @@ class TripController extends Controller
             } else {
                 $Docs = new ChekDocs();
                 $ImgDefault = $this->getImageBase64(public_path('imgPDF/si.png'));
-                $Docs->trip = $trip;
                 $Docs->programming_doc = $ImgDefault;
                 $Docs->vale_doc = $ImgDefault;
                 $Docs->letter_doc = $ImgDefault;
@@ -723,11 +722,85 @@ class TripController extends Controller
         }
 
         if ($customer->prefijo == 'TM') {
+            $operatorData = DB::table('users') // Tabla 'users'
+                        ->join('others', 'users.id', '=', 'others.user_id') // Unir con tabla 'others'
+                        ->where('users.id', $tripData->operator) // Filtrar por el ID del operador
+                        ->first(); // Obtener el primer resultado
+            $coordinadorData = DB::table('users') 
+                        ->where('rol', 'Coordinador Logistica Concentrado')
+                        ->first(); // Obtener el primer resultado
+            $UTs = Units_Trips::where('trip', $trip)->get();
+            $volume = 0;
+            if ($UTs) {
+                $tablas = ['', 'tractocamiones', 'remolques', 'dollys', 'volteos', 'toneles', 'tortons', 'autobuses', 'sprinters', 'utilitarios', 'maquinarias'];
+                $infoUnits = []; // Array para acumular la información de la unidad
+                foreach ($UTs as $item) {
+                    $unit = DB::table($tablas[$item->type_unit])->where('id', $item->unit)->first();
+                    if ($unit) {
+                        // Agregar la información de la unidad al array $infoUnits
+                        if ($item->type_unit === 1) {
+                            $infoUnits['no_economic'] = $unit->no_economic;
+                            $infoUnits['brand'] = $unit->brand;
+                            $infoUnits['placaTracto'] = $unit->no_placas;
+                            $infoUnits['year'] = $unit->year;
+                        } elseif ($item->type_unit === 4) {
+                            if (isset($infoUnits['placaR1'])) {
+                                $infoUnits['placaR2'] = $unit->no_placas;
+                            }else{
+                                $infoUnits['placaR1'] = $unit->no_placas;
+                                $infoUnits['brandR1'] = $unit->brand;
+                                $infoUnits['modelR1'] = $unit->model;
+                            }  
+                            $volume += $unit->volume;                                                     
+                        }
+                    }
+                }  
+                $infoUnits['volume'] = $volume;                           
+                if (!isset($infoUnits['placaR2'])) {// Comprobar si hay placaR2 y asignar 'N/A' si no existe
+                    $infoUnits['placaR2'] = 'N/A';
+                    $infoUnits['brandR1'] = 'N/A';
+                    $infoUnits['modelR1'] = 'N/A';
+                } 
+                if (!isset($infoUnits['placaR1'])) {// Comprobar si hay placaR2 y asignar 'N/A' si no existe
+                    $infoUnits['placaR1'] = 'N/A';
+                }  
+            }              
+            if($coordinadorData->signature){//IMAGEN DEL OPERADOR O DEFAULT
+                $ImgSignaturePath = public_path(str_replace("public", 'storage', $coordinadorData->signature));
+            }else{
+                $ImgSignaturePath = public_path('imgPDF/dimension.png');
+            } 
+            $coordinadorData->signature=$this->getImageBase64($ImgSignaturePath);// Convertir las imágenes a base64
+
+            $Docs = ChekDocs::where('trip', $trip)->first();
+
+            if ($Docs) {
+                $ImgSi = $this->getImageBase64(public_path('imgPDF/siCM.png'));
+                $ImgNA = $this->getImageBase64(public_path('imgPDF/n-aCM.png'));
+
+                $array = ['CUMPLE' => $ImgSi, 'N/A' => $ImgNA];
+
+                $Docs->programming_doc = $array[$Docs->programming_doc] ?? $ImgSi;
+                $Docs->vale_doc = $array[$Docs->vale_doc] ?? $ImgSi;
+                $Docs->letter_doc = $array[$Docs->letter_doc] ?? $ImgSi;
+                $Docs->stamp_doc = $array[$Docs->stamp_doc] ?? $ImgSi;
+            } else {
+                $Docs = new ChekDocs();
+                $ImgDefault = $this->getImageBase64(public_path('imgPDF/siCM.png'));
+                $Docs->programming_doc = $ImgDefault;
+                $Docs->vale_doc = $ImgDefault;
+                $Docs->letter_doc = $ImgDefault;
+                $Docs->stamp_doc = $ImgDefault;
+            }
             // Cargar la vista y pasar todos los datos necesarios
             $data = [
                 'trip' => $tripData,
                 'logoImage' => $logoImage,
                 'customer' => $customer,
+                'operator' => $operatorData,
+                'coordinador' => $coordinadorData,
+                'unit' => $infoUnits,
+                'docs' => $Docs,
             ];
             $html = view('orden_pedido_CM', $data)->render();
         }

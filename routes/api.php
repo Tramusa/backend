@@ -130,6 +130,7 @@ Route::middleware('auth:sanctum')->put('/group/{id}', [AddressGroupController::c
 Route::middleware('auth:sanctum')->delete('/group/{id}', [AddressGroupController::class, 'destroy']);
 
 Route::middleware('auth:sanctum')->get('/expirationsUnits', [ExpirationUnitsController::class, 'index']);
+Route::middleware('auth:sanctum')->get('/expirationUnit/{id}', [ExpirationUnitsController::class, 'show']);
 
 Route::middleware('auth:sanctum')->post('/upload-excel', [TripController::class, 'import']);
 Route::middleware('auth:sanctum')->get('/download-excel', [TripController::class, 'download']);

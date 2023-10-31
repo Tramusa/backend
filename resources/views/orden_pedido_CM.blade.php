@@ -160,6 +160,23 @@
         float: left; /* Agrega esta propiedad para alinear las tablas una al lado de la otra */
       }
 
+      #docs {
+        text-align: center;
+      }
+
+      .docsImg {
+        width: 100%; /* Aumenta el ancho al 80% del contenedor */
+        height: 30px; /* Esto mantiene la relación de aspecto original */
+      }
+
+      #signature {
+        text-align: center;
+      }     
+
+      .signatureImg{
+        width: 42%;
+      }
+
       table th {
         font-family: "Arial Narrow", Arial, sans-serif;
         text-align: center;
@@ -200,52 +217,51 @@
     </header>
     <main>
       <div id="project">
-        <div><span>FECHA:</span><a class="blue">viernes, 7 de julio de 2023</a></div>
-        <div><span>LUGAR DE CARGA:</span><a class="blue">MINA LA COLORADA</a></div>
+        <div><span>FECHA:</span><a class="blue">{{ $trip->date }}</a></div>
+        <div><span>LUGAR DE CARGA:</span><a class="blue">{{ $trip->origin->name }}</a></div>
       </div><br><br><br>
       <h1>GENERALES</h1> 
       <div id="project">
-        <div><span>MEDIO DE SOLICITUD:</span><a class="blue">MINA LA COLORADA</a></div>
-        <div><span>NOMBRE O RAZÓN SOCIAL:</span>PLATA PANAMERICANA, S.A. DE C.V.</div>
-        <div><span>CIUDAD:</span><a class="blue">MINA LA COLORADA</a></div>
-        <div><span>CONTACTO:</span><a class="blue">MINA LA COLORADA</a></div>
-        <div><span>E-MAIL:</span><a class="blue">homero.adamecruz@mx.panamericansilver.com</a></div>
+        <div><span>MEDIO DE SOLICITUD:</span><a class="blue">{{ $trip->application_medium }}</a></div>
+        <div><span>NOMBRE O RAZÓN SOCIAL:</span>{{ $customer->name }}</div>
+        <div><span>CIUDAD:</span><a class="blue">{{$trip->destination->city.', '.$trip->destination->state.', '.$trip->destination->cp}}</a></div>
+        <div><span>CONTACTO:</span><a class="blue">{{ $customer->manager_base }}</a></div>
+        <div><span>E-MAIL:</span><a class="blue">{{ $customer->email }}</a></div>
       </div>
       <div class="row">
         <div class="column-2-1"><br></div>
         <table class="column-2-2">
           <tr><th>N° DE ORDEN</th></tr>
-          <tr><td class="blueTitle">MPA 198</td></tr>
-          <tr><td class="blueTitle">ORDINARIO</td></tr>
+          <tr><td class="blueTitle">MPE {{$trip->id}}</td></tr>
+          <tr><td class="blueTitle">{{ $trip->type ? $trip->type : 'ORDINARIO' }}</td></tr>
         </table>
       </div>
 
       <h1>TERMINALES DE DESCARGA:</h1> 
       <div id="project">
-        <div><span>1) NOMBRE DE TERMINAL DESTINO:</span>IMPALA TERMINALS MEXICO, S.A. DE C.V</div>
-        <div><span>DOMICILIO DE ENTREGA:</span><a class="blue">Carr. Manzanillo-Minatitlán KM 1.5 Col. Tepeixtles Manzanillo, Col. C.P. 28239</a></div>
-        <div><span>2) NOMBRE DE TERMINAL DESTINO:</span>IMPALA TERMINALS MEXICO, S.A. DE C.V</div>
-        <div><span>DOMICILIO DE ENTREGA:</span><a class="blue">Carr. Manzanillo-Minatitlán KM 1.5 Col. Tepeixtles Manzanillo, Col. C.P. 28239</a></div>
-        <div><span>3) NOMBRE DE TERMINAL DESTINO:</span>IMPALA TERMINALS MEXICO, S.A. DE C.V</div>
-        <div><span>DOMICILIO DE ENTREGA:</span><a class="blue">Carr. Manzanillo-Minatitlán KM 1.5 Col. Tepeixtles Manzanillo, Col. C.P. 28239</a></div>
-        <div><span>4) NOMBRE DE TERMINAL DESTINO: </span>IMPALA TERMINALS MEXICO, S.A. DE C.V</div>
-        <div><span>DOMICILIO DE ENTREGA:</span><a class="blue">Carr. Manzanillo-Minatitlán KM 1.5 Col. Tepeixtles Manzanillo, Col. C.P. 28239</a></div>
-        <div><span>5) NOMBRE DE TERMINAL DESTINO: </span>IMPALA TERMINALS MEXICO, S.A. DE C.V</div>
-        <div><span>DOMICILIO DE ENTREGA:</span><a class="blue">Carr. Federal Libre Manzanillo-Minatitlan KM 4.5 Col. Tepeixtles Manzanillo, Col. C.P. 28239</a></div>
-        <div><span>NO. DE EQUIPO:</span>FZN4102</div>
-        <div><span>PLACAS TRACTOR:</span><a class="blue">65AR3V</a></div>
-        <div><span>MARCA:</span><a class="blue">KENWORTH</a></div>
-        <div><span>AÑO:</span><a class="blue">2020</a></div>
-        <div><span>PLACAS REMOLQUE 1: </span><a class="blue">17UF8K</a></div>
-        <div><span>MARCA:</span><a class="blue">FRUEHAUF</a></div>
-        <div><span>AÑO:</span><a class="blue">2020</a></div>
-        <div><span>PLACAS REMOLQUE 2:</span><a class="blue">N / A</a></div>
-        <div><span>VOLUMEN DE CARGA:</span><a class="blue">36 TON</a></div>
-        <div><span>PRODUCTO/MATERIAL:</span>CONCENTRADO DE MINERAL</div>
-        <div><span>OPERADOR UNIDAD TRANSPORTE: </span><a class="blue">SERGIO SIMENTAL GARCÍA</a></div>
-        <div><span>RFC OPERADOR:</span><a class="blue">SIGS841221GL1</a></div>
-      </div><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-      
+        <div><span>1) NOMBRE DE TERMINAL DESTINO:</span>{{ $trip->destination->name }}</div>
+        <div><span>DOMICILIO DE ENTREGA:</span><a class="blue">{{$trip->destination->street.' '.$trip->destination->suburb.' '.$trip->destination->city.', '.$trip->destination->state.', '.$trip->destination->cp}}</a></div>
+        <div><span>2) NOMBRE DE TERMINAL DESTINO:</span></div>
+        <div><span>DOMICILIO DE ENTREGA:</span><a class="blue"></a></div>
+        <div><span>3) NOMBRE DE TERMINAL DESTINO:</span></div>
+        <div><span>DOMICILIO DE ENTREGA:</span><a class="blue"></a></div>
+        <div><span>4) NOMBRE DE TERMINAL DESTINO: </span></div>
+        <div><span>DOMICILIO DE ENTREGA:</span><a class="blue"></a></div>
+        <div><span>5) NOMBRE DE TERMINAL DESTINO: </span></div>
+        <div><span>DOMICILIO DE ENTREGA:</span><a class="blue"></a></div>
+        <div><span>NO. DE EQUIPO:</span>{{ $unit['no_economic'] }}</div>
+        <div><span>PLACAS TRACTOR:</span><a class="blue">{{ $unit['placaTracto'] }}</a></div>
+        <div><span>MARCA:</span><a class="blue">{{ $unit['brand'] }}</a></div>
+        <div><span>AÑO:</span><a class="blue">{{ $unit['year'] }}</a></div>
+        <div><span>PLACAS REMOLQUE 1: </span><a class="blue">{{ $unit['placaR1'] }}</a></div>
+        <div><span>MARCA:</span><a class="blue">{{ $unit['brandR1'] }}</a></div>
+        <div><span>AÑO:</span><a class="blue">{{ $unit['modelR1'] }}</a></div>
+        <div><span>PLACAS REMOLQUE 2:</span><a class="blue">{{ $unit['placaR2'] }}</a></div>
+        <div><span>VOLUMEN DE CARGA:</span><a class="blue">{{ $unit['volume'] }} TON</a></div>
+        <div><span>PRODUCTO/MATERIAL:</span>{{ $trip->product }}</div>
+        <div><span>OPERADOR UNIDAD TRANSPORTE: </span><a class="blue">{{$operator->name.' '.$operator->a_paterno.' '.$operator->a_materno}}</a></div>
+        <div><span>RFC OPERADOR:</span><a class="blue">{{$operator->rfc}}</a></div>
+      </div><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>      
       <table>
         <tr>
           <th colspan="1">PRODUCTO</th>
@@ -255,11 +271,11 @@
           <th colspan="1">DIRECCIÓN DE DESCARGA </th>
         </tr>
         <tr>
-          <td colspan="1" class="blackTitle">CONCENTRADO DE MINERAL</td>
-          <td colspan="1" class="blackTitle">FZN4102</td>
-          <td colspan="1" class="blackTitle">44 TON</td>
-          <td colspan="1" class="blackTitle">IMPALA TERMINALS MEXICO, S.A. DE C.V.</td>
-          <td colspan="1" class="blackTitle">Carr. Manzanillo-Minatitlán KM 1.5 Col. Tepeixtles Manzanillo, Col. C.P. 28239</td>
+          <td colspan="1" class="blackTitle">{{ $trip->product }}</td>
+          <td colspan="1" class="blackTitle">{{ $unit['no_economic'] }}</td>
+          <td colspan="1" class="blackTitle">{{ $unit['volume'] }} TON</td>
+          <td colspan="1" class="blackTitle">{{ $trip->destination->name }}</td>
+          <td colspan="1" class="blackTitle">{{$trip->destination->street.' '.$trip->destination->suburb.' '.$trip->destination->city.', '.$trip->destination->state.', '.$trip->destination->cp}}</td>
         </tr>
       </table>
       <div class="desc">Favor de cerciorarse estar completamente lleno este formato antes de la carga.</div>
@@ -271,9 +287,11 @@
         <tr>
           <td colspan="1" style="text-align: center;"><br>
             <div>FECHA Y FIRMA . . . . . . . . . . . . . . . . . . . . . . . . 06/07/2023 </div>
-            <div><br><br><br><br><br><br><br></div>
+            <div id="signature">
+              <img class="signatureImg" src="{{ $coordinador->signature }}">
+            </div>
             <div>__________________________________________</div>
-            <div>ING. ELÍAS JARETH ROCHA JIMÉNEZ</div><br>
+            <div>ING. {{$coordinador->name.' '.$coordinador->a_paterno.' '.$coordinador->a_materno}}</div><br>
           </td>
         </tr>
         <tr><th colspan="1">COORDINADOR DE LOGÍSTICA</th></tr>
@@ -291,7 +309,20 @@
             <div>Reglas de oro</div> <br>
             <div>Tarjeta de 5 puntos</div> </b><br>
           </td>
-          <td colspan="2"></td>
+          <td colspan="2">
+            <div id="docs">
+              <img class="docsImg" src="{{ $docs->programming_doc }}">
+            </div>
+            <div id="docs">
+              <img class="docsImg" src="{{ $docs->vale_doc }}">
+            </div>
+            <div id="docs">
+              <img class="docsImg" src="{{ $docs->letter_doc }}">
+            </div>
+            <div id="docs">
+              <img class="docsImg" src="{{ $docs->stamp_doc }}">
+            </div>
+          </td>
         </tr>        
       </table>      
       <div class="title">SEGUIMIENTO A QUEJAS Y/O SUGERENCIAS</div>

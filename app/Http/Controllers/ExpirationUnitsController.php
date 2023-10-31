@@ -24,7 +24,33 @@ class ExpirationUnitsController extends Controller
 
     public function update(Request $request, $id)
     {
-        //
+        
+    }
+
+    public function show($id)
+    {
+        $expiration = ExpirationUnits::find($id);
+    
+        if ($expiration) {
+            // Retrieve information about the associated unit
+            $unitInfo = DB::table($expiration->type_unit)
+                ->where('id', $expiration->unit)
+                ->first(); // Use first() to get a single result
+    
+            // Check if unitInfo is not null
+            if ($unitInfo) {
+                // Add the unit information to the expiration object
+                $expiration->unitInfo = $unitInfo;
+            } else {
+                // Handle the case where unitInfo is not found (e.g., return an error response)
+                return response()->json(['error' => 'Unit information not found'], 404);
+            }
+    
+            return response()->json($expiration);
+        } else {
+            // Handle the case where the expiration record is not found
+            return response()->json(['error' => 'Expiration unit not found'], 404);
+        }
     }
 
     public function destroy($id)
