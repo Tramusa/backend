@@ -2,36 +2,35 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Inspections;
+use App\Models\Revisions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class InspectionsController extends Controller
+class RevisionsController extends Controller
 {
-    
     public function index(Request $request)
     {
         $user = $request->user(); // Obtén el usuario autenticado
         
         if ($user && ($user->rol === 'Administrador' || strpos($user->rol, 'Coordinador') !== false)) {
-            $inspections = DB::table('inspections')->where('status', 1)->get();
+            $revisions = DB::table('revisions')->where('status', 1)->get();
         } else {
-            $inspections = DB::table('inspections')->where('status', 1)->where('responsible', $user->id)->get();
+            $revisions = DB::table('revisions')->where('status', 1)->where('responsible', $user->id)->get();
         }
 
         $tablas = ['', 'tractocamiones', 'remolques', 'dollys', 'volteos', 'toneles', 'tortons', 'autobuses', 'sprinters', 'utilitarios', 'maquinarias'];
 
-        foreach ($inspections as $inspection) {
-            $id_unit = $inspection->unit;
-            $id_responsible = $inspection->responsible;
+        foreach ($revisions as $revision) {
+            $id_unit = $revision->unit;
+            $id_responsible = $revision->responsible;
             
-            $unit = DB::table($tablas[$inspection->type])->select('no_economic')->where('id', $id_unit)->first();
-            $inspection->unit = $unit->no_economic;    
+            $unit = DB::table($tablas[$revision->type])->select('no_economic')->where('id', $id_unit)->first();
+            $revision->unit = $unit->no_economic;    
                    
             $responsible = DB::table('users')->select('name')->where('id', $id_responsible)->first();
-            $inspection->responsible = $responsible->name;
+            $revision->responsible = $responsible->name;
         }
-        return response()->json($inspections);
+        return response()->json($revisions);
     }
 
     public function create(Request $request)
@@ -45,24 +44,45 @@ class InspectionsController extends Controller
             $tablas = ['', 'tractocamiones', 'remolques', 'dollys', 'volteos', 'toneles', 'tortons', 'autobuses', 'sprinters', 'utilitarios', 'maquinarias'];
             $tablaUnidad = $tablas[$type];
 
-            // Actualiza el estado de la unidad a "inspection" en la tabla correspondiente
+            // Actualiza el estado de la unidad a "revision" en la tabla correspondiente
             if (!empty($tablaUnidad)) {
                 DB::table($tablaUnidad)->where('id', $unitId)->update(['status' => 'inspection']);
             }
 
-            // Guarda la inspección
-            $program = new Inspections($request->all());
+            // Guarda la revision
+            $program = new Revisions($request->all());
             $program->save();
 
-            return response()->json(['message' => 'Inspección generada exitosamente.']);
+            return response()->json(['message' => 'Revision generada exitosamente.']);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Error al generar la inspección.'], 500);
+            return response()->json(['message' => 'Error al generar la revision.'], 500);
         }
+    }
+
+    public function store(Request $request)
+    {
+        //
     }
 
     public function show($id)
     {
-        $inspection = Inspections::find($id);
-        return response()->json($inspection);
+        $revision = Revisions::find($id);
+
+        return response()->json($revision);
+    }
+
+    public function edit($id)
+    {
+        //
+    }
+
+    public function update(Request $request, $id)
+    {
+        //
+    }
+
+    public function destroy($id)
+    {
+        //
     }
 }

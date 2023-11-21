@@ -9,5 +9,5 @@ class ExpirationUnits extends Model
 {
     use HasFactory;
     
-    protected $fillable = [ 'type_unit', 'unit', 'description', 'date_expiration', 'date_attended', 'user',  'status'];
+    protected $fillable = [ 'type_unit', 'unit', 'type_expiration', 'description', 'date_expiration', 'date_attended', 'user',  'status'];
 }

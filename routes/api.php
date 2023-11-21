@@ -5,13 +5,14 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\EarringsController;
-use App\Http\Controllers\ExcelController;
 use App\Http\Controllers\ExpirationUnitsController;
 use App\Http\Controllers\InspectionsController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PeajesController;
 use App\Http\Controllers\PointsInterest;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProgramsController;
+use App\Http\Controllers\RevisionsController;
 use App\Http\Controllers\TripController;
 use App\Http\Controllers\UnitController;
 use Illuminate\Support\Facades\DB;
@@ -27,7 +28,7 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::get('/userProceedings/{id}', [AuthController::class, 'proceedings']);
     Route::post('/userAdmin', [AuthController::class, 'updateAdmin']);
     Route::delete('/expirationsUnits/{id}', [ExpirationUnitsController::class, 'destroy']);
-
+    Route::put('/orders/{id}', [OrderController::class, 'cancel']);
 });
 
 Route::middleware('auth:sanctum')->post('/change-password', [ProfileController::class, 'changePassword']);
@@ -66,13 +67,29 @@ Route::middleware('auth:sanctum')->get('/inspectionCount/{user}', function ($use
     $inspections = DB::table('inspections')->where('status', 1)->where('responsible', $user)->get();
     return response()->json(['total' => count($inspections)]);
 });
+Route::middleware('auth:sanctum')->get('/inspectionsCount', function () {
+    $inspections = DB::table('inspections')->where('status', 1)->get();
+    return response()->json(['total' => count($inspections)]);
+});
+Route::middleware('auth:sanctum')->get('/revisionCount/{user}', function ($user) {
+    $revisions = DB::table('revisions')->where('status', 1)->where('responsible', $user)->get();
+    return response()->json(['total' => count($revisions)]);
+});
+Route::middleware('auth:sanctum')->get('/revisionsCount', function () {
+    $revisions = DB::table('revisions')->where('status', 1)->get();
+    return response()->json(['total' => count($revisions)]);
+});
 Route::middleware('auth:sanctum')->get('/earringsCount', function () {
     $earrings = DB::table('earrings')->where('status', 1)->get();
     return response()->json(['total' => count($earrings)]);
 });
 Route::middleware('auth:sanctum')->get('/expirationCount', function () {
-    $earrings = DB::table('expiration_units')->where('status', 1)->get();
-    return response()->json(['total' => count($earrings)]);
+    $expiration = DB::table('expiration_units')->where('status', 1)->get();
+    return response()->json(['total' => count($expiration)]);
+});
+Route::middleware('auth:sanctum')->get('/ordersCount', function () {
+    $orders = DB::table('orders')->whereIn('status', [1, 2, 3])->get();
+    return response()->json(['total' => count($orders)]);
 });
 
 Route::middleware('auth:sanctum')->get('/programs', [ProgramsController::class, 'index']);
@@ -82,7 +99,12 @@ Route::middleware('auth:sanctum')->get('/mto/{id}', [ProgramsController::class, 
 Route::middleware('auth:sanctum')->put('/mto/{id}', [ProgramsController::class, 'update']);
 Route::middleware('auth:sanctum')->delete('/deleteMto/{id}', [ProgramsController::class, 'destroy']);
 
-Route::middleware('auth:sanctum')->get('/inspections/{user}', [InspectionsController::class, 'index']);
+Route::middleware('auth:sanctum')->get('/revisions', [RevisionsController::class, 'index']);
+Route::middleware('auth:sanctum')->get('/revision/{id}', [RevisionsController::class, 'show']);
+Route::middleware('auth:sanctum')->post('/createRevision', [RevisionsController::class, 'create']);
+Route::middleware('auth:sanctum')->post('/finishRevision', [EarringsController::class, 'create']);
+
+Route::middleware('auth:sanctum')->get('/inspections', [InspectionsController::class, 'index']);
 Route::middleware('auth:sanctum')->get('/inspection/{id}', [InspectionsController::class, 'show']);
 Route::middleware('auth:sanctum')->post('/createInspection', [InspectionsController::class, 'create']);
 Route::middleware('auth:sanctum')->post('/finishInspection', [EarringsController::class, 'create']);
@@ -131,6 +153,11 @@ Route::middleware('auth:sanctum')->delete('/group/{id}', [AddressGroupController
 
 Route::middleware('auth:sanctum')->get('/expirationsUnits', [ExpirationUnitsController::class, 'index']);
 Route::middleware('auth:sanctum')->get('/expirationUnit/{id}', [ExpirationUnitsController::class, 'show']);
+Route::middleware('auth:sanctum')->post('/updatePDF', [ExpirationUnitsController::class, 'updatePDF']);
+Route::middleware('auth:sanctum')->post('/updateDate', [ExpirationUnitsController::class, 'updateDate']);
+Route::middleware('auth:sanctum')->put('/updateExpirationStatus/{id}', [ExpirationUnitsController::class, 'update']);
+Route::middleware('auth:sanctum')->post('/createOrder', [OrderController::class, 'store']);
+Route::middleware('auth:sanctum')->get('/orders/{type}', [OrderController::class, 'show']);
 
 Route::middleware('auth:sanctum')->post('/upload-excel', [TripController::class, 'import']);
 Route::middleware('auth:sanctum')->get('/download-excel', [TripController::class, 'download']);
