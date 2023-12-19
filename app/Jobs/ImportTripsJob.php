@@ -33,10 +33,10 @@ class ImportTripsJob implements ShouldQueue
     public function handle()
     {   
         $collection = Excel::toCollection(new TripsImport, $this->filePath);
-        $skippedRows = [$collection[0][1]];
+        $skippedRows = [$collection[0][0]];
 
         foreach ($collection[0] as $index => $row) {            
-            if ($index < 2) {
+            if ($index < 1) {
                 continue;///SALTA LAS DOS PRIMERAS FILAS
             }
             if ($this->isValidRow($row)) {
@@ -188,25 +188,17 @@ class ImportTripsJob implements ShouldQueue
         if (count($skippedRows) > 0) {
             $spreadsheet = new Spreadsheet();
             $sheet = $spreadsheet->getActiveSheet();
-            $dataArray = $skippedRows[0]->toArray();
 
-            $headers = array_keys($dataArray);
-            
             // Agregar los encabezados a la primera fila
-            foreach ($headers as $index => $header) {
-                $col = chr(65 + $index);
-                $sheet->setCellValue($col . '1', $header);
-            }
+            $headers = $skippedRows[0]->toArray();
+            $sheet->fromArray([$headers], null, 'A1');
 
             // Agregar datos de las filas con errores a partir de la fila 2
-            $rowIndex = 2;
+            $data = [];
             foreach ($skippedRows as $row) {
-                foreach ($row as $index => $value) {
-                    $col = chr(65 + $index);
-                    $sheet->setCellValue($col . $rowIndex, $value);
-                }
-                $rowIndex++;
+                $data[] = $row->toArray();
             }
+            $sheet->fromArray($data, null, 'A2');
 
             // Guardar el archivo Excel
             $writer = new Xlsx($spreadsheet);

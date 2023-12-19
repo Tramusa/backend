@@ -102,7 +102,7 @@ Route::middleware('auth:sanctum')->delete('/deleteMto/{id}', [ProgramsController
 Route::middleware('auth:sanctum')->get('/revisions', [RevisionsController::class, 'index']);
 Route::middleware('auth:sanctum')->get('/revision/{id}', [RevisionsController::class, 'show']);
 Route::middleware('auth:sanctum')->post('/createRevision', [RevisionsController::class, 'create']);
-Route::middleware('auth:sanctum')->post('/finishRevision', [EarringsController::class, 'create']);
+Route::middleware('auth:sanctum')->post('/finishRevision', [RevisionsController::class, 'finish']);
 
 Route::middleware('auth:sanctum')->get('/inspections', [InspectionsController::class, 'index']);
 Route::middleware('auth:sanctum')->get('/inspection/{id}', [InspectionsController::class, 'show']);

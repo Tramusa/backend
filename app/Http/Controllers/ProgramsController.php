@@ -16,7 +16,6 @@ class ProgramsController extends Controller
 
     public function create(Request $request)
     {
-        #Logger($request);
         $program = new Programs($request->all());                
         $program->save();
         return response()->json(['message' => 'Mantenimiento agregado existosamente.']);

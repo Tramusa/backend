@@ -2,18 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Imports\TripsImport;
 use App\Jobs\ImportTripsJob;
-use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Autobuses;
 use App\Models\CECOs;
 use App\Models\ChekDocs;
 use App\Models\Customers;
 use App\Models\Dollys;
-use App\Models\Inspections;
 use App\Models\Maquinarias;
 use App\Models\PointsInterest as ModelsPointsInterest;
 use App\Models\Remolques;
+use App\Models\Revisions;
 use App\Models\Rutas;
 use App\Models\Sprinters;
 use App\Models\Toneles;
@@ -196,8 +194,11 @@ class TripController extends Controller
 
     public function operatorsAll()
     {
-        $users = DB::table('users')->where('rol', 'like', 'Operador%')->get(); 
-        return response()->json($users); 
+        $users = DB::table('users')
+                ->where('rol', 'like', 'Operador%')
+                ->orWhere('rol', 'like', '%Auxiliar%')
+                ->get(); 
+        return response()->json($users);  
     }
 
     public function create(Request $request)
@@ -878,16 +879,16 @@ class TripController extends Controller
                         $unitInstance->status = 'inspection';
                         $unitInstance->save();
 
-                        // Generate a physical-mechanical inspection for each unit involved.
-                        $data_inspection = [
+                        // Generate a physical-mechanical revision for each unit involved.
+                        $data_revision = [
                             'responsible' => $trip->operator,
                             'type' => $unit->type_unit,
                             'unit' => $unit->unit,
                             'is' => 'fisico mecanica',
                         ];
-                        // Create and save the inspection using the Inspections model.
-                        $inspection = new Inspections($data_inspection);
-                        $inspection->save();
+                        // Create and save the revision using the revisions model.
+                        $revision = new Revisions($data_revision);
+                        $revision->save();
                     }
                 }
             }
