@@ -158,6 +158,11 @@ Route::middleware('auth:sanctum')->post('/updateDate', [ExpirationUnitsControlle
 Route::middleware('auth:sanctum')->put('/updateExpirationStatus/{id}', [ExpirationUnitsController::class, 'update']);
 Route::middleware('auth:sanctum')->post('/createOrder', [OrderController::class, 'store']);
 Route::middleware('auth:sanctum')->get('/orders/{type}', [OrderController::class, 'show']);
+Route::middleware('auth:sanctum')->get('/order/{id}', [OrderController::class, 'showOrder']);
+Route::middleware('auth:sanctum')->get('/orderEarrings/{id}', [OrderController::class, 'orderEarrings']);
+Route::middleware('auth:sanctum')->delete('/orderEarrings/{id}', [OrderController::class, 'delete']);
+Route::middleware('auth:sanctum')->put('/order/{id}', [OrderController::class, 'update']);
+
 
 Route::middleware('auth:sanctum')->post('/upload-excel', [TripController::class, 'import']);
 Route::middleware('auth:sanctum')->get('/download-excel', [TripController::class, 'download']);

@@ -96,9 +96,7 @@ class EarringsController extends Controller
             case 10:       
                 Maquinarias::find($inspection['unit'])->update($status);
                 break;
-            default:
-
-            
+            default:            
                 break;
         }
         return response()->json(['message' => 'Inspeccion terminada existosamente.']);

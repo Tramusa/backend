@@ -30,7 +30,7 @@ class RevisionsController extends Controller
         } else {
             $revisions = DB::table('revisions')->where('status', 1)->where('responsible', $user->id)->get();
         }
-
+        
         $tablas = ['', 'tractocamiones', 'remolques', 'dollys', 'volteos', 'toneles', 'tortons', 'autobuses', 'sprinters', 'utilitarios', 'maquinarias'];
 
         foreach ($revisions as $revision) {
