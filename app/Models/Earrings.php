@@ -9,5 +9,5 @@ class Earrings extends Model
 {
     use HasFactory;
     
-    protected $fillable = ['type', 'unit', 'status', 'description' ];
+    protected $fillable = ['type', 'unit', 'status', 'fm', 'description' ];
 }

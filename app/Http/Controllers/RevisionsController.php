@@ -80,6 +80,7 @@ class RevisionsController extends Controller
             $infoRevision = $request->revision;
             $dataVerificar = $request->except(['revision', 'Document']); // Excluir 'revision' del array $data
 
+            $folio = $infoRevision['id'];
             foreach ($dataVerificar as $key => $value) {
                 if ($value == 'NO') {
                     $description = 'No cumple con ( '.$key.' )';
@@ -93,6 +94,7 @@ class RevisionsController extends Controller
                                 'unit' => $infoRevision['unit'],
                                 'type' => $infoRevision['type'],
                                 'description' => $description,
+                                'fm' => $folio,
                             ]
                         );//GENERAMOS LOS PENDIENTES UNO A UNO 
                         $earrings->save();
