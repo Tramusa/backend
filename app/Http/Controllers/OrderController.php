@@ -5,9 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Earrings;
 use App\Models\OrderDetail;
 use App\Models\Orders;
+use App\Models\User;
+use Dompdf\Dompdf;
 use Illuminate\Http\Request;
+use Illuminate\Log\Logger;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class OrderController extends Controller
 {
@@ -87,11 +92,14 @@ class OrderController extends Controller
         $order->status = $request->input('data.status'); // Actualizar el estado de la orden
 
         // Verificar el status y actualizar campos correspondientes
-        if ($order->status == 2) {
+        if ($order->status == 0) {
+            $order->fill($request->input('data.form')); // Rellenar con datos del formulario
+            $order->status = 3; // Cambiar status a 3
+        } else if ($order->status == 2) {
             $order->authorize = Auth::id(); // ID del usuario logueado
-        }else if ($order->status == 3) {
+        } else if ($order->status == 3) {
             $order->date_in = now(); // Fecha y hora actual
-        }else if ($order->status == 4){
+        } else if ($order->status == 4){
             $order->repair = $request->input('data.form.repair');
             $order->spare_parts = $request->input('data.form.spare_parts');
             $order->total_parts = $request->input('data.form.total_parts');
@@ -109,20 +117,97 @@ class OrderController extends Controller
         }
     }
 
-    public function cancel($id)
+    private function PDF($order)
     {
-        $order = Orders::find($id);
+        $orderData = Orders::find($order);//PRIMERO SACAMOS LA INFO DE LA ORDEN
+        $operator = User::where('id', $orderData->operator)->first();        
+        $earringsInfo = DB::table('order_details')
+            ->join('earrings', 'order_details.id_earring', '=', 'earrings.id')
+            ->where('order_details.id_order', '=', $order)
+            ->select('earrings.*')
+            ->get(); // DETALLES DE ORDEN
+
+        if (!$earringsInfo->isEmpty()) {
+            $firstEarring = $earringsInfo->first();
+            $id_unit = $firstEarring->unit; // Extract unit
+            $type = $firstEarring->type; // Extract type
+
+            $fallas = '';
+            $numError = 1;
+            foreach ($earringsInfo as $earring) {
+                $fallas .= $numError . ".- " . $earring->description . "<br>";
+                $numError++;
+            }
+        } else {
+            $id_unit = null;
+            $type = null;
+            $fallas = 'No hay fallas en esta orden.';
+        }
+
+        $tablas = ['', 'tractocamiones', 'remolques', 'dollys', 'volteos', 'toneles', 'tortons', 'autobuses', 'sprinters', 'utilitarios', 'maquinarias'];
+        $unit = DB::table($tablas[$type]) 
+                ->where('id', $id_unit)
+                ->first(); // Obtener el primer resultado
+
+        $logoImagePath = public_path('imgPDF/logo.png');
+        $logoImage = $this->getImageBase64($logoImagePath);// Convertir las imágenes a base64
+ 
+        $data = [
+            'logoImage' => $logoImage,
+            'orderData' => $orderData,
+            'unit' => $unit,
+            'fallas' => $fallas,
+        ];
+
+        $html = view('F-05-01-R2 ORDEN DE SERVICIO', $data)->render();
+
+        $dompdf = new Dompdf();
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+        
+        return $dompdf->output();                     
+    }
+
+    public function generarPDF($order){
+        $pdfContent = $this->PDF($order);
+
+        Storage::disk('public')->put('orders/Orden N°'. ($order) . '.pdf', $pdfContent);
+
+        return response($pdfContent, 200)->header('Content-Type', 'application/pdf');// Devolver el contenido del PDF
+    }
+
+    private function getImageBase64($imagePath)
+    {
+        $file = file_get_contents($imagePath);
+        $base64 = base64_encode($file);
+        return 'data:image/png;base64,' . $base64;
+    }
+
+    public function cancel($orderId)
+    {
+        $order = Orders::find($orderId);
         if (!$order) {
             return response()->json(['message' => 'Orden no encontrada'], 404);
         }
 
-        // Actualizar el estado de la orden
-        $order->status = 0;
+        $earringsInfo = OrderDetail::where('id_order', $orderId)->get();
+
+        if ($earringsInfo->isEmpty()) {            
+            return response()->json(['message' => 'Pendientes no encontrados'], 404);
+        }
+
         try {
+            foreach ($earringsInfo as $earring) {
+                Earrings::where('id', $earring->id_earring)->update(['status' => 1]);
+            }
+
+            $order->status = 0; // Actualizar el estado de la orden
             $order->save();
-            return response()->json(['message' => 'Orden cancelada correctamente']);
+
+            return response()->json(['message' => 'Orden cancelada correctamente', 'total_earrings' => $earringsInfo->count()]);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Error al cancelar la orden'], 500);
+            return response()->json(['message' => 'Error al procesar la cancelación'], 500);
         }
     }
     

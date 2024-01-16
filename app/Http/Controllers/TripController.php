@@ -817,7 +817,7 @@ class TripController extends Controller
     public function generarPDF($trip){
         $pdfContent = $this->PDF($trip);
 
-        Storage::disk('public')->put('trips/Orden N°'. ($trip + 10000) . '.pdf', $pdfContent);
+        Storage::disk('public')->put('trips/Orden N°'. ($trip) . '.pdf', $pdfContent);
 
         return response($pdfContent, 200)->header('Content-Type', 'application/pdf');// Devolver el contenido del PDF
     }
