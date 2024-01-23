@@ -207,7 +207,7 @@
               <td>9</td><td>Baleros (sin fuga)</td><td>{{ $data['Baleros (Sin Fuga)'] }}</td><td></td>
             </tr>
             <tr>
-              <td>10</td><td>Sistema de autoinflado</td><td>{{ $data['Sistema autoinflado'] }}</td><td></td>
+              <td>10</td><td>Sistema de autoinflado</td><td>{{ $data['Sistema de autoinflado'] }}</td><td></td>
             </tr>
             <tr>
               <td>11</td><td>Estado de neumáticos</td><td>{{ $data['Estado de neumaticos'] }}</td><td></td>
