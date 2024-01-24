@@ -169,8 +169,8 @@
                 <th>FOLIO DE REVISIÓN DE <br> CONDICIONES FÍSICO-MECÁNICAS</th>
             </tr>
             <tr>
-                <td>>>>>>>>NO INFO</td>
-                <td>>>>>>>>NO INFO</td>
+                <td></td>
+                <td>{{ $fm }}</td>
             </tr>
         </table>
       </div>  
@@ -186,7 +186,7 @@
                 <td>MODELO: <br>{{ $unit->model ?? $unit->year }}</td>
                 <td>N° MOTOR:<br>{{ $unit->no_motor ?? 'N/A' }}</td>
                 <td>TIPO DE MANTENIMIENTO:<br> PREVENTIVO          CORRECTIVO </td>
-                <td>KILOMETRAJE: <br>>>>>>>>NO INFO</td>
+                <td>KILOMETRAJE: <br>{{ $unit->odometro ?? ' ' }}</td>
             </tr>
             <tr>
                 <td colspan="2">FECHA Y HORA DE ENTRADA: <br>{{ $orderData->date_in }}</td>
@@ -217,9 +217,9 @@
       <div class="row"><br><br><br><br>
         <table class="firmas" style="width: 100%; border: 0px solid;">
             <tr>
-                <td>___________________________<br>AUTORIZÓ</td>
-                <td>___________________________<br>REALIZÓ	</td>
-                <td>___________________________<br>OPERADOR</td>
+                <td>___________________________<br>{{ $autorizo->name ?? ' ' }} {{ $autorizo->a_paterno ?? ' ' }}<br>AUTORIZÓ</td>
+                <td>___________________________<br>{{ $realizo->name ?? ' ' }} {{ $realizo->a_paterno ?? ' ' }}<br>REALIZÓ	</td>
+                <td>___________________________<br>{{ $operator->name ?? ' ' }} {{ $operator->a_paterno ?? ' ' }}<br>OPERADOR</td>
             </tr>
         </table>
       </div>        

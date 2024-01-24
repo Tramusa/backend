@@ -4,6 +4,7 @@ use App\Http\Controllers\AddressGroupController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CustomersController;
+use App\Http\Controllers\DocsPDFsController;
 use App\Http\Controllers\EarringsController;
 use App\Http\Controllers\ExpirationUnitsController;
 use App\Http\Controllers\InspectionsController;
@@ -167,3 +168,5 @@ Route::middleware('auth:sanctum')->get('/order-pdf/{order}', [OrderController::c
 
 Route::middleware('auth:sanctum')->post('/upload-excel', [TripController::class, 'import']);
 Route::middleware('auth:sanctum')->get('/download-excel', [TripController::class, 'download']);  
+
+Route::middleware('auth:sanctum')->apiResource('docs-pdfs', DocsPDFsController::class);

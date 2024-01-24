@@ -122,7 +122,7 @@
       table {
         border-collapse: collapse;
         border-spacing: 0;
-        margin-bottom: 10px;
+        margin-bottom: 6px;
       }
 
       table th {
@@ -148,6 +148,15 @@
       .espacio-derecha {
         margin-left: 10px; /* Puedes ajustar este valor según sea necesario */
       }
+
+      .signature {
+        font-family: 'Courier New', monospace; /* Una fuente cursiva disponible en la mayoría de los sistemas */
+        font-style: italic;
+        font-weight: bold;
+        font-size: 13px;
+        color: #000080; /* Azul marino */
+        letter-spacing: 0.5px; /* Espaciado ligero para emular la caligrafía */
+      }
     </style>
   </head>
   <body>
@@ -165,8 +174,8 @@
     </header>
     <main>
       <div class="row">
-        <div class="column-2-1">FECHA: ____{{ $fecha }}______  VEHICULO: ___{{ $data['unit']['no_economic'] }}_______   </div>
-        <table class="column-2-2">
+        <div class="column-2-1">FECHA: ____{{ $fecha }}______  VEHICULO: ___{{ $data['unit']->no_economic }}_______   </div>
+        <table class="column-2-2">        
           <tr><th>Odometro</th></tr>
           <tr><td class="blueTitle">{{ $data['odometro'] }}</td></tr>
         </table>
@@ -528,7 +537,13 @@
         <div>
           <table style="width: 97%;">            
             <tr>
-              <td><br><br><br></td><td></td><td></td>
+              <td class="signature">
+                {{ $data['auxiliar']->name ?? ' ' }} {{ $data['auxiliar']->a_paterno ?? ' ' }} {{ $data['auxiliar']->a_materno ?? ' ' }}
+              </td>
+              <td class="signature">
+                {{ $data['operator']->name }} {{ $data['operator']->a_paterno }} {{ $data['operator']->a_materno }}
+              </td>
+              <td>{{ $data['observation'] ?? ' ' }}</td>>
             </tr>
             <tr>
               <th>AUXILIAR DE MANTENIMIENTO</th>

@@ -704,7 +704,6 @@ class UnitController extends Controller
 
     public function upload(Request $request)
     {
-        Logger($request);
         $request->validate([
             'title' => 'required',
             'unit_id' => 'required',

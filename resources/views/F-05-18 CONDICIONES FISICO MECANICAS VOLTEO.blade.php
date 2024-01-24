@@ -147,6 +147,15 @@
         padding: 0px 5px;
         border: 1px solid #000;
       }
+
+      .signature {
+        font-family: 'Courier New', monospace; /* Una fuente cursiva disponible en la mayoría de los sistemas */
+        font-style: italic;
+        font-weight: bold;
+        font-size: 13px;
+        color: #000080; /* Azul marino */
+        letter-spacing: 0.5px; /* Espaciado ligero para emular la caligrafía */
+      }
     </style>
   </head>
   <body>
@@ -164,7 +173,7 @@
     </header>
     <main>
       <div class="row"><br>
-        <div class="column-2-1">FECHA: ___{{ $fecha }}_______  VEHICULO: ____{{ $data['unit']['no_economic'] }}______ VOLTEO:___{{ $data['unit']['no_economic'] }}____</div>
+        <div class="column-2-1">FECHA: ___{{ $fecha }}_______  VEHICULO: ____{{ $data['unit']->no_economic }}______ VOLTEO:___{{ $data['unit']->no_economic }}____</div>
         <table class="column-2-2">
           <tr><th>FOLIO</th></tr>
           <tr><td class="blueTitle"><br></td></tr>
@@ -304,8 +313,14 @@
       <div style="clear: both;"></div>
         <div><br><br><br><br><br><br><br>
           <table style="width: 100%;">            
-            <tr>
-              <td><br><br><br><br><br></td><td></td><td></td>
+            <tr>              
+              <td class="signature">
+                {{ $data['auxiliar']->name ?? ' ' }} {{ $data['auxiliar']->a_paterno ?? ' ' }} {{ $data['auxiliar']->a_materno ?? ' ' }}
+              </td>
+              <td class="signature">
+                {{ $data['operator']->name }} {{ $data['operator']->a_paterno }} {{ $data['operator']->a_materno }}
+              </td>
+              <td>{{ $data['observation'] ?? ' ' }}</td>
             </tr>
             <tr>
               <th>AUXILIAR DE MANTENIMIENTO</th>

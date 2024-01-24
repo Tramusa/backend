@@ -55,13 +55,9 @@ class RevisionsController extends Controller
 
             // Determina la tabla correspondiente según el tipo de unidad
             $tablas = ['', 'tractocamiones', 'remolques', 'dollys', 'volteos', 'toneles', 'tortons', 'autobuses', 'sprinters', 'utilitarios', 'maquinarias'];
-            $tablaUnidad = $tablas[$type];
-
-            // Actualiza el estado de la unidad a "revision" en la tabla correspondiente
-            if (!empty($tablaUnidad)) {
-                DB::table($tablaUnidad)->where('id', $unitId)->update(['status' => 'inspection']);
-            }
-
+            
+            DB::table($tablas[$type])->where('id', $unitId)->update(['status' => 'inspection']);
+            
             // Guarda la revision
             $program = new Revisions($request->all());
             $program->save();
@@ -79,8 +75,22 @@ class RevisionsController extends Controller
         }else{
             $infoRevision = $request->revision;
             $dataVerificar = $request->except(['revision', 'Document']); // Excluir 'revision' del array $data
+            $tablas = ['', 'tractocamiones', 'remolques', 'dollys', 'volteos', 'toneles', 'tortons', 'autobuses', 'sprinters', 'utilitarios', 'maquinarias'];
+            
+            $updateData = ['status' => 'available'];
+            if ($request->filled('odometro')) {
+                 // Recuperar el valor actual del odómetro
+                $currentOdometer = DB::table($tablas[$infoRevision['type']])->where('id', $infoRevision['unit'])->value('odometro');
+
+                // Verificar si el nuevo odómetro es menor que el actual
+                if ($request->filled('odometro') && $request->input('odometro') < $currentOdometer) {
+                    return response()->json(['error' => 'El Odómetro no puede ser menor que el actual.'], 422);
+                }
+                $updateData['odometro'] = $request->input('odometro');
+            }
 
             $folio = $infoRevision['id'];
+           
             foreach ($dataVerificar as $key => $value) {
                 if ($value == 'NO') {
                     $description = 'No cumple con ( '.$key.' )';
@@ -99,57 +109,47 @@ class RevisionsController extends Controller
                         );//GENERAMOS LOS PENDIENTES UNO A UNO 
                         $earrings->save();
                     } 
+                }else if ($key == 'observation') {
+                    $existingEarring = Earrings::where('description', $value)->where('status', 1)->where('type', $infoRevision['type'])->where('unit', $infoRevision['unit'])->first();
+                    if ($existingEarring) {
+                        continue; // La descripción ya existe, pasa al siguiente pendiente
+                    }else{
+                        $earrings = new Earrings(
+                            [
+                                'unit' => $infoRevision['unit'],
+                                'type' => $infoRevision['type'],
+                                'description' => $value,
+                                'fm' => $folio,
+                            ]
+                        );//GENERAMOS LOS PENDIENTES UNO A UNO 
+                        $earrings->save();
+                    }
                 }
             }
             //CAMBIAR STATUS
             Revisions::find($infoRevision['id'])->update(['status'=> 2]);
-            switch ($infoRevision['type']) {
-                case 1:
-                    $unit = Tractocamiones::find($infoRevision['unit']);
-                    $unit->update(['status' => 'available']);
-                    break;   
-                case 3:
-                    $unit = Dollys::find($infoRevision['unit']);
-                    $unit->update(['status' => 'available']);
-                    break;
-                case 4:       
-                    $unit = Volteos::find($infoRevision['unit']);
-                    $unit->update(['status' => 'available']);
-                    break;
-                case 5:       
-                    $unit = Toneles::find($infoRevision['unit']);
-                    $unit->update(['status' => 'available']);
-                    break;
-                case 6:       
-                    $unit = Tortons::find($infoRevision['unit']);
-                    $unit->update(['status' => 'available']);
-                    break;
-                case 7:       
-                    $unit = Autobuses::find($infoRevision['unit']);
-                    $unit->update(['status' => 'available']);
-                    break;
-                case 8:       
-                    $unit = Sprinters::find($infoRevision['unit']);
-                    $unit->update(['status' => 'available']);
-                    break;
-                case 9:       
-                    $unit = Utilitarios::find($infoRevision['unit']);
-                    $unit->update(['status' => 'available']);
-                    break;
-                case 10:       
-                    $unit = Maquinarias::find($infoRevision['unit']);
-                    $unit->update(['status' => 'available']);
-                    break;
-                default:            
-                    $unit = null;
-                    break;
+            
+            // ACTUALIZAR LA UNIDAD
+            DB::table($tablas[$infoRevision['type']])->where('id', $infoRevision['unit'])->update($updateData);
+    
+            $data = $request->except(['revision']); // Excluir 'revision' del array $data
+
+            $unit = DB::table($tablas[$infoRevision['type']])->where('id', $infoRevision['unit'])->first();
+            if ($unit) {
+                $data['unit'] = $unit;
+            }
+
+            $responsible = DB::table('users')->where('id', $infoRevision['responsible'])->first();
+            if ($responsible) {
+                $data['operator'] = $responsible; // Agregar información de la unidad al array $data
+            }
+
+            $auxiliar = DB::table('users')->where('rol', 'Auxiliar Mantenimiento')->first();
+            if ($auxiliar) {
+                $data['auxiliar'] = $auxiliar; // Agregar información de la unidad al array $data
             }
 
             //AQUI SE DEBE GENERAR EL PDF
-            $data = $request->except(['revision']); // Excluir 'revision' del array $data
-            if ($unit) {
-                $data['unit'] = $unit->toArray(); // Agregar información de la unidad al array $data
-            }
             $pdfContent = $this->PDF_FM($data);
             $id = $request->revision['id'];
             Storage::disk('public')->put('Revisions/'.$request->input('Document').'- Folio N°'. $id . '.pdf', $pdfContent);
@@ -161,9 +161,27 @@ class RevisionsController extends Controller
     {
         $revision = Revisions::find($id);
 
+        if (!$revision) {
+            return response()->json(['error' => 'Revision not found'], 404);
+        }
+
+        $tablas = ['', 'tractocamiones', 'remolques', 'dollys', 'volteos', 'toneles', 'tortons', 'autobuses', 'sprinters', 'utilitarios', 'maquinarias'];
+
+        if (!isset($tablas[$revision->type])) {
+            return response()->json(['error' => 'Invalid revision type'], 400);
+        }
+
+        $unit = DB::table($tablas[$revision->type])->select('no_economic')->where('id', $revision->unit)->first();
+
+        if (!$unit) {
+            return response()->json(['error' => 'Unit not found'], 404);
+        }
+
+        $revision->no_economic = $unit->no_economic;
+
         return response()->json($revision);
     }
-
+    
     private function PDF_FM ($data)
     {
         $document = $data['Document'];

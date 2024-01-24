@@ -121,6 +121,9 @@ class OrderController extends Controller
     {
         $orderData = Orders::find($order);//PRIMERO SACAMOS LA INFO DE LA ORDEN
         $operator = User::where('id', $orderData->operator)->first();        
+        $autorizo = User::where('id', $orderData->authorize)->first();        
+        $realizo = User::where('id', $orderData->perform)->first();     
+           
         $earringsInfo = DB::table('order_details')
             ->join('earrings', 'order_details.id_earring', '=', 'earrings.id')
             ->where('order_details.id_order', '=', $order)
@@ -131,6 +134,7 @@ class OrderController extends Controller
             $firstEarring = $earringsInfo->first();
             $id_unit = $firstEarring->unit; // Extract unit
             $type = $firstEarring->type; // Extract type
+            $fm = $firstEarring->fm; // Extract type
 
             $fallas = '';
             $numError = 1;
@@ -141,6 +145,7 @@ class OrderController extends Controller
         } else {
             $id_unit = null;
             $type = null;
+            $fm = null;
             $fallas = 'No hay fallas en esta orden.';
         }
 
@@ -156,7 +161,11 @@ class OrderController extends Controller
             'logoImage' => $logoImage,
             'orderData' => $orderData,
             'unit' => $unit,
+            'fm' => $fm,
             'fallas' => $fallas,
+            'operator' => $operator,
+            'autorizo' => $autorizo,
+            'realizo' => $realizo,
         ];
 
         $html = view('F-05-01-R2 ORDEN DE SERVICIO', $data)->render();
