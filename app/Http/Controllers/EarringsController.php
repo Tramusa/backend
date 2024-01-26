@@ -53,7 +53,11 @@ class EarringsController extends Controller
             $description = 'En '.$key.' No cumple: '.$value;
 
             // Verificar si la descripción ya existe en los pendientes registrados
-            $existingEarring = Earrings::where('description', $description)->where('status', 1)->where('type', $data['type'])->where('unit', $data['unit'])->first();
+            $existingEarring = Earrings::where('description', 'like', '%' . $description . '%')
+                            ->where('status', 1)
+                            ->where('type', $data['type'])
+                            ->where('unit', $data['unit'])
+                            ->first();
             if ($existingEarring) {
                 continue; // La descripción ya existe, pasa al siguiente pendiente
             }else{
