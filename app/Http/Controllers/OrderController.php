@@ -43,13 +43,40 @@ class OrderController extends Controller
     {
         $orders = DB::table('orders')
                     ->where('status', $type)
-                    ->get();      
+                    ->get();
+
+        $tablas = ['', 'tractocamiones', 'remolques', 'dollys', 'volteos', 'toneles', 'tortons', 'autobuses', 'sprinters', 'utilitarios', 'maquinarias'];
+
+        foreach ($orders as $order) {
+            $detail = DB::table('order_details')
+                        ->join('earrings', 'order_details.id_earring', '=', 'earrings.id')
+                        ->where('order_details.id_order', $order->id)
+                        ->select('earrings.type', 'earrings.unit')
+                        ->first();
+
+            if ($detail) {
+                $tableName = $tablas[$detail->type];
+                $unit = DB::table($tableName)
+                            ->where('id', $detail->unit)
+                            ->first();
+
+                // Asegúrate de acceder a la propiedad como objeto
+                if ($unit) {
+                    $order->no_economic = $unit->no_economic;
+                } else {
+                    $order->no_economic = null; // o algún valor por defecto
+                }
+            }
+        }    
+
         return response()->json($orders);
     }
+
 
     public function showOrder($id)
     {
         $order = Orders::find($id);
+        
         if (!$order) {
             return response()->json(['message' => 'Orden no encontrada'], 404);
         }else{
