@@ -143,6 +143,15 @@
         border: 1px solid;
         padding: 3px;
       }  
+
+      .signature {
+        font-family: 'Courier New', monospace; /* Una fuente cursiva disponible en la mayoría de los sistemas */
+        font-style: italic;
+        font-weight: bold;
+        font-size: 13px;
+        color: #000080; /* Azul marino */
+        letter-spacing: 0.5px; /* Espaciado ligero para emular la caligrafía */
+      }
     </style>
   </head>
   <body>
@@ -217,9 +226,24 @@
       <div class="row"><br><br><br><br>
         <table class="firmas" style="width: 100%; border: 0px solid;">
             <tr>
-                <td>___________________________<br>{{ $autorizo->name ?? ' ' }} {{ $autorizo->a_paterno ?? ' ' }}<br>AUTORIZÓ</td>
-                <td>___________________________<br>{{ $realizo->name ?? ' ' }} {{ $realizo->a_paterno ?? ' ' }}<br>REALIZÓ	</td>
-                <td>___________________________<br>{{ $operator->name ?? ' ' }} {{ $operator->a_paterno ?? ' ' }}<br>OPERADOR</td>
+              <td>
+                <p class="signature">{{ $autorizo->name ?? ' ' }} {{ $autorizo->a_paterno ?? ' ' }} {{ $autorizo->a_materno ?? ' ' }}</p>
+                ___________________________<br>
+                {{ $autorizo->name ?? ' ' }} {{ $autorizo->a_paterno ?? ' ' }}<br>
+                AUTORIZÓ
+              </td>
+              <td>
+                <p class="signature">{{ $realizo->name ?? ' ' }} {{ $realizo->a_paterno ?? ' ' }} {{ $realizo->a_materno ?? ' ' }}</p>
+                ___________________________<br>
+                {{ $realizo->name ?? ' ' }} {{ $realizo->a_paterno ?? ' ' }}<br>
+                REALIZÓ	
+              </td>
+              <td>
+                <p class="signature">{{ $operator->name ?? ' ' }} {{ $operator->a_paterno ?? ' ' }} {{ $operator->a_materno ?? ' ' }}</p>
+                ___________________________<br>
+                {{ $operator->name ?? ' ' }} {{ $operator->a_paterno ?? ' ' }}<br>
+                OPERADOR
+              </td>
             </tr>
         </table>
       </div>        
