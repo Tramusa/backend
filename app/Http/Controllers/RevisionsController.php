@@ -177,7 +177,11 @@ class RevisionsController extends Controller
             return response()->json(['error' => 'Unit not found'], 404);
         }
 
-        $revision->no_economic = $unit->no_economic;
+        if ($unit->no_economic) {
+            $revision->no_economic = $unit->no_economic;
+        } else {
+            $revision->no_economic = null; // or any default value or handle accordingly
+        }
 
         return response()->json($revision);
     }
