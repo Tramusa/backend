@@ -38,7 +38,11 @@ class RevisionsController extends Controller
             $id_responsible = $revision->responsible;
             
             $unit = DB::table($tablas[$revision->type])->select('no_economic')->where('id', $id_unit)->first();
-            $revision->unit = $unit->no_economic;    
+            if ($unit->no_economic) {
+                $revision->no_economic = $unit->no_economic;
+            } else {
+                $revision->no_economic = null; // or any default value or handle accordingly
+            };    
                    
             $responsible = DB::table('users')->select('name')->where('id', $id_responsible)->first();
             $revision->responsible = $responsible->name;
