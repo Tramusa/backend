@@ -13,6 +13,7 @@ use App\Models\Tortons;
 use App\Models\Tractocamiones;
 use App\Models\Utilitarios;
 use App\Models\Volteos;
+use Carbon\Carbon;
 use Dompdf\Dompdf;
 use Illuminate\Http\Request;
 use Illuminate\Log\Logger;
@@ -137,9 +138,15 @@ class RevisionsController extends Controller
                     }
                 }
             }
-            //CAMBIAR STATUS
-            Revisions::find($infoRevision['id'])->update(['status'=> 2]);
-            
+            //CAMBIAR STATUS Fecha y odometro
+            $odometro = ($request->filled('odometro')) ? $request->input('odometro') : 0;
+
+            Revisions::find($infoRevision['id'])->update([
+                'status' => 2,
+                'end_date' => Carbon::now(), // Agregar la fecha de hoy
+                'odometro' => $odometro, // Agregar el odómetro
+            ]);
+
             // ACTUALIZAR LA UNIDAD
             DB::table($tablas[$infoRevision['type']])->where('id', $infoRevision['unit'])->update($updateData);
     

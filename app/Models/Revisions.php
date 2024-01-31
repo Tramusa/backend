@@ -9,5 +9,5 @@ class Revisions extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['responsible', 'type', 'unit', 'status', 'is', 'end_date' ];
+    protected $fillable = ['responsible', 'type', 'unit', 'status', 'is', 'end_date', 'odometro' ];
 }

@@ -72,6 +72,45 @@ class OrderController extends Controller
         return response()->json($orders);
     }
 
+    public function bitacora(){
+        $orders = DB::table('orders')
+        ->join('users', 'orders.operator', '=', 'users.id')
+        ->where('orders.status', 4)
+        ->select('orders.*', 'users.name', 'users.a_paterno', 'users.a_materno')
+        ->get();
+
+        if ($orders->isEmpty()) {
+            return response()->json(['message' => 'Órdenes no encontradas'], 404);
+        } else {
+            $tablas = ['', 'tractocamiones', 'remolques', 'dollys', 'volteos', 'toneles', 'tortons', 'autobuses', 'sprinters', 'utilitarios', 'maquinarias'];
+                    
+            foreach ($orders as $order) {
+                $fallas = DB::table('order_details')
+                    ->join('earrings', 'order_details.id_earring', '=', 'earrings.id')
+                    ->where('order_details.id_order', $order->id)
+                    ->select('earrings.description') // Selecciona solo la descripción de la falla
+                    ->pluck('description'); // Pluck se utiliza para obtener una lista de valores
+        
+                $order->fallas = $fallas;
+
+                $firstEarring = DB::table('order_details')
+                ->join('earrings', 'order_details.id_earring', '=', 'earrings.id')
+                ->where('order_details.id_order', $order->id)
+                ->select('earrings.type', 'earrings.unit')
+                ->first();
+
+                if ($firstEarring) {
+                    
+                    if (isset($firstEarring->type) && isset($firstEarring->unit)) {
+                        $id_unit = $firstEarring->unit;
+                        $unit = DB::table($tablas[$firstEarring->type])->select('no_economic')->where('id', $id_unit)->first();
+                        $order->unit_info = $unit;
+                    }
+                }
+            }
+            return response()->json($orders);
+        }
+    }
 
     public function showOrder($id)
     {
