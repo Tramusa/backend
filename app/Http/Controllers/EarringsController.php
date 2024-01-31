@@ -125,6 +125,8 @@ class EarringsController extends Controller
 
     public function update(Request $request, $id)
     {   
-        Earrings::find($id)->update(['description'=> $request->description] ); 
+        Earrings::find($id)->update(['description'=> $request->description, 'type_mtto'=> $request->type_mtto] );
+        
+        return response()->json(['message' => 'Earrings updated successfully.']); 
     }
 }
