@@ -30,6 +30,7 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::post('/userAdmin', [AuthController::class, 'updateAdmin']);
     Route::delete('/expirationsUnits/{id}', [ExpirationUnitsController::class, 'destroy']);
     Route::put('/orders/{id}', [OrderController::class, 'cancel']);
+    Route::middleware('auth:sanctum')->delete('/unit/{id}', [UnitController::class, 'destroy']);
 });
 
 Route::middleware('auth:sanctum')->post('/change-password', [ProfileController::class, 'changePassword']);
@@ -42,7 +43,6 @@ Route::middleware('auth:sanctum')->post('/createUnit', [UnitController::class, '
 Route::middleware('auth:sanctum')->post('/unit', [UnitController::class, 'unit']);
 Route::middleware('auth:sanctum')->get('/units/{type}', [UnitController::class, 'units']);
 Route::middleware('auth:sanctum')->post('/unit/{type}', [UnitController::class, 'update']);
-Route::middleware('auth:sanctum')->delete('/unit/{id}', [UnitController::class, 'destroy']);
 Route::middleware('auth:sanctum')->post('/upload-pdf', [UnitController::class, 'upload']);
 Route::middleware('auth:sanctum')->post('/docsUnits', [UnitController::class, 'show']);
 Route::middleware('auth:sanctum')->delete('/docsUnits/{id}', [UnitController::class, 'destroyDocs']);

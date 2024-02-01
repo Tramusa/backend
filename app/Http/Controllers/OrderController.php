@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Earrings;
 use App\Models\OrderDetail;
 use App\Models\Orders;
+use App\Models\Revisions;
 use App\Models\User;
 use Dompdf\Dompdf;
 use Illuminate\Http\Request;
@@ -96,15 +97,23 @@ class OrderController extends Controller
                 $firstEarring = DB::table('order_details')
                 ->join('earrings', 'order_details.id_earring', '=', 'earrings.id')
                 ->where('order_details.id_order', $order->id)
-                ->select('earrings.type', 'earrings.unit')
+                ->select('earrings.type', 'earrings.unit', 'earrings.type_mtto', 'earrings.fm' )
                 ->first();
 
-                if ($firstEarring) {
-                    
+                if ($firstEarring) {                    
                     if (isset($firstEarring->type) && isset($firstEarring->unit)) {
                         $id_unit = $firstEarring->unit;
                         $unit = DB::table($tablas[$firstEarring->type])->select('no_economic')->where('id', $id_unit)->first();
                         $order->unit_info = $unit;
+                    }
+
+                    $order->type_mtto = $firstEarring->type_mtto;
+
+                    if ($firstEarring->fm  != 0) {
+                        $revisions = Revisions::where(['id' => $firstEarring->fm])->first();
+                        if ($revisions) {
+                            $order->odometro = ($revisions->odometro)? $revisions->odometro:'N/A';
+                        }
                     }
                 }
             }
