@@ -8,6 +8,7 @@ use App\Http\Controllers\DocsPDFsController;
 use App\Http\Controllers\EarringsController;
 use App\Http\Controllers\ExpirationUnitsController;
 use App\Http\Controllers\InspectionsController;
+use App\Http\Controllers\MissingDocsController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PeajesController;
 use App\Http\Controllers\PointsInterest;
@@ -84,6 +85,10 @@ Route::middleware('auth:sanctum')->get('/earringsCount', function () {
     $earrings = DB::table('earrings')->where('status', 1)->get();
     return response()->json(['total' => count($earrings)]);
 });
+Route::middleware('auth:sanctum')->get('/missingCount', function () {
+    $missing = DB::table('missing_docs')->where('status', 1)->get();
+    return response()->json(['total' => count($missing)]);
+});
 Route::middleware('auth:sanctum')->get('/expirationCount', function () {
     $expiration = DB::table('expiration_units')->where('status', 1)->get();
     return response()->json(['total' => count($expiration)]);
@@ -108,7 +113,7 @@ Route::middleware('auth:sanctum')->post('/finishRevision', [RevisionsController:
 Route::middleware('auth:sanctum')->get('/inspections', [InspectionsController::class, 'index']);
 Route::middleware('auth:sanctum')->get('/inspection/{id}', [InspectionsController::class, 'show']);
 Route::middleware('auth:sanctum')->post('/createInspection', [InspectionsController::class, 'create']);
-Route::middleware('auth:sanctum')->post('/finishInspection', [EarringsController::class, 'create']);
+Route::middleware('auth:sanctum')->post('/finishInspection', [InspectionsController::class, 'finish']);
 
 Route::middleware('auth:sanctum')->get('/earrings', [EarringsController::class, 'index']);
 Route::middleware('auth:sanctum')->get('/earring/{id}', [EarringsController::class, 'show']);
@@ -166,8 +171,10 @@ Route::middleware('auth:sanctum')->delete('/orderEarrings/{id}', [OrderControlle
 Route::middleware('auth:sanctum')->put('/order/{id}', [OrderController::class, 'update']);
 Route::middleware('auth:sanctum')->get('/order-pdf/{order}', [OrderController::class, 'generarPDF']);
 
-
 Route::middleware('auth:sanctum')->post('/upload-excel', [TripController::class, 'import']);
 Route::middleware('auth:sanctum')->get('/download-excel', [TripController::class, 'download']);  
 
 Route::middleware('auth:sanctum')->apiResource('docs-pdfs', DocsPDFsController::class);
+Route::middleware('auth:sanctum')->post('/docs-pdfs/{id}', [DocsPDFsController::class, 'update']);
+
+Route::middleware('auth:sanctum')->apiResource('missing-docs', MissingDocsController::class);

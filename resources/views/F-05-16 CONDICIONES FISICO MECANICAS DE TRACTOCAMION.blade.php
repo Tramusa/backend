@@ -181,7 +181,6 @@
         </table>
       </div>     
       <div style="clear: both;"></div>
-      <!-- Primera fila con dos columnas -->
       <div class="row">
         <!-- Columna 1 -->
         <div class="column-50">
@@ -535,7 +534,7 @@
         </div>
         <div style="clear: both;"></div>
         <div>
-          <table style="width: 97%;">            
+          <table style="width: 97%; text-align: center;">            
             <tr>
               <td class="signature">
                 {{ $data['auxiliar']->name ?? ' ' }} {{ $data['auxiliar']->a_paterno ?? ' ' }} {{ $data['auxiliar']->a_materno ?? ' ' }}

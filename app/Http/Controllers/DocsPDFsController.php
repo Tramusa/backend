@@ -52,23 +52,26 @@ class DocsPDFsController extends Controller
             return response()->json(['message' => 'Documento no encontrado'], 404);
         }
 
+        $doc->location = asset(Storage::url($doc->location));
+
         return response()->json($doc);
     }
 
-    public function update(Request $request, DocsPDFs $docsPDF)
+    public function update(Request $request, $id)
     {
-        Logger($request->input('title'));
-        Logger($request->all());
         $request->validate([
             'title' => 'required',
             'dto' => 'nullable', // Asegúrate de que la validación de 'dto' es correcta según tus requisitos
         ]);
     
         $dataToUpdate = $request->only(['title', 'dto']);
+
+        $docsPDF = DocsPDFs::find($id);
     
         if ($request->hasFile('pdf')) {
             $path = $request->file('pdf')->store('public/pdfs');
-            $dataToUpdate['location'] = $path;
+            $dataToUpdate['location'] = $path;// Si existe un PDF relacionado, actualiza la ruta del archivo PDF existente             
+            Storage::delete($docsPDF->location); // Elimina el archivo PDF anterior del sistema de archivos
         }
     
         $docsPDF->update($dataToUpdate);

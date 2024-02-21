@@ -209,10 +209,10 @@
                 <td colspan="2">RESUMEN DE LA FALLA: <br><br>{!! $fallas !!}<br><br></td>
             </tr>
             <tr>
-                <td colspan="2">RESUMEN DE LA REPARACIÓN: <br><br>{{ $orderData->repair }}<br><br></td>
+                <td colspan="2">RESUMEN DE LA REPARACIÓN: <br><br><pre>{{ $orderData->repair }}</pre><br><br></td>
             </tr>
             <tr>
-                <td colspan="2">REFACCIONES EMPLEADAS: <br><br>{{ $orderData->spare_parts }}<br><br></td>
+                <td colspan="2">REFACCIONES EMPLEADAS: <br><br><pre>{{ $orderData->spare_parts }}</pre><br><br></td>
             </tr>
             <tr>
                 <td>TOTAL EFECTIVO DE REFACCIONES: <br>${{ number_format($orderData->total_parts, 2) }}</td>

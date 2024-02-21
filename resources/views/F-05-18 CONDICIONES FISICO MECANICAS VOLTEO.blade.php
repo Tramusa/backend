@@ -152,7 +152,7 @@
         font-family: 'Courier New', monospace; /* Una fuente cursiva disponible en la mayoría de los sistemas */
         font-style: italic;
         font-weight: bold;
-        font-size: 13px;
+        font-size: 15px;
         color: #000080; /* Azul marino */
         letter-spacing: 0.5px; /* Espaciado ligero para emular la caligrafía */
       }
@@ -167,7 +167,7 @@
       </div>
       <div class="column-2">
         <p class="blueTitle">TRAMUSA CARRIER S.A. DE C.V.</p>
-        <p class="title">REVISION DE CONDICIONES FISICO-MECANICAS</p>
+        <p class="title">REVISION DE CONDICIONES FISICO-MECANICAS VOLTEO</p>
         <h2>ÁREA:MANTENIMIENTO F-05-18  PERIODICIDAD:DIARIO RESGUARDO: 3 AÑOS REVISIÓN: ABRIL DE 2021 </h2>
       </div>      
     </header>
@@ -176,7 +176,7 @@
         <div class="column-2-1">FECHA: ___{{ $fecha }}_______  VEHICULO: ____{{ $data['unit']->no_economic }}______ VOLTEO:___{{ $data['unit']->no_economic }}____</div>
         <table class="column-2-2">
           <tr><th>FOLIO</th></tr>
-          <tr><td class="blueTitle"><br></td></tr>
+          <tr><td class="blueTitle">{{ $data['folio'] }}</td></tr>
         </table><br>
       </div>     
       <div style="clear: both;"></div>
@@ -312,13 +312,13 @@
       </div>
       <div style="clear: both;"></div>
         <div><br><br><br><br><br><br><br>
-          <table style="width: 100%;">            
+          <table style="width: 100%; text-align: center;">            
             <tr>              
               <td class="signature">
                 {{ $data['auxiliar']->name ?? ' ' }} {{ $data['auxiliar']->a_paterno ?? ' ' }} {{ $data['auxiliar']->a_materno ?? ' ' }}
               </td>
-              <td class="signature">
-                {{ $data['operator']->name }} {{ $data['operator']->a_paterno }} {{ $data['operator']->a_materno }}
+              <td class="signature"><br>
+                {{ $data['operator']->name }} {{ $data['operator']->a_paterno }} {{ $data['operator']->a_materno }}<br>
               </td>
               <td>{{ $data['observation'] ?? ' ' }}</td>
             </tr>

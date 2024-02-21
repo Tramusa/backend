@@ -159,7 +159,7 @@
         font-family: 'Courier New', monospace; /* Una fuente cursiva disponible en la mayoría de los sistemas */
         font-style: italic;
         font-weight: bold;
-        font-size: 13px;
+        font-size: 15px;
         color: #000080; /* Azul marino */
         letter-spacing: 0.5px; /* Espaciado ligero para emular la caligrafía */
       }
@@ -597,13 +597,13 @@
         </div>
         <div style="clear: both;"></div>
         <div>
-          <table style="width: 100%;">            
+          <table style="width: 100%; text-align: center;">            
             <tr>              
               <td class="signature">
                 {{ $data['auxiliar']->name ?? ' ' }} {{ $data['auxiliar']->a_paterno ?? ' ' }} {{ $data['auxiliar']->a_materno ?? ' ' }}
               </td>
-              <td class="signature">
-                {{ $data['operator']->name }} {{ $data['operator']->a_paterno }} {{ $data['operator']->a_materno }}
+              <td class="signature"><br>
+                {{ $data['operator']->name }} {{ $data['operator']->a_paterno }} {{ $data['operator']->a_materno }}<br>
               </td>
               <td>{{ $data['observation'] ?? ' ' }}</td>>
             </tr>

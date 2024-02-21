@@ -3,8 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Inspections;
+use App\Models\MissingDocs;
+use Carbon\Carbon;
+use Dompdf\Dompdf;
 use Illuminate\Http\Request;
+use Illuminate\Log\Logger;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class InspectionsController extends Controller
 {
@@ -63,6 +68,139 @@ class InspectionsController extends Controller
     public function show($id)
     {
         $inspection = Inspections::find($id);
+
+        if (!$inspection) {
+            return response()->json(['error' => 'Revision not found'], 404);
+        }
+
+        $tablas = ['', 'tractocamiones', 'remolques', 'dollys', 'volteos', 'toneles', 'tortons', 'autobuses', 'sprinters', 'utilitarios', 'maquinarias'];
+
+        if (!isset($tablas[$inspection->type])) {
+            return response()->json(['error' => 'Invalid ins$inspection type'], 400);
+        }
+
+        $unit = DB::table($tablas[$inspection->type])->where('id', $inspection->unit)->first();
+
+        if (!$unit) {
+            return response()->json(['error' => 'Unidad no encontrada'], 404);
+        }
+
+        if ($unit) {
+            $inspection->unit = $unit;
+        } else {
+            $inspection->unit = null; // or any default value or handle accordingly
+        }
+
         return response()->json($inspection);
+    }
+
+
+    public function finish(Request $request)
+    {
+        if ($request->input('Document') == 'F-05-26 EQUIPO GUARDIAN Y CIRCUITO CERRADO') {
+            # code...
+        }else if($request->input('Document') == 'F-05-23 R2 DE NEUMATICOS'){
+            # code...
+        }else if($request->input('Document') == 'F-05-25 ALINEACION DE REMOLQUES'){
+            # code...
+        }else{
+            $infoInspection = $request->inspection;
+            $dataVerificar = $request->except(['inspection', 'Document']); // Excluir 'revision' del array $data
+            $data = $request->except(['inspection']); // Excluir 'revision' del array $data
+            $tablas = ['', 'tractocamiones', 'remolques', 'dollys', 'volteos', 'toneles', 'tortons', 'autobuses', 'sprinters', 'utilitarios', 'maquinarias'];
+           
+            // Actualización de Inspections
+            Inspections::find($infoInspection['id'])->update([
+                'status' => 2,
+                'end_date' => now(), // Puedes usar la función now() en lugar de Carbon::now()
+            ]);
+            
+            $unit = $infoInspection['unit'];            
+            if (!$unit) {
+                return response()->json(['error' => 'La unidad no fue encontrada.'], 404);
+            }
+            $data['unit'] = $unit;
+
+            $coordinator = DB::table('users')->where('rol', 'Coordinador Mantenimiento')->first();
+            if ($coordinator) {
+                $data['coordinador'] = $coordinator; // Agregar información de la unidad al array $data
+            }
+
+            $folio = $infoInspection['id'];
+
+            foreach ($dataVerificar as $key => $value) {
+                if ($value == 'NO') {
+                    $observa = 'ob'.$key;
+                    // Verificar si la clave $observa existe en $dataVerificar antes de usarla
+                    if (!array_key_exists($observa, $dataVerificar)) {
+                        $description = 'Documento faltante: '.$key;
+                    }else{
+                        $description = 'Documento faltante: '.$key.' ('.$dataVerificar[$observa].')';
+                    }
+
+                    // Verificar si la descripción ya existe en los pendientes registrados
+                    $existingEarring = MissingDocs::where('description', $description)->where('status', 1)->where('type', $infoInspection['type'])->where('unit', $infoInspection['unit']['id'])->first();
+                    if (!$existingEarring) {
+                        $missingData = [
+                            'type' => $infoInspection['type'],
+                            'unit' => $infoInspection['unit']['id'],
+                            'description' => $description,
+                            'date' => Carbon::now(),
+                            'inspection' => $folio,
+                        ];           
+                        $missing = new MissingDocs($missingData);
+                        $missing->save();
+                    }
+                }
+            }
+
+            // Actualización de la Unidad
+            $unitId = $unit['id'];
+            $unitTable = $tablas[$infoInspection['type']];
+            DB::table($unitTable)->where('id', $unitId)->update(['status' => 'available']);
+
+            $data['folio'] = $folio; // Agregar información de folio al array $data
+
+            $operator = DB::table('users')->where('id', $infoInspection['responsible'])->first();
+            if ($operator) {
+                $data['operator'] = $operator; // Agregar información de la unidad al array $data
+            }
+            
+            // AQUÍ SE DEBE GENERAR EL PDF
+            $pdfContent = $this->PDF_DocumentosLegales($data);
+            Storage::disk('public')->put('Inspections/'.$data['Document'].'- Folio N°'. $folio . '.pdf', $pdfContent);
+                 
+            return response()->json(['message' => 'Inspección completada exitosamente.']);
+        }
+    }
+
+    private function PDF_DocumentosLegales ($data)
+    {
+        $document = $data['Document'];
+        
+        $logoImagePath = public_path('imgPDF/logo.png');
+        $logoImage = $this->getImageBase64($logoImagePath);// Convertir las imágenes a base64
+
+        $data = [
+            'logoImage' => $logoImage,
+            'data' => $data,
+            'fecha' => now(),
+        ];
+
+        $html = view($document, $data)->render();
+
+        $dompdf = new Dompdf();
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+    
+        return $dompdf->output(); 
+    }
+
+    private function getImageBase64($imagePath)
+    {
+        $file = file_get_contents($imagePath);
+        $base64 = base64_encode($file);
+        return 'data:image/png;base64,' . $base64;
     }
 }

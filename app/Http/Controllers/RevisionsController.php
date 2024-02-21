@@ -167,9 +167,14 @@ class RevisionsController extends Controller
                 $data['auxiliar'] = $auxiliar; // Agregar información de la unidad al array $data
             }
 
+            $id = $request->revision['id'];
+
+            if ($id) {
+                $data['folio'] = $id; // Agregar información de folio al array $data
+            }
+
             //AQUI SE DEBE GENERAR EL PDF
             $pdfContent = $this->PDF_FM($data);
-            $id = $request->revision['id'];
             Storage::disk('public')->put('Revisions/'.$request->input('Document').'- Folio N°'. $id . '.pdf', $pdfContent);
             return response()->json(['message' => 'Revision terminada existosamente.']);
         }
