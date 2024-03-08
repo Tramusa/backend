@@ -98,6 +98,15 @@ Route::middleware('auth:sanctum')->get('/ordersCount', function () {
     return response()->json(['total' => count($orders)]);
 });
 
+Route::middleware('auth:sanctum')->get('/responsible', function () {
+    $users = DB::table('users')
+        ->where('active', 1)
+        ->where('rol', '!=', '')
+        ->get();
+
+    return response()->json($users);
+});
+
 Route::middleware('auth:sanctum')->get('/programs', [ProgramsController::class, 'index']);
 Route::middleware('auth:sanctum')->post('/addMto', [ProgramsController::class, 'create']);
 Route::middleware('auth:sanctum')->get('/unitsMto/{type}', [ProgramsController::class, 'units']);
@@ -109,11 +118,15 @@ Route::middleware('auth:sanctum')->get('/revisions', [RevisionsController::class
 Route::middleware('auth:sanctum')->get('/revision/{id}', [RevisionsController::class, 'show']);
 Route::middleware('auth:sanctum')->post('/createRevision', [RevisionsController::class, 'create']);
 Route::middleware('auth:sanctum')->post('/finishRevision', [RevisionsController::class, 'finish']);
+Route::middleware('auth:sanctum')->get('/revisions-report/{id}', [RevisionsController::class, 'revisionsReport']);
+Route::middleware('auth:sanctum')->put('/revision/{id}', [RevisionsController::class, 'update']);
+Route::middleware('auth:sanctum')->get('/revisions-details/{id}', [RevisionsController::class, 'showDetails']);
 
 Route::middleware('auth:sanctum')->get('/inspections', [InspectionsController::class, 'index']);
 Route::middleware('auth:sanctum')->get('/inspection/{id}', [InspectionsController::class, 'show']);
 Route::middleware('auth:sanctum')->post('/createInspection', [InspectionsController::class, 'create']);
 Route::middleware('auth:sanctum')->post('/finishInspection', [InspectionsController::class, 'finish']);
+Route::middleware('auth:sanctum')->get('/inspections-report/{id}', [InspectionsController::class, 'inspectionsReport']);
 
 Route::middleware('auth:sanctum')->get('/earrings', [EarringsController::class, 'index']);
 Route::middleware('auth:sanctum')->get('/earring/{id}', [EarringsController::class, 'show']);

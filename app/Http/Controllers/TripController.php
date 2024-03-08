@@ -197,6 +197,7 @@ class TripController extends Controller
         $users = DB::table('users')
                 ->where('rol', 'like', 'Operador%')
                 ->orWhere('rol', 'like', '%Auxiliar%')
+                ->orWhere('rol', 'like', '%Mecanico%')
                 ->get(); 
         return response()->json($users);  
     }
@@ -814,7 +815,8 @@ class TripController extends Controller
         return $dompdf->output();       
     }
 
-    public function generarPDF($trip){
+    public function generarPDF($trip)
+    {
         $pdfContent = $this->PDF($trip);
 
         Storage::disk('public')->put('trips/Orden N°'. ($trip) . '.pdf', $pdfContent);

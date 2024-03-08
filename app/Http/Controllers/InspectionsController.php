@@ -25,7 +25,6 @@ class InspectionsController extends Controller
         }
 
         $tablas = ['', 'tractocamiones', 'remolques', 'dollys', 'volteos', 'toneles', 'tortons', 'autobuses', 'sprinters', 'utilitarios', 'maquinarias'];
-
         foreach ($inspections as $inspection) {
             $id_unit = $inspection->unit;
             $id_responsible = $inspection->responsible;
@@ -35,6 +34,38 @@ class InspectionsController extends Controller
                    
             $responsible = DB::table('users')->select('name')->where('id', $id_responsible)->first();
             $inspection->responsible = $responsible->name;
+        }
+        return response()->json($inspections);
+    }
+
+
+    public function inspectionsReport($id)
+    {
+        if ($id == 2) {
+            $inspections = DB::table('inspections')
+                            ->where('status', 2)
+                            ->where('is', 'documentos')
+                            ->orderBy('id', 'desc')
+                            ->get();
+        } else {
+            //
+        }
+
+        $tablas = ['', 'tractocamiones', 'remolques', 'dollys', 'volteos', 'toneles', 'tortons', 'autobuses', 'sprinters', 'utilitarios', 'maquinarias'];
+        $nameDocs = ['', 'F-05-07 INSPECCION DOCUMENTOS LEGALES DE TRACTOCAMION', '', 'Dolly', 'F-05-27 INSPECCION DOCUMENTOS LEGALES GONDOLA', 'F-05-08-R1 INSPECCIONES DOCUMENTOS LEGALES DE TANQUE', 'Torton', 'F-05-22 INSPECCION DOCUMENTOS LEGALES DE AUTOBUS', 'F-05-21 INSPECCION DOCUMENTOS LEGALES DE SPRINTER', 'F-05-28 INSPECCION DOCUMENTOS LEGALES DE VEHICULOS UTILITARIOS', 'Maquinaria'];
+        
+        foreach ($inspections as $inspection) {
+            $id_unit = $inspection->unit;
+            $id_responsible = $inspection->responsible;
+            
+            $unit = DB::table($tablas[$inspection->type])->select('no_economic')->where('id', $id_unit)->first();
+            $inspection->unit = $unit->no_economic;    
+                   
+            $responsible = DB::table('users')->select('name')->where('id', $id_responsible)->first();
+            $inspection->responsible = $responsible->name;
+
+            $PDF = $nameDocs[$inspection->type] . "- Folio N°{$inspection->id}.pdf";
+            $inspection->pdf = asset(Storage::url('public/Inspections/'.$PDF));
         }
         return response()->json($inspections);
     }

@@ -6,6 +6,7 @@ use App\Models\Autobuses;
 use App\Models\Dollys;
 use App\Models\Earrings;
 use App\Models\Maquinarias;
+use App\Models\RevCombustibleDetaills;
 use App\Models\Revisions;
 use App\Models\Sprinters;
 use App\Models\Toneles;
@@ -53,6 +54,53 @@ class RevisionsController extends Controller
             } else {
                 $revision->responsible = null; // or any default value or handle accordingly
             }
+        }
+
+        return response()->json($revisions);
+    }
+
+
+    public function revisionsReport($id)
+    {
+        
+        if ($id == 1) {
+            $revisions = DB::table('revisions')
+                            ->where('status', 2)
+                            ->where('is', 'fisico mecanica')
+                            ->orderBy('id', 'desc')
+                            ->get();
+        } else if($id == 3){
+            $revisions = DB::table('revisions')
+                            ->where('status', 2)
+                            ->where('is', 'combustible')
+                            ->orderBy('id', 'desc')
+                            ->get();
+        }
+        
+        $tablas = ['', 'tractocamiones', 'remolques', 'dollys', 'volteos', 'toneles', 'tortons', 'autobuses', 'sprinters', 'utilitarios', 'maquinarias'];
+        $nameDocs  = ['', 'F-05-16 CONDICIONES FISICO MECANICAS DE TRACTOCAMION', '', 'Dolly', 'F-05-18 CONDICIONES FISICO MECANICAS VOLTEO', 'F-05-17 CONDICIONES FISICO MECANICAS TONEL', 'Torton', 'F-05-03 R1 CONDICIONES FISICO-MECANICAS DE TRANSPORTE DE PERSONAL', 'F-05-15 CONDICIONES FISICO MECANICAS VEHICULOS LIGEROS', 'F-05-15 CONDICIONES FISICO MECANICAS VEHICULOS LIGEROS', 'Maquinaria'];
+        foreach ($revisions as $revision) {
+            $id_unit = $revision->unit;
+            $id_responsible = $revision->responsible;
+            
+            $unit = DB::table($tablas[$revision->type])->select('no_economic')->where('id', $id_unit)->first();
+            
+            if ($unit && $unit->no_economic) {
+                $revision->no_economic = $unit->no_economic;
+            } else {
+                $revision->no_economic = null; // or any default value or handle accordingly
+            }
+
+            $responsible = DB::table('users')->select('name')->where('id', $id_responsible)->first();
+            
+            if ($responsible) {
+                $revision->responsible = $responsible->name;
+            } else {
+                $revision->responsible = null; // or any default value or handle accordingly
+            }
+
+            $PDF = $nameDocs[$revision->type] . "- Folio N°{$revision->id}.pdf";
+            $revision->pdf = asset(Storage::url('public/Revisions/'.$PDF));
         }
 
         return response()->json($revisions);
@@ -241,7 +289,58 @@ class RevisionsController extends Controller
 
     public function update(Request $request, $id)
     {
-        //
+        //Logger($request);
+
+        $detalles = $request->except(['unit', 'revision', 'status']);
+
+        foreach ($detalles as $columna => $data) {
+            // Check if the entry exists in RevCombustibleDetails for the given revision_id and columna
+            $existingEntry = RevCombustibleDetaills::where('revision_id', $id)
+                ->where('columna', $columna)
+                ->first();
+    
+            if ($existingEntry) {
+                // If the entry exists, update it
+                $existingEntry->update($data);
+            } else {
+                // If the entry doesn't exist, create a new one
+                RevCombustibleDetaills::create(array_merge(['revision_id' => $id, 'columna' => $columna], $data));
+            }
+        }
+
+         // Update the status of the revision
+        $revision = Revisions::find($id);
+        if ($revision) {
+            $revision->update([$request->status, 'end_date' => Carbon::now()]);
+        }
+
+        // Return a exito! message as JSON
+        return response()->json(['message' => 'Revisión realizada con exito!...']);
+    }
+
+    public function showDetails($id)
+    {
+        $formList = [];
+        $data = [];
+
+        $details = RevCombustibleDetaills::where('revision_id', $id)->get();
+
+        foreach ($details as $detail) {
+            // Extract relevant data excluding 'id' and 'revision_id'
+            $columna = $detail->columna;
+            $detailData = $detail->only(['name', 'distancia_tablero', 'combustible_cargado', 'factor_correcion', 'distancia_ecm', 'combustible_usado', 'rendimiento_combustible', 'ecm_real', 'peso_bruto', 'tiempo', 'consumo_ralenti', 'tiempo_ralenti', 'consumo_pto', 'tiempo_pto']); 
+
+            $formList[] = $columna;
+
+            $data[$columna] = $detailData;
+        }
+
+        $response = [
+            'formList' => $formList,
+            'data' => $data,
+        ];
+
+        return response()->json($response);
     }
 
     public function destroy($id)

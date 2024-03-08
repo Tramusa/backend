@@ -300,7 +300,6 @@ class UnitController extends Controller
                 unset($unit->right);
                 if ($right) {  $unit->right_img = asset(Storage::url($right));  }
                 return $unit;
-                return $unit;
                 break;
             case 2:
                 $unit = Remolques::find($request->id);

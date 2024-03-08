@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\MissingDocs;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class MissingDocsController extends Controller
@@ -39,11 +38,5 @@ class MissingDocsController extends Controller
         $missingDoc->save();
 
         return response()->json(['message' => 'Documento actualizado exitosamente']);
-    
-    }
-
-    public function destroy($id)
-    {
-        //
     }
 }
