@@ -2,18 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Autobuses;
-use App\Models\Dollys;
 use App\Models\Earrings;
-use App\Models\Maquinarias;
 use App\Models\RevCombustibleDetaills;
 use App\Models\Revisions;
-use App\Models\Sprinters;
-use App\Models\Toneles;
-use App\Models\Tortons;
-use App\Models\Tractocamiones;
-use App\Models\Utilitarios;
-use App\Models\Volteos;
 use Carbon\Carbon;
 use Dompdf\Dompdf;
 use Illuminate\Http\Request;
@@ -99,7 +90,11 @@ class RevisionsController extends Controller
                 $revision->responsible = null; // or any default value or handle accordingly
             }
 
-            $PDF = $nameDocs[$revision->type] . "- Folio N°{$revision->id}.pdf";
+            if ($id == 1) {
+                $PDF = $nameDocs[$revision->type] . "- Folio N°{$revision->id}.pdf";
+            } elseif ($id == 3) {
+                $PDF = "F-05-10 REVISION DE CONSUMO DE COMBUSTIBLE - Folio N°{$revision->id}.pdf";
+            }
             $revision->pdf = asset(Storage::url('public/Revisions/'.$PDF));
         }
 
@@ -205,14 +200,22 @@ class RevisionsController extends Controller
                 $data['unit'] = $unit;
             }
 
-            $responsible = DB::table('users')->where('id', $infoRevision['responsible'])->first();
+            $responsible = DB::table('users')
+                ->where('id', $infoRevision['responsible'])
+                ->select('name', 'a_paterno', 'a_materno')
+                ->first();
+
             if ($responsible) {
-                $data['operator'] = $responsible; // Agregar información de la unidad al array $data
+                $data['operator'] = $responsible; // Add unit information to the $data array
             }
 
-            $auxiliar = DB::table('users')->where('rol', 'Auxiliar Mantenimiento')->first();
+            $auxiliar = DB::table('users')
+                ->where('rol', 'Auxiliar Mantenimiento')
+                ->select('name', 'a_paterno', 'a_materno')
+                ->first();
+
             if ($auxiliar) {
-                $data['auxiliar'] = $auxiliar; // Agregar información de la unidad al array $data
+                $data['auxiliar'] = $auxiliar; // Add unit information to the $data array
             }
 
             $id = $request->revision['id'];
@@ -309,13 +312,61 @@ class RevisionsController extends Controller
         }
 
          // Update the status of the revision
+        $end_date = Carbon::now();
         $revision = Revisions::find($id);
         if ($revision) {
-            $revision->update([$request->status, 'end_date' => Carbon::now()]);
+            $revision->update(['status' => $request->status, 'end_date' => $end_date]);
         }
 
+        if ($request->status == 2) {//SOLO SI ES status == 2 FINALIZADO
+             //AQUI SE DEBE GENERAR EL PDF
+             $data = $request->all();
+
+             // ACTUALIZAR LA UNIDAD
+            $tablas = ['', 'tractocamiones', 'remolques', 'dollys', 'volteos', 'toneles', 'tortons', 'autobuses', 'sprinters', 'utilitarios', 'maquinarias'];
+            DB::table($tablas[$revision['type']])->where('id', $revision['unit'])->update(['status' => 'available']);
+
+             // Actualizar la fecha final en el arreglo de revisión en los datos de la solicitud
+             $data['revision']['end_date'] = $end_date;
+         
+             // Generar el PDF con la fecha final actualizada
+             $pdfContent = $this->PDF_COMBUSTIBLE($data);
+             Storage::disk('public')->put('Revisions/F-05-10 REVISION DE CONSUMO DE COMBUSTIBLE - Folio N°'. $id . '.pdf', $pdfContent);
+        }        
+
         // Return a exito! message as JSON
-        return response()->json(['message' => 'Revisión realizada con exito!...']);
+        return response()->json(['message' => 'Revisión actualizada con exito!...']);
+    }
+
+    private function PDF_COMBUSTIBLE ($data)
+    {        
+        $logoImagePath = public_path('imgPDF/logo.png');
+        $logoImage = $this->getImageBase64($logoImagePath);// Convertir las imágenes a base64
+
+        $responsible = DB::table('users')
+                ->where('id', $data['revision']['responsible'])
+                ->select('name', 'a_paterno', 'a_materno')
+                ->first();
+        $coordinador = DB::table('users')
+                ->where('rol', 'Coordinador Mantenimiento')
+                ->select('name', 'a_paterno', 'a_materno')
+                ->first();
+
+        $data = [
+            'logoImage' => $logoImage,
+            'data' => $data,
+            'operator' => $responsible,
+            'coordinador' => $coordinador,
+        ];
+
+        $html = view('F-05-10 REVISION DE CONSUMO DE COMBUSTIBLE', $data)->render();
+
+        $dompdf = new Dompdf();
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+    
+        return $dompdf->output(); 
     }
 
     public function showDetails($id)

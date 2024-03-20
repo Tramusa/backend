@@ -12,6 +12,7 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
         $schedule->command('generate:pending')->dailyAt('8:00');
+        $schedule->command('generate:revisions')->dailyAt('8:00');
         $schedule->command('check:expirationUnits')->dailyAt('8:00');
     }
     protected function commands()

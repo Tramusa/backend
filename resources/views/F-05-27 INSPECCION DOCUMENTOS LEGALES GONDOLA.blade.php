@@ -295,7 +295,7 @@
                 <br>
                   <div class="signature">{{ $data['coordinador']->name }} {{ $data['coordinador']->a_paterno }} {{ $data['coordinador']->a_materno }}</div><br>
                   _______________________________________________<br>
-                  {{ $data['coordinador']->name }} {{ $data['coordinador']->a_paterno }} {{ $data['coordinador']->a_materno }}
+                  ING. {{ $data['coordinador']->name }} {{ $data['coordinador']->a_paterno }} {{ $data['coordinador']->a_materno }}
               </td>
               <td>                
                 <br>

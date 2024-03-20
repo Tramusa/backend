@@ -28,9 +28,10 @@ class InspectionsController extends Controller
         foreach ($inspections as $inspection) {
             $id_unit = $inspection->unit;
             $id_responsible = $inspection->responsible;
-            
             $unit = DB::table($tablas[$inspection->type])->select('no_economic')->where('id', $id_unit)->first();
-            $inspection->unit = $unit->no_economic;    
+            if ($unit) {
+                $inspection->unit = $unit->no_economic;
+            }     
                    
             $responsible = DB::table('users')->select('name')->where('id', $id_responsible)->first();
             $inspection->responsible = $responsible->name;

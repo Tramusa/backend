@@ -103,7 +103,6 @@ Route::middleware('auth:sanctum')->get('/responsible', function () {
         ->where('active', 1)
         ->where('rol', '!=', '')
         ->get();
-
     return response()->json($users);
 });
 
