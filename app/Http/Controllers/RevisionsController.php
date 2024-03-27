@@ -58,13 +58,13 @@ class RevisionsController extends Controller
             $revisions = DB::table('revisions')
                             ->where('status', 2)
                             ->where('is', 'fisico mecanica')
-                            ->orderBy('id', 'desc')
+                            ->orderBy('end_date', 'desc')
                             ->get();
         } else if($id == 3){
             $revisions = DB::table('revisions')
                             ->where('status', 2)
                             ->where('is', 'combustible')
-                            ->orderBy('id', 'desc')
+                            ->orderBy('end_date', 'desc')
                             ->get();
         }
         
@@ -125,110 +125,110 @@ class RevisionsController extends Controller
 
     public function finish(Request $request)
     {
-        if ($request->input('Document') == 'F-05-10 CONSUMO DE COMBUSTIBLE') {
-            # code...
-        }else{
-            $infoRevision = $request->revision;
-            $dataVerificar = $request->except(['revision', 'Document']); // Excluir 'revision' del array $data
-            $tablas = ['', 'tractocamiones', 'remolques', 'dollys', 'volteos', 'toneles', 'tortons', 'autobuses', 'sprinters', 'utilitarios', 'maquinarias'];
-            
-            $updateData = ['status' => 'available'];
-            if ($request->filled('odometro')) {
-                 // Recuperar el valor actual del odómetro
-                $currentOdometer = DB::table($tablas[$infoRevision['type']])->where('id', $infoRevision['unit'])->value('odometro');
+        $infoRevision = $request->revision;
+        $dataVerificar = $request->except(['revision', 'Document']); // Excluir 'revision' del array $data
+        $tablas = ['', 'tractocamiones', 'remolques', 'dollys', 'volteos', 'toneles', 'tortons', 'autobuses', 'sprinters', 'utilitarios', 'maquinarias'];
+        
+        $updateData = ['status' => 'available'];
+        if ($request->filled('odometro')) {
+             // Recuperar el valor actual del odómetro
+            $currentOdometer = DB::table($tablas[$infoRevision['type']])->where('id', $infoRevision['unit'])->value('odometro');
 
-                // Verificar si el nuevo odómetro es menor que el actual
-                if ($request->filled('odometro') && $request->input('odometro') < $currentOdometer) {
-                    return response()->json(['error' => 'El Odómetro no puede ser menor que el actual.'], 422);
-                }
-                $updateData['odometro'] = $request->input('odometro');
+            // Verificar si el nuevo odómetro es menor que el actual
+            if ($request->filled('odometro') && $request->input('odometro') < $currentOdometer) {
+                return response()->json(['error' => 'El Odómetro no puede ser menor que el actual.'], 422);
             }
-
-            $folio = $infoRevision['id'];
-           
-            foreach ($dataVerificar as $key => $value) {
-                if ($value == 'NO') {
-                    $description = 'No cumple con ( '.$key.' )';
-                    // Verificar si la descripción ya existe en los pendientes registrados
-                    $existingEarring = Earrings::where('description', $description)->where('status', 1)->where('type', $infoRevision['type'])->where('unit', $infoRevision['unit'])->first();
-                    if ($existingEarring) {
-                        continue; // La descripción ya existe, pasa al siguiente pendiente
-                    }else{
-                        $earrings = new Earrings(
-                            [
-                                'unit' => $infoRevision['unit'],
-                                'type' => $infoRevision['type'],
-                                'description' => $description,
-                                'fm' => $folio,
-                            ]
-                        );//GENERAMOS LOS PENDIENTES UNO A UNO 
-                        $earrings->save();
-                    } 
-                }else if ($key == 'observation') {
-                    $existingEarring = Earrings::where('description', $value)->where('status', 1)->where('type', $infoRevision['type'])->where('unit', $infoRevision['unit'])->first();
-                    if ($existingEarring) {
-                        continue; // La descripción ya existe, pasa al siguiente pendiente
-                    }else{
-                        $earrings = new Earrings(
-                            [
-                                'unit' => $infoRevision['unit'],
-                                'type' => $infoRevision['type'],
-                                'description' => $value,
-                                'fm' => $folio,
-                            ]
-                        );//GENERAMOS LOS PENDIENTES UNO A UNO 
-                        $earrings->save();
-                    }
-                }
-            }
-            //CAMBIAR STATUS Fecha y odometro
-            $odometro = ($request->filled('odometro')) ? $request->input('odometro') : 0;
-
-            Revisions::find($infoRevision['id'])->update([
-                'status' => 2,
-                'end_date' => Carbon::now(), // Agregar la fecha de hoy
-                'odometro' => $odometro, // Agregar el odómetro
-            ]);
-
-            // ACTUALIZAR LA UNIDAD
-            DB::table($tablas[$infoRevision['type']])->where('id', $infoRevision['unit'])->update($updateData);
-    
-            $data = $request->except(['revision']); // Excluir 'revision' del array $data
-
-            $unit = DB::table($tablas[$infoRevision['type']])->where('id', $infoRevision['unit'])->first();
-            if ($unit) {
-                $data['unit'] = $unit;
-            }
-
-            $responsible = DB::table('users')
-                ->where('id', $infoRevision['responsible'])
-                ->select('name', 'a_paterno', 'a_materno')
-                ->first();
-
-            if ($responsible) {
-                $data['operator'] = $responsible; // Add unit information to the $data array
-            }
-
-            $auxiliar = DB::table('users')
-                ->where('rol', 'Auxiliar Mantenimiento')
-                ->select('name', 'a_paterno', 'a_materno')
-                ->first();
-
-            if ($auxiliar) {
-                $data['auxiliar'] = $auxiliar; // Add unit information to the $data array
-            }
-
-            $id = $request->revision['id'];
-
-            if ($id) {
-                $data['folio'] = $id; // Agregar información de folio al array $data
-            }
-
-            //AQUI SE DEBE GENERAR EL PDF
-            $pdfContent = $this->PDF_FM($data);
-            Storage::disk('public')->put('Revisions/'.$request->input('Document').'- Folio N°'. $id . '.pdf', $pdfContent);
-            return response()->json(['message' => 'Revision terminada existosamente.']);
+            $updateData['odometro'] = $request->input('odometro');
         }
+
+        $folio = $infoRevision['id'];
+           
+        foreach ($dataVerificar as $key => $value) {
+            if ($value == 'NO') {
+                if (array_key_exists('Observacion-'.$key, $dataVerificar)) {
+                    $description = 'No cumple con: '.$key.' ( '.$dataVerificar['Observacion-'.$key].' )';
+                } else {
+                    $description = 'No cumple con: '.$key;
+                }
+                // Verificar si la descripción ya existe en los pendientes registrados
+                $existingEarring = Earrings::where('description', $description)->where('status', 1)->where('type', $infoRevision['type'])->where('unit', $infoRevision['unit'])->first();
+                if ($existingEarring) {
+                    continue; // La descripción ya existe, pasa al siguiente pendiente
+                }else{
+                    $earrings = new Earrings(
+                        [
+                            'unit' => $infoRevision['unit'],
+                            'type' => $infoRevision['type'],
+                            'description' => $description,
+                            'fm' => $folio,
+                        ]
+                    );//GENERAMOS LOS PENDIENTES UNO A UNO 
+                    $earrings->save();
+                } 
+            }else if ($key == 'observation') {
+                $existingEarring = Earrings::where('description', $value)->where('status', 1)->where('type', $infoRevision['type'])->where('unit', $infoRevision['unit'])->first();
+                if ($existingEarring) {
+                    continue; // La descripción ya existe, pasa al siguiente pendiente
+                }else{
+                    $earrings = new Earrings(
+                        [
+                            'unit' => $infoRevision['unit'],
+                            'type' => $infoRevision['type'],
+                            'description' => $value,
+                            'fm' => $folio,
+                        ]
+                    );//GENERAMOS LOS PENDIENTES UNO A UNO 
+                    $earrings->save();
+                }
+            }
+        }
+        //CAMBIAR STATUS Fecha y odometro
+        $odometro = ($request->filled('odometro')) ? $request->input('odometro') : 0;
+
+        Revisions::find($infoRevision['id'])->update([
+            'status' => 2,
+            'end_date' => Carbon::now(), // Agregar la fecha de hoy
+            'odometro' => $odometro, // Agregar el odómetro
+        ]);
+
+        // ACTUALIZAR LA UNIDAD
+        DB::table($tablas[$infoRevision['type']])->where('id', $infoRevision['unit'])->update($updateData);
+    
+        $data = $request->except(['revision']); // Excluir 'revision' del array $data
+
+        $unit = DB::table($tablas[$infoRevision['type']])->where('id', $infoRevision['unit'])->first();
+        if ($unit) {
+            $data['unit'] = $unit;
+        }
+
+        $responsible = DB::table('users')
+            ->where('id', $infoRevision['responsible'])
+            ->select('name', 'a_paterno', 'a_materno')
+            ->first();
+
+        if ($responsible) {
+            $data['operator'] = $responsible; // Add unit information to the $data array
+        }
+
+        $auxiliar = DB::table('users')
+            ->where('rol', 'Auxiliar Mantenimiento')
+            ->select('name', 'a_paterno', 'a_materno')
+            ->first();
+
+        if ($auxiliar) {
+            $data['auxiliar'] = $auxiliar; // Add unit information to the $data array
+        }
+
+        $id = $request->revision['id'];
+
+        if ($id) {
+            $data['folio'] = $id; // Agregar información de folio al array $data
+        }
+
+        //AQUI SE DEBE GENERAR EL PDF
+        $pdfContent = $this->PDF_FM($data);
+        Storage::disk('public')->put('Revisions/'.$request->input('Document').'- Folio N°'. $id . '.pdf', $pdfContent);
+        return response()->json(['message' => 'Revision terminada existosamente.']);
     }
 
     public function show($id)
