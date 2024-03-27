@@ -18,7 +18,6 @@ return new class extends Migration
             $table->string('distancia_ecm')->nullable();
             $table->string('combustible_usado')->nullable();
             $table->string('rendimiento_combustible')->nullable();
-            $table->string('ecm_real')->nullable();
             $table->string('peso_bruto')->nullable();
             $table->string('tiempo')->nullable();
             $table->string('consumo_ralenti')->nullable();
@@ -29,6 +28,7 @@ return new class extends Migration
             $table->timestamps();
         });
     }
+
 
     public function down()
     {

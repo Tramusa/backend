@@ -8,7 +8,7 @@
         content: "";
         display: table;
         clear: both;
-      }
+      } 
 
       header {
         padding: 10px 0px;
@@ -415,10 +415,8 @@
             <tr>
                 <td class="der">Diferencial de Combustible ECM vs REAL: </td>
                 <td>%</td>
-                <td class="blueTitleDos center">{{ $data['A']['ecm_real'] }}</td>
-                <td class="blueTitleDos center">{{ isset($data['B']) ? $data['B']['ecm_real'] : '' }}</td>
-                <td class="blueTitleDos center">{{ isset($data['C']) ? $data['C']['ecm_real'] : '' }}</td>
-                <td class="center"><br></td>
+                <td colspan="3"></td>
+                <td class="center">{{ (($sumABC_usado2 - $sumABC_cargado) / $sumABC_cargado) * 100 }}%</td>
             </tr>
             <tr>
                 <td class="der">Peso Bruto Combinado Promedio: </td>
@@ -426,7 +424,7 @@
                 <td class="blueTitleDos center">{{ $data['A']['peso_bruto'] }}</td>
                 <td class="blueTitleDos center">{{ isset($data['B']) ? $data['B']['peso_bruto'] : '' }}</td>
                 <td class="blueTitleDos center">{{ isset($data['C']) ? $data['C']['peso_bruto'] : '' }}</td>
-                <td class="center"><br></td>
+                <td class="center"> - </td>
             </tr>
             <tr>
                 <td class="der">Tiempo de Viaje: </td>
