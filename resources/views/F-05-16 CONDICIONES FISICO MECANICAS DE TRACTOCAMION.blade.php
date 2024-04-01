@@ -297,7 +297,7 @@
               <td>33</td><td>Telefono de emergencia</td><td>{{ $data['Telefono de emergencia'] }}</td>
             </tr>
             <tr>
-              <td>34</td><td>Antenas de CV ({{ $data['No Antenas'] }} pz)</td><td>{{ $data['Antenas de CV'] }}</td>
+              <td>34</td><td>Antenas de CV </td><td>{{ $data['Antenas de CV'] }}</td>
             </tr>
             <tr>
               <td>35</td><td>Imagen</td><td>{{ $data['Imagen'] }}</td>
@@ -386,7 +386,7 @@
               <td>57</td><td>Llanta (No renovadas surco no menos de 3 mm)</td><td>{{ $data['Llantas (No renovadas Surco no menos de 3 mm.) Frontal'] }}</td>
             </tr>
             <tr>
-              <td>58</td><td>Rines sin fisuras ({{ $data['Type Rin Frontal'] }})</td><td>{{ $data['Rines sin fisuras  Frontal'] }}</td>
+              <td>58</td><td>Rines sin fisuras</td><td>{{ $data['Rines sin fisuras  Frontal'] }}</td>
             </tr>
             <tr>
               <td>59</td><td>Birlos completos y sin fisuras</td><td>{{ $data['Birlos completos y sin fisuras Frontal'] }}</td>
@@ -449,7 +449,7 @@
               <td>76</td><td>Llantas (surco no menos de 3 mm)</td><td>{{ $data['Llantas (Surco no menos de 3 mm.) Posterior'] }}</td>
             </tr>
             <tr>
-              <td>77</td><td>Rines sin fisuras ({{ $data['Type Rin Posterior'] }})</td><td>{{ $data['Rines sin fisuras Posterior'] }}</td>
+              <td>77</td><td>Rines sin fisuras </td><td>{{ $data['Rines sin fisuras Posterior'] }}</td>
             </tr>
             <tr>
               <td>78</td><td>Birlos completos y sin fisuras</td><td>{{ $data['Birlos completos y sin fisuras Posterior'] }}</td>

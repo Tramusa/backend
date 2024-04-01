@@ -186,109 +186,109 @@
               <th>N°</th>
               <th>Revisión de volteo</th>
               <th>Cumple</th>
-              <th>Obvservaciones</th>
+              <th>Observaciones</th>
             </tr>
             <tr>
-              <td>1</td><td>Funcionamiento en cilindro hidráulico</td><td>{{ $data['Funcionamiento  en cilindro hidraulico'] }}</td><td></td>
+              <td>1</td><td>Funcionamiento en cilindro hidráulico</td><td>{{ $data['Funcionamiento  en cilindro hidraulico'] }}</td><td>{{ $data['Observacion-Funcionamiento  en cilindro hidraulico'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td>2</td><td>Conexiones de aire (sin fuga)</td><td>{{ $data['Conexiones de aire (sin fuga)'] }}</td><td></td>
+              <td>2</td><td>Conexiones de aire (sin fuga)</td><td>{{ $data['Conexiones de aire (sin fuga)'] }}</td><td>{{ $data['Observacion-Conexiones de aire (sin fuga)'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td>3</td><td>Guardafangos (Loderas)</td><td>{{ $data['Guardafangos (Loderas)'] }}</td><td></td>
+              <td>3</td><td>Guardafangos (Loderas)</td><td>{{ $data['Guardafangos (Loderas)'] }}</td><td>{{ $data['Observacion-Guardafangos (Loderas)'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td>4</td><td>Patines</td><td>{{ $data['Patines'] }}</td><td></td>
+              <td>4</td><td>Patines</td><td>{{ $data['Patines'] }}</td><td>{{ $data['Observacion-Patines'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td>5</td><td>Llanta de refacción</td><td>{{ $data['Llanta de refaccion'] }}</td><td></td>
+              <td>5</td><td>Llanta de refacción</td><td>{{ $data['Llanta de refaccion'] }}</td><td>{{ $data['Observacion-Llanta de refaccion'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td>6</td><td>Válvulas de desfogue</td><td>{{ $data['Valvulas de desfogue'] }}</td><td></td>
+              <td>6</td><td>Válvulas de desfogue</td><td>{{ $data['Valvulas de desfogue'] }}</td><td>{{ $data['Observacion-Valvulas de desfogue'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td>7</td><td>Bolsas de aire</td><td>{{ $data['Bolsas de aire'] }}</td><td></td>
+              <td>7</td><td>Bolsas de aire</td><td>{{ $data['Bolsas de aire'] }}</td><td>{{ $data['Observacion-Bolsas de aire'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td>8</td><td>Sistema de frenos</td><td>{{ $data['Sistema de frenos'] }}</td><td></td>
+              <td>8</td><td>Sistema de frenos</td><td>{{ $data['Sistema de frenos'] }}</td><td>{{ $data['Observacion-Sistema de frenos'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td>9</td><td>Baleros (sin fuga)</td><td>{{ $data['Baleros (Sin Fuga)'] }}</td><td></td>
+              <td>9</td><td>Baleros (sin fuga)</td><td>{{ $data['Baleros (Sin Fuga)'] }}</td><td>{{ $data['Observacion-Baleros (Sin Fuga)'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td>10</td><td>Sistema de autoinflado</td><td>{{ $data['Sistema de autoinflado'] }}</td><td></td>
+              <td>10</td><td>Sistema de autoinflado</td><td>{{ $data['Sistema de autoinflado'] }}</td><td>{{ $data['Observacion-Sistema de autoinflado'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td>11</td><td>Estado de neumáticos</td><td>{{ $data['Estado de neumaticos'] }}</td><td></td>
+              <td>11</td><td>Estado de neumáticos</td><td>{{ $data['Estado de neumaticos'] }}</td><td>{{ $data['Observacion-Estado de neumaticos'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td>12</td><td>Luces laterales</td><td>{{ $data['Luces laterales'] }}</td><td></td>
+              <td>12</td><td>Luces laterales</td><td>{{ $data['Luces laterales'] }}</td><td>{{ $data['Observacion-Luces laterales'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td>13</td><td>Luces direccionales</td><td>{{ $data['Luces direccionales'] }}</td><td></td>
+              <td>13</td><td>Luces direccionales</td><td>{{ $data['Luces direccionales'] }}</td><td>{{ $data['Observacion-Luces direccionales'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td>14</td><td>Luces de advertencia</td><td>{{ $data['Luces de advertencia'] }}</td><td></td>
+              <td>14</td><td>Luces de advertencia</td><td>{{ $data['Luces de advertencia'] }}</td><td>{{ $data['Observacion-Luces de advertencia'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td>15</td><td>Luces de frenado</td><td>{{ $data['Luces de frenado'] }}</td><td></td>
+              <td>15</td><td>Luces de frenado</td><td>{{ $data['Luces de frenado'] }}</td><td>{{ $data['Observacion-Luces de frenado'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td>16</td><td>Luces de estacionamiento</td><td>{{ $data['Luces de estacionamiento'] }}</td><td></td>
+              <td>16</td><td>Luces de estacionamiento</td><td>{{ $data['Luces de estacionamiento'] }}</td><td>{{ $data['Observacion-Luces de estacionamiento'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td>17</td><td>Funcionamiento de manivela</td><td>{{ $data['Funcionamiento de manivela'] }}</td><td></td>
+              <td>17</td><td>Funcionamiento de manivela</td><td>{{ $data['Funcionamiento de manivela'] }}</td><td>{{ $data['Observacion-Funcionamiento de manivela'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td>18</td><td>Pernos bisagra de volteo</td><td>{{ $data['Pernos bisagra de volteo'] }}</td><td></td>
+              <td>18</td><td>Pernos bisagra de volteo</td><td>{{ $data['Pernos bisagra de volteo'] }}</td><td>{{ $data['Observacion-Pernos bisagra de volteo'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td>19</td><td>Sistema de ganchos para puerta</td><td>{{ $data['Sistema de ganchos para puerta'] }}</td><td></td>
+              <td>19</td><td>Sistema de ganchos para puerta</td><td>{{ $data['Sistema de ganchos para puerta'] }}</td><td>{{ $data['Observacion-Sistema de ganchos para puerta'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td>20</td><td>Seguros de puerta</td><td>{{ $data['Seguros de puerta'] }}</td><td></td>
+              <td>20</td><td>Seguros de puerta</td><td>{{ $data['Seguros de puerta'] }}</td><td>{{ $data['Observacion-Seguros de puerta'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td>21</td><td>Placa de identificación vehicular</td><td>{{ $data['Placa de identificacion vehicular'] }}</td><td></td>
+              <td>21</td><td>Placa de identificación vehicular</td><td>{{ $data['Placa de identificacion vehicular'] }}</td><td>{{ $data['Observacion-Placa de identificacion vehicular'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td>22</td><td>Banderolas</td><td>{{ $data['Banderolas'] }}</td><td></td>
+              <td>22</td><td>Banderolas</td><td>{{ $data['Banderolas'] }}</td><td>{{ $data['Observacion-Banderolas'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td>23</td><td>Numero económico</td><td>{{ $data['Numero economico'] }}</td><td></td>
+              <td>23</td><td>Numero económico</td><td>{{ $data['Numero economico'] }}</td><td>{{ $data['Observacion-Numero economico'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td>24</td><td>Numero de placa</td><td>{{ $data['Numero de placa'] }}</td><td></td>
+              <td>24</td><td>Numero de placa</td><td>{{ $data['Numero de placa'] }}</td><td>{{ $data['Observacion-Numero de placa'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td>25</td><td>Logotipo de la empresa</td><td>{{ $data['Logotipo de la empresa'] }}</td><td></td>
+              <td>25</td><td>Logotipo de la empresa</td><td>{{ $data['Logotipo de la empresa'] }}</td><td>{{ $data['Observacion-Logotipo de la empresa'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td>26</td><td>Reflejantes</td><td>{{ $data['Reflejantes'] }}</td><td></td>
+              <td>26</td><td>Reflejantes</td><td>{{ $data['Reflejantes'] }}</td><td>{{ $data['Observacion-Reflejantes'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td>27</td><td>Lona en buen estado</td><td>{{ $data['Lona en buen estado'] }}</td><td></td>
+              <td>27</td><td>Lona en buen estado</td><td>{{ $data['Lona en buen estado'] }}</td><td>{{ $data['Observacion-Lona en buen estado'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td>28</td><td>Sistema abatible</td><td>{{ $data['Sistema abatible'] }}</td><td></td>
+              <td>28</td><td>Sistema abatible</td><td>{{ $data['Sistema abatible'] }}</td><td>{{ $data['Observacion-Sistema abatible'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td>29</td><td>Descansos de lona</td><td>{{ $data['Descansos de lona'] }}</td><td></td>
+              <td>29</td><td>Descansos de lona</td><td>{{ $data['Descansos de lona'] }}</td><td>{{ $data['Observacion-Descansos de lona'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td>30</td><td>Caballetes completos</td><td>{{ $data['Caballetes completos'] }}</td><td></td>
+              <td>30</td><td>Caballetes completos</td><td>{{ $data['Caballetes completos'] }}</td><td>{{ $data['Observacion-Caballetes completos'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td>31</td><td>Escalones interior volteo</td><td>{{ $data['Escalones interior volteo'] }}</td><td></td>
+              <td>31</td><td>Escalones interior volteo</td><td>{{ $data['Escalones interior volteo'] }}</td><td>{{ $data['Observacion-Escalones interior volteo'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td>32</td><td>Rines sin fisuras ({{ $data['Type Rin'] }})</td><td>{{ $data['Rines sin fisuras'] }}</td><td></td>
+              <td>32</td><td>Rines sin fisuras </td><td>{{ $data['Rines sin fisuras'] }}</td><td>{{ $data['Observacion-Rines sin fisuras'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td>33</td><td>Birlos completos</td><td>{{ $data['Birlos completos'] }}</td><td></td>
+              <td>33</td><td>Birlos completos</td><td>{{ $data['Birlos completos'] }}</td><td>{{ $data['Observacion-Birlos completos'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td>34</td><td>Masas sin fuga</td><td>{{ $data['Masas sin fuga'] }}</td><td></td>
+              <td>34</td><td>Masas sin fuga</td><td>{{ $data['Masas sin fuga'] }}</td><td>{{ $data['Observacion-Masas sin fuga'] ?? ' ' }}</td>
             </tr>
             <tr>
               <td>35</td><td></td><td></td><td></td>

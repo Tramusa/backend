@@ -204,16 +204,16 @@
               <th>N°</th>
               <th>Revisión parte frontal remolque</th>
               <th>Cumple</th>
-              <th>Obvservaciones</th>
+              <th>Observaciones</th>
             </tr>
             <tr>
-              <td class="columna-1">1</td><td class="columna-2">Conexiones de frenos</td><td class="columna-3">{{ $data['Conexiones de frenos'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">1</td><td class="columna-2">Conexiones de frenos</td><td class="columna-3">{{ $data['Conexiones de frenos'] }}</td><td class="columna-4">{{ $data['Observacion-Conexiones de frenos'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">2</td><td class="columna-2">Conexión de luces cable de 7 hilos</td><td class="columna-3">{{ $data['Conexion de luces cable de 7 hilos'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">2</td><td class="columna-2">Conexión de luces cable de 7 hilos</td><td class="columna-3">{{ $data['Conexion de luces cable de 7 hilos'] }}</td><td class="columna-4">{{ $data['Observacion-Conexion de luces cable de 7 hilos'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">3</td><td class="columna-2">Conexión de aire para micro switch</td><td class="columna-3">{{ $data['Conexion de aire para micro switch'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">3</td><td class="columna-2">Conexión de aire para micro switch</td><td class="columna-3">{{ $data['Conexion de aire para micro switch'] }}</td><td class="columna-4">{{ $data['Observacion-Conexion de aire para micro switch'] ?? ' ' }}</td>
             </tr>
           </table>
           <div class="row">        
@@ -222,49 +222,49 @@
               <th>N°</th>
               <th>Revisión lado izquierdo y derecho del remolque</th>
               <th>Cumple</th>
-              <th>Obvservaciones</th>
+              <th>Observaciones</th>
             </tr>
             <tr>
-              <td class="columna-1">4</td><td class="columna-2">Patines</td><td class="columna-3">{{ $data['Luces direccionales'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">4</td><td class="columna-2">Patines</td><td class="columna-3">{{ $data['Luces direccionales'] }}</td><td class="columna-4">{{ $data['Observacion-Luces direccionales'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">5</td><td class="columna-2">Luces de advertencia laterales</td><td class="columna-3">{{ $data['Luces de advertencia laterales'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">5</td><td class="columna-2">Luces de advertencia laterales</td><td class="columna-3">{{ $data['Luces de advertencia laterales'] }}</td><td class="columna-4">{{ $data['Observacion-Luces de advertencia laterales'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">6</td><td class="columna-2">Razón social y numero económico</td><td class="columna-3">{{ $data['Razon social y numero economico'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">6</td><td class="columna-2">Razón social y numero económico</td><td class="columna-3">{{ $data['Razon social y numero economico'] }}</td><td class="columna-4">{{ $data['Observacion-Razon social y numero economico'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">7</td><td class="columna-2">Reflejantes</td><td class="columna-3">{{ $data['Reflejantes'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">7</td><td class="columna-2">Reflejantes</td><td class="columna-3">{{ $data['Reflejantes'] }}</td><td class="columna-4">{{ $data['Observacion-Reflejantes'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">8</td><td class="columna-2">Placa metálica (porta rombos)</td><td class="columna-3">{{ $data['Placa metalica (porta rombos)'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">8</td><td class="columna-2">Placa metálica (porta rombos)</td><td class="columna-3">{{ $data['Placa metalica (porta rombos)'] }}</td><td class="columna-4">{{ $data['Observacion-Placa metalica (porta rombos)'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">9</td><td class="columna-2">Número de placa identificación vehicular en chasis</td><td class="columna-3">{{ $data['Numero de placa identificacion vehicular en chasis'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">9</td><td class="columna-2">Número de placa identificación vehicular en chasis</td><td class="columna-3">{{ $data['Numero de placa identificacion vehicular en chasis'] }}</td><td class="columna-4">{{ $data['Observacion-Numero de placa identificacion vehicular en chasis'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">10</td><td class="columna-2">Escalerilla para remolque</td><td class="columna-3">{{ $data['Escalerilla para remolque'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">10</td><td class="columna-2">Escalerilla para remolque</td><td class="columna-3">{{ $data['Escalerilla para remolque'] }}</td><td class="columna-4">{{ $data['Observacion-Escalerilla para remolque'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">11</td><td class="columna-2">Porta Extintor</td><td class="columna-3">{{ $data['Porta Extintor'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">11</td><td class="columna-2">Porta Extintor</td><td class="columna-3">{{ $data['Porta Extintor'] }}</td><td class="columna-4">{{ $data['Observacion-Porta Extintor'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">12</td><td class="columna-2">Caja de válvulas</td><td class="columna-3">{{ $data['Caja de valvulas'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">12</td><td class="columna-2">Caja de válvulas</td><td class="columna-3">{{ $data['Caja de valvulas'] }}</td><td class="columna-4">{{ $data['Observacion-Caja de valvulas'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">13</td><td class="columna-2">Sello electrónico en caja de válvulas</td><td class="columna-3">{{ $data['Sello electronico en caja de valvulas'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">13</td><td class="columna-2">Sello electrónico en caja de válvulas</td><td class="columna-3">{{ $data['Sello electronico en caja de valvulas'] }}</td><td class="columna-4">{{ $data['Observacion-Sello electronico en caja de valvulas'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">14</td><td class="columna-2">Engomado pruebas espesor de laminas vigentes</td><td class="columna-3">{{ $data['Engomado pruebas espesor de laminas vigentes'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">14</td><td class="columna-2">Engomado pruebas espesor de laminas vigentes</td><td class="columna-3">{{ $data['Engomado pruebas espesor de laminas vigentes'] }}</td><td class="columna-4">{{ $data['Observacion-Engomado pruebas espesor de laminas vigentes'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">15</td><td class="columna-2">Tuberías, Válvulas y conexiones sin fugas.(caja de válvulas)</td><td class="columna-3">{{ $data['Tuberias, Valvulas y conexiones sin fugas.(caja de valvulas)'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">15</td><td class="columna-2">Tuberías, Válvulas y conexiones sin fugas.(caja de válvulas)</td><td class="columna-3">{{ $data['Tuberias, Valvulas y conexiones sin fugas.(caja de valvulas)'] }}</td><td class="columna-4">{{ $data['Observacion-Tuberias, Valvulas y conexiones sin fugas.(caja de valvulas)'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">16</td><td class="columna-2">Conexiones a tierra (Sin pintura)</td><td class="columna-3">{{ $data['Conexiones a tierra (Sin pintura)'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">16</td><td class="columna-2">Conexiones a tierra (Sin pintura)</td><td class="columna-3">{{ $data['Conexiones a tierra (Sin pintura)'] }}</td><td class="columna-4">{{ $data['Observacion-Conexiones a tierra (Sin pintura)'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">17</td><td class="columna-2">Guardafangos (Loderas)</td><td class="columna-3">{{ $data['Guardafangos (Loderas)'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">17</td><td class="columna-2">Guardafangos (Loderas)</td><td class="columna-3">{{ $data['Guardafangos (Loderas)'] }}</td><td class="columna-4">{{ $data['Observacion-Guardafangos (Loderas)'] ?? ' ' }}</td>
             </tr>
           </table>
           <table>
@@ -272,43 +272,43 @@
               <th>N°</th>
               <th>Revisión parte posterior del remolque</th>
               <th>Cumple</th>
-              <th>Obvservaciones</th>
+              <th>Observaciones</th>
             </tr>
             <tr>
-              <td class="columna-1">18</td><td class="columna-2">Luces direccionales</td><td class="columna-3">{{ $data['Luces direccionales Posterior'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">18</td><td class="columna-2">Luces direccionales</td><td class="columna-3">{{ $data['Luces direccionales Posterior'] }}</td><td class="columna-4">{{ $data['Observacion-Luces direccionales Posterior'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">19</td><td class="columna-2">Luces de advertencia</td><td class="columna-3">{{ $data['Luces de advertencia'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">19</td><td class="columna-2">Luces de advertencia</td><td class="columna-3">{{ $data['Luces de advertencia'] }}</td><td class="columna-4">{{ $data['Observacion-Luces de advertencia'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">20</td><td class="columna-2">Luces de frenado</td><td class="columna-3">{{ $data['Luces de frenado'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">20</td><td class="columna-2">Luces de frenado</td><td class="columna-3">{{ $data['Luces de frenado'] }}</td><td class="columna-4">{{ $data['Observacion-Luces de frenado'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">21</td><td class="columna-2">Luces de altura</td><td class="columna-3">{{ $data['Luces de altura'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">21</td><td class="columna-2">Luces de altura</td><td class="columna-3">{{ $data['Luces de altura'] }}</td><td class="columna-4">{{ $data['Observacion-Luces de altura'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">22</td><td class="columna-2">Líneas eléctricas sujetas</td><td class="columna-3">{{ $data['Lineas electricas sujetas'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">22</td><td class="columna-2">Líneas eléctricas sujetas</td><td class="columna-3">{{ $data['Lineas electricas sujetas'] }}</td><td class="columna-4">{{ $data['Observacion-Lineas electricas sujetas'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">23</td><td class="columna-2">Banderolas</td><td class="columna-3">{{ $data['Banderolas'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">23</td><td class="columna-2">Banderolas</td><td class="columna-3">{{ $data['Banderolas'] }}</td><td class="columna-4">{{ $data['Observacion-Banderolas'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">24</td><td class="columna-2">Número económico</td><td class="columna-3">{{ $data['Numero economico'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">24</td><td class="columna-2">Número económico</td><td class="columna-3">{{ $data['Numero economico'] }}</td><td class="columna-4">{{ $data['Observacion-Numero economico'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">25</td><td class="columna-2">Texto: 'Precaución Transporta Material Peligroso'</td><td class="columna-3">{{ $data["Texto: 'Precaucion Transporta Material Peligroso'"] }}</td><td class="columna-4"></td>
+              <td class="columna-1">25</td><td class="columna-2">Texto: 'Precaución Transporta Material Peligroso'</td><td class="columna-3">{{ $data["Texto: 'Precaucion Transporta Material Peligroso'"] }}</td><td class="columna-4">{{ $data["Observacion-Texto: 'Precaucion Transporta Material Peligroso'"] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">26</td><td class="columna-2">Texto 'Precaución doble semi remolque'</td><td class="columna-3">{{ $data["Texto 'Precaucion doble semi remolque'"] }}</td><td class="columna-4"></td>
+              <td class="columna-1">26</td><td class="columna-2">Texto 'Precaución doble semi remolque'</td><td class="columna-3">{{ $data["Texto 'Precaucion doble semi remolque'"] }}</td><td class="columna-4">{{ $data["Observacion-Texto 'Precaucion doble semi remolque'"] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">27</td><td class="columna-2">Defensa (sujeción)</td><td class="columna-3">{{ $data['Defensa (sujecion)'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">27</td><td class="columna-2">Defensa (sujeción)</td><td class="columna-3">{{ $data['Defensa (sujecion)'] }}</td><td class="columna-4">{{ $data['Observacion-Defensa (sujecion)'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">28</td><td class="columna-2">Placa metálica (porta rombos)</td><td class="columna-3">{{ $data['Placa metalica (porta rombos) Posterior'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">28</td><td class="columna-2">Placa metálica (porta rombos)</td><td class="columna-3">{{ $data['Placa metalica (porta rombos) Posterior'] }}</td><td class="columna-4">{{ $data['Observacion-Placa metalica (porta rombos) Posterior'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">29</td><td class="columna-2">Placa de identificación vehicular</td><td class="columna-3">{{ $data['Placa de identificacion vehicular'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">29</td><td class="columna-2">Placa de identificación vehicular</td><td class="columna-3">{{ $data['Placa de identificacion vehicular'] }}</td><td class="columna-4">{{ $data['Observacion-Placa de identificacion vehicular'] ?? ' ' }}</td>
             </tr>
           </table>
           <table>
@@ -316,25 +316,25 @@
               <th>N°</th>
               <th>Revisión parte superior del remolque</th>
               <th>Cumple</th>
-              <th>Obvservaciones</th>
+              <th>Observaciones</th>
             </tr>
             <tr>
-              <td class="columna-1">30</td><td class="columna-2">Domo (sin fugas)</td><td class="columna-3">{{ $data['Domo (sin fugas)'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">30</td><td class="columna-2">Domo (sin fugas)</td><td class="columna-3">{{ $data['Domo (sin fugas)'] }}</td><td class="columna-4">{{ $data['Observacion-Domo (sin fugas)'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">31</td><td class="columna-2">Sensor óptico (protegido)</td><td class="columna-3">{{ $data['Sensor optico (protegido)'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">31</td><td class="columna-2">Sensor óptico (protegido)</td><td class="columna-3">{{ $data['Sensor optico (protegido)'] }}</td><td class="columna-4">{{ $data['Observacion-Sensor optico (protegido)'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">32</td><td class="columna-2">Válvula de desfogue (presión y vacío)</td><td class="columna-3">{{ $data['Valvula de desfogue (presion y vacio)'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">32</td><td class="columna-2">Válvula de desfogue (presión y vacío)</td><td class="columna-3">{{ $data['Valvula de desfogue (presion y vacio)'] }}</td><td class="columna-4">{{ $data['Observacion-Valvula de desfogue (presion y vacio)'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">33</td><td class="columna-2">Nice sin alteraciones</td><td class="columna-3">{{ $data['Nice sin alteraciones'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">33</td><td class="columna-2">Nice sin alteraciones</td><td class="columna-3">{{ $data['Nice sin alteraciones'] }}</td><td class="columna-4">{{ $data['Observacion-Nice sin alteraciones'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">34</td><td class="columna-2">Tapas protectoras del domo</td><td class="columna-3">{{ $data['Tapas protectoras del domo'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">34</td><td class="columna-2">Tapas protectoras del domo</td><td class="columna-3">{{ $data['Tapas protectoras del domo'] }}</td><td class="columna-4">{{ $data['Observacion-Tapas protectoras del domo'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">35</td><td class="columna-2">Sello electrónico de domo</td><td class="columna-3">{{ $data['Sello electronico de domo'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">35</td><td class="columna-2">Sello electrónico de domo</td><td class="columna-3">{{ $data['Sello electronico de domo'] }}</td><td class="columna-4">{{ $data['Observacion-Sello electronico de domo'] ?? ' ' }}</td>
             </tr>
           </table>
           <table>
@@ -342,46 +342,46 @@
               <th>N°</th>
               <th>Revisión parte inferior del remolque</th>
               <th>Cumple</th>
-              <th>Obvservaciones</th>
+              <th>Observaciones</th>
             </tr>
             <tr>
-              <td class="columna-1">36</td><td class="columna-2">Conexiones a quinta rueda</td><td class="columna-3">{{ $data['Conexiones a quinta rueda'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">36</td><td class="columna-2">Conexiones a quinta rueda</td><td class="columna-3">{{ $data['Conexiones a quinta rueda'] }}</td><td class="columna-4">{{ $data['Observacion-Conexiones a quinta rueda'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">37</td><td class="columna-2">Patines</td><td class="columna-3">{{ $data['Patines Inferior'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">37</td><td class="columna-2">Patines</td><td class="columna-3">{{ $data['Patines Inferior'] }}</td><td class="columna-4">{{ $data['Observacion-Patines Inferior'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">38</td><td class="columna-2">Llanta de refacción</td><td class="columna-3">{{ $data['Llanta de refaccion'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">38</td><td class="columna-2">Llanta de refacción</td><td class="columna-3">{{ $data['Llanta de refaccion'] }}</td><td class="columna-4">{{ $data['Observacion-Llanta de refaccion'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">39</td><td class="columna-2">Válvulas de desfogue</td><td class="columna-3">{{ $data['Valvulas de desfogue'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">39</td><td class="columna-2">Válvulas de desfogue</td><td class="columna-3">{{ $data['Valvulas de desfogue'] }}</td><td class="columna-4">{{ $data['Observacion-Valvulas de desfogue'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">40</td><td class="columna-2">Bolsas de aire</td><td class="columna-3">{{ $data['Bolsas de aire'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">40</td><td class="columna-2">Bolsas de aire</td><td class="columna-3">{{ $data['Bolsas de aire'] }}</td><td class="columna-4">{{ $data['Observacion-Bolsas de aire'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">41</td><td class="columna-2">Suspensión</td><td class="columna-3">{{ $data['Suspension'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">41</td><td class="columna-2">Suspensión</td><td class="columna-3">{{ $data['Suspension'] }}</td><td class="columna-4">{{ $data['Observacion-Suspension'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">42</td><td class="columna-2">Sistema de frenos</td><td class="columna-3">{{ $data['Sistema de frenos'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">42</td><td class="columna-2">Sistema de frenos</td><td class="columna-3">{{ $data['Sistema de frenos'] }}</td><td class="columna-4">{{ $data['Observacion-Sistema de frenos'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">43</td><td class="columna-2">Líneas eléctricas sujetas</td><td class="columna-3">{{ $data['Lineas electricas sujetas Inferior'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">43</td><td class="columna-2">Líneas eléctricas sujetas</td><td class="columna-3">{{ $data['Lineas electricas sujetas Inferior'] }}</td><td class="columna-4">{{ $data['Observacion-Lineas electricas sujetas Inferior'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">44</td><td class="columna-2">Líneas de aire sin fugas</td><td class="columna-3">{{ $data['Lineas de aire sin fugas'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">44</td><td class="columna-2">Líneas de aire sin fugas</td><td class="columna-3">{{ $data['Lineas de aire sin fugas'] }}</td><td class="columna-4">{{ $data['Observacion-Lineas de aire sin fugas'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">45</td><td class="columna-2">Llantas (Surco no menos de 3 mm.)</td><td class="columna-3">{{ $data['Llantas (Surco no menos de 3 mm.)'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">45</td><td class="columna-2">Llantas (Surco no menos de 3 mm.)</td><td class="columna-3">{{ $data['Llantas (Surco no menos de 3 mm.)'] }}</td><td class="columna-4">{{ $data['Observacion-Llantas (Surco no menos de 3 mm.)'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">46</td><td class="columna-2">Rines sin fisuras ({{ $data['Type Rin'] }})</td><td class="columna-3">{{ $data['Rines sin fisuras'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">46</td><td class="columna-2">Rines sin fisuras </td><td class="columna-3">{{ $data['Rines sin fisuras'] }}</td><td class="columna-4">{{ $data['Observacion-Rines sin fisuras'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">47</td><td class="columna-2">Birlos completos y sin fisuras</td><td class="columna-3">{{ $data['Birlos completos y sin fisuras'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">47</td><td class="columna-2">Birlos completos y sin fisuras</td><td class="columna-3">{{ $data['Birlos completos y sin fisuras'] }}</td><td class="columna-4">{{ $data['Observacion-Birlos completos y sin fisuras'] ?? ' ' }}</td>
             </tr>
             <tr>
-              <td class="columna-1">48</td><td class="columna-2">Baleros (Sin Fuga)</td><td class="columna-3">{{ $data['Baleros (Sin Fuga)'] }}</td><td class="columna-4"></td>
+              <td class="columna-1">48</td><td class="columna-2">Baleros (Sin Fuga)</td><td class="columna-3">{{ $data['Baleros (Sin Fuga)'] }}</td><td class="columna-4">{{ $data['Observacion-Baleros (Sin Fuga)'] ?? ' ' }}</td>
             </tr>
           </table>
       </div> 

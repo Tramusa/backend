@@ -224,6 +224,7 @@ class RevisionsController extends Controller
         if ($id) {
             $data['folio'] = $id; // Agregar información de folio al array $data
         }
+        Logger($data);
 
         //AQUI SE DEBE GENERAR EL PDF
         $pdfContent = $this->PDF_FM($data);
