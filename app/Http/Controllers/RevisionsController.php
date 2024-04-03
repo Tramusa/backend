@@ -224,7 +224,6 @@ class RevisionsController extends Controller
         if ($id) {
             $data['folio'] = $id; // Agregar información de folio al array $data
         }
-        Logger($data);
 
         //AQUI SE DEBE GENERAR EL PDF
         $pdfContent = $this->PDF_FM($data);
@@ -293,8 +292,6 @@ class RevisionsController extends Controller
 
     public function update(Request $request, $id)
     {
-        //Logger($request);
-
         $detalles = $request->except(['unit', 'revision', 'status']);
 
         foreach ($detalles as $columna => $data) {
@@ -393,10 +390,5 @@ class RevisionsController extends Controller
         ];
 
         return response()->json($response);
-    }
-
-    public function destroy($id)
-    {
-        //
     }
 }
