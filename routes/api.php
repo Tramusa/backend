@@ -14,6 +14,7 @@ use App\Http\Controllers\PeajesController;
 use App\Http\Controllers\PointsInterest;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProgramsController;
+use App\Http\Controllers\ProgramsMttoVehiclesController;
 use App\Http\Controllers\RevisionsController;
 use App\Http\Controllers\TripController;
 use App\Http\Controllers\UnitController;
@@ -190,3 +191,5 @@ Route::middleware('auth:sanctum')->apiResource('docs-pdfs', DocsPDFsController::
 Route::middleware('auth:sanctum')->post('/docs-pdfs/{id}', [DocsPDFsController::class, 'update']);
 
 Route::middleware('auth:sanctum')->apiResource('missing-docs', MissingDocsController::class);
+Route::middleware('auth:sanctum')->apiResource('programs-mtto', ProgramsMttoVehiclesController::class);
+Route::middleware('auth:sanctum')->get('/pdf-mtto/{activity}', [ProgramsMttoVehiclesController::class, 'generarPDF']);
