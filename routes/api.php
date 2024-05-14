@@ -3,10 +3,12 @@
 use App\Http\Controllers\AddressGroupController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CtrlTiresController;
 use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\DocsPDFsController;
 use App\Http\Controllers\EarringsController;
 use App\Http\Controllers\ExpirationUnitsController;
+use App\Http\Controllers\HistoryTireController;
 use App\Http\Controllers\InspectionsController;
 use App\Http\Controllers\MissingDocsController;
 use App\Http\Controllers\OrderController;
@@ -16,6 +18,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProgramsController;
 use App\Http\Controllers\ProgramsMttoVehiclesController;
 use App\Http\Controllers\RevisionsController;
+use App\Http\Controllers\TiresController;
 use App\Http\Controllers\TripController;
 use App\Http\Controllers\UnitController;
 use Illuminate\Support\Facades\DB;
@@ -193,3 +196,7 @@ Route::middleware('auth:sanctum')->post('/docs-pdfs/{id}', [DocsPDFsController::
 Route::middleware('auth:sanctum')->apiResource('missing-docs', MissingDocsController::class);
 Route::middleware('auth:sanctum')->apiResource('programs-mtto', ProgramsMttoVehiclesController::class);
 Route::middleware('auth:sanctum')->get('/pdf-mtto/{activity}', [ProgramsMttoVehiclesController::class, 'generarPDF']);
+Route::middleware('auth:sanctum')->apiResource('tires', TiresController::class);
+Route::middleware('auth:sanctum')->apiResource('ctrl-tires', CtrlTiresController::class);
+Route::middleware('auth:sanctum')->apiResource('history-tires', HistoryTireController::class);
+

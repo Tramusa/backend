@@ -25,8 +25,7 @@ class ProgramsMttoVehiclesController extends Controller
             } else {
                 $Program->no_economic = null; 
             }
-        }
-        
+        }        
         return response()->json($Programs); 
     }
 
@@ -129,8 +128,7 @@ class ProgramsMttoVehiclesController extends Controller
         
         $currentWeek = date('W'); // SEMANA ACTUAL
 
-        // Obtener la fecha actual
-        $fechaActual = Carbon::now();
+        $fechaActual = Carbon::now();// Obtener la fecha actual
 
         // Obtener el nombre del día de la semana en español
         $nombreDia = $fechaActual->locale('es')->isoFormat('dddd');
@@ -163,9 +161,7 @@ class ProgramsMttoVehiclesController extends Controller
 
     public function generarPDF($activity){
         $pdfContent = $this->PDF($activity);
-
         Storage::disk('public')->put('pdfs/program-mtto'. ($activity) . '.pdf', $pdfContent);
-
         return response($pdfContent, 200)->header('Content-Type', 'application/pdf');// Devolver el contenido del PDF
     }
 
