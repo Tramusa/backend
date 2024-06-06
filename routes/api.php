@@ -18,6 +18,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProgramsController;
 use App\Http\Controllers\ProgramsMttoVehiclesController;
 use App\Http\Controllers\RevisionsController;
+use App\Http\Controllers\RevisionsTireController;
 use App\Http\Controllers\TiresController;
 use App\Http\Controllers\TripController;
 use App\Http\Controllers\UnitController;
@@ -199,4 +200,5 @@ Route::middleware('auth:sanctum')->get('/pdf-mtto/{activity}', [ProgramsMttoVehi
 Route::middleware('auth:sanctum')->apiResource('tires', TiresController::class);
 Route::middleware('auth:sanctum')->apiResource('ctrl-tires', CtrlTiresController::class);
 Route::middleware('auth:sanctum')->apiResource('history-tires', HistoryTireController::class);
+Route::middleware('auth:sanctum')->apiResource('revisions-tires', RevisionsTireController::class);
 
