@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CtrlTires;
 use App\Models\HistoryTire;
 use Illuminate\Http\Request;
 
@@ -25,16 +26,11 @@ class HistoryTireController extends Controller
         return response()->json($activities);
     }
 
-    public function update(Request $request, $id)
+    public function update($id)
     {
-        $historyTire = HistoryTire::findOrFail($id);
-        $historyTire->update($request->all());
-
-        return $historyTire;
+        //LO USARE PARA CAMBIAR EL STATUS CTRL LLANTA A DESECHADO
+        $ctrl_tire = CtrlTires::findOrFail($id);
+        // Actualizar el estado de la llanta a 'Desechada'
+        $ctrl_tire->update(['status' => 'Desechada']);
     }
-
-    public function destroy($id)
-    {
-        //
-    }
-}
+} 
