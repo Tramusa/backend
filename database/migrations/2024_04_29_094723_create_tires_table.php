@@ -12,6 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('serie');
             $table->string('brand');
+            $table->string('depth');
             $table->string('extent');
             $table->string('model');
             $table->string('layers');

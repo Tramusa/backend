@@ -16,9 +16,19 @@ class TiresController extends Controller
 
     public function store(Request $request)
     {
-        Tires::create($request->all());
+        // Busca un registro existente que tenga la misma información que la solicitud
+        $existingTire = Tires::where($request->all())->first();
 
-        return response()->json(['message' => 'Llanta registrada exitosamente.'], 201);
+        if ($existingTire) {
+            // Si se encuentra un registro con la misma información, devuelve una respuesta con el ID
+            return response()->json(['tire' => $existingTire->id, 'message' => 'Llanta registrada exitosamente.'], 201);
+        }
+
+        // Si no existe, crea el registro y guarda la instancia creada
+        $tire = Tires::create($request->all());
+
+        // Devuelve una respuesta JSON con el ID del registro creado 
+        return response()->json(['tire' => $tire->id, 'message' => 'Llanta registrada exitosamente.'], 201);
     }
 
     public function show($id)
