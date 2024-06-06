@@ -34,17 +34,28 @@ class CtrlTiresController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $tire = CtrlTires::create($request->all());
-        $tireId = $tire->id; // Obtener el ID de la llanta recién registrada
-
+    {   
+        $data = $request->all();
+        
+        // Check the value of unit and set status accordingly
+        if ($data['unit'] == 0) {
+            $data['status'] = 'Almacen (N)';
+        } else {
+            $data['status'] = 'En Uso (N)';
+        }
+        
+        // Create the tire record in CtrlTires
+        $tire = CtrlTires::create($data);
+        $tireId = $tire->id; // Get the ID of the newly registered tire
+        
+        // Generate the registration activity in HistoryTire
         HistoryTire::create([
-            'tire_ctrl' => $tireId, // Usar el ID de la llanta
+            'tire_ctrl' => $tireId, // Use the ID of the tire
             'activity' => 'Registro',
             'date' => now(),
             'details' => 'Registro',
         ]);
-
+    
         return response()->json(['message' => 'Llanta registrada en control exitosamente.'], 201);
     }
 
@@ -85,6 +96,11 @@ class CtrlTiresController extends Controller
             $oldUnit = $this->getUnitName($tires->unit, $tires->type);
             $newUnit = $this->getUnitName($requestData['unit'], $requestData['type']);
             $changes[] = "• Cambio 'Unidad' anterior: '{$oldUnit}', nueva: '{$newUnit}'";
+            
+            /// Si se registra un cambio de almacén a unidad
+            if ($tires->unit == 0 && $tires->type == 0 && $requestData['unit'] != 0 && $requestData['type'] != 0) {
+                $requestData['status'] = 'En Uso (N)';
+            }
         }
 
         // Verificar y registrar cambios en la posición

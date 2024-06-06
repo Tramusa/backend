@@ -13,9 +13,10 @@ return new class extends Migration
             $table->integer('tire');
             $table->integer('type');
             $table->integer('unit');
+            $table->integer('odometro')->nullable();
             $table->string('installation_date')->nullable();
-            $table->string('status')->default('N');
-            $table->string('position');
+            $table->string('status')->default('(N)');
+            $table->string('position')->default('0');
             $table->timestamps();
         });
     }
