@@ -17,6 +17,7 @@ use App\Http\Controllers\PointsInterest;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProgramsController;
 use App\Http\Controllers\ProgramsMttoVehiclesController;
+use App\Http\Controllers\RenovationsTireController;
 use App\Http\Controllers\RevisionsController;
 use App\Http\Controllers\RevisionsTireController;
 use App\Http\Controllers\TiresController;
@@ -187,7 +188,7 @@ Route::middleware('auth:sanctum')->get('/orderEarrings/{id}', [OrderController::
 Route::middleware('auth:sanctum')->delete('/orderEarrings/{id}', [OrderController::class, 'delete']);
 Route::middleware('auth:sanctum')->put('/order/{id}', [OrderController::class, 'update']);
 Route::middleware('auth:sanctum')->get('/order-pdf/{order}', [OrderController::class, 'generarPDF']);
-
+Route::middleware('auth:sanctum')->post('/generate-pdf-filter', [OrderController::class, 'generatePDFfilter']);
 Route::middleware('auth:sanctum')->post('/upload-excel', [TripController::class, 'import']);
 Route::middleware('auth:sanctum')->get('/download-excel', [TripController::class, 'download']);  
 
@@ -201,4 +202,4 @@ Route::middleware('auth:sanctum')->apiResource('tires', TiresController::class);
 Route::middleware('auth:sanctum')->apiResource('ctrl-tires', CtrlTiresController::class);
 Route::middleware('auth:sanctum')->apiResource('history-tires', HistoryTireController::class);
 Route::middleware('auth:sanctum')->apiResource('revisions-tires', RevisionsTireController::class);
-
+Route::middleware('auth:sanctum')->apiResource('renovation-tires', RenovationsTireController::class);
