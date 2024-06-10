@@ -18,10 +18,29 @@ class RevisionsController extends Controller
     {
         $user = $request->user(); // Obtén el usuario autenticado
         
-        if ($user && ($user->rol === 'Administrador' || strpos($user->rol, 'Coordinador') !== false)) {
-            $revisions = DB::table('revisions')->where('status', 1)->get();
-        } else {
-            $revisions = DB::table('revisions')->where('status', 1)->where('responsible', $user->id)->get();
+        if ($user) {
+            if ($user->rol === 'Administrador') {
+                // Si es Administrador, mostrar todos con status 1
+                $revisions = DB::table('revisions')->where('status', 1)->get();
+            } elseif ($user->rol === 'Coordinador Logistica Concentrado') {
+                // Si es Coordinador de Concentrado, mostrar todos menos los de type 7, 8, 9
+                $revisions = DB::table('revisions')
+                    ->where('status', 1)
+                    ->whereNotIn('type', [7, 8, 9])
+                    ->get();
+            } elseif ($user->rol === 'Coordinador Logistica Personal' || $user->rol === 'Supervisor de Seguridad e Higiene') {
+                // Si es Coordinador, mostrar solo los de type 7, 8, 9
+                $revisions = DB::table('revisions')
+                    ->where('status', 1)
+                    ->whereIn('type', [7, 8, 9])
+                    ->get();
+            } else {
+                // Si no, mostrar solo los de su usuario
+                $revisions = DB::table('revisions')
+                    ->where('status', 1)
+                    ->where('responsible', $user->id)
+                    ->get();
+            }
         }
         
         $tablas = ['', 'tractocamiones', 'remolques', 'dollys', 'volteos', 'toneles', 'tortons', 'autobuses', 'sprinters', 'utilitarios', 'maquinarias'];
