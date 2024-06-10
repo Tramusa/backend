@@ -7,9 +7,9 @@ use App\Models\OrderDetail;
 use App\Models\Orders;
 use App\Models\Revisions;
 use App\Models\User;
+use Carbon\Carbon;
 use Dompdf\Dompdf;
 use Illuminate\Http\Request;
-use Illuminate\Log\Logger;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -73,7 +73,8 @@ class OrderController extends Controller
         return response()->json($orders);
     }
 
-    public function bitacora(){
+    public function bitacora()
+    {
         $orders = DB::table('orders')
         ->join('users', 'orders.operator', '=', 'users.id')
         ->where('orders.status', 4)
@@ -123,15 +124,23 @@ class OrderController extends Controller
 
     public function showOrder($id)
     {
+        // Fetch the order
         $order = Orders::find($id);
         
+        // Check if the order exists
         if (!$order) {
             return response()->json(['message' => 'Orden no encontrada'], 404);
-        }else{
-            return response()->json($order);
-        }     
-    }
+        }
 
+        // Fetch the operator details from users table
+        $operator = User::find($order->operator);
+
+        // Add operator_name if operator exists
+        $order->operator_name = $operator ? $operator->name . ' ' . $operator->a_paterno : 'Operador no encontrado';
+
+        // Return the order with operator_name
+        return response()->json($order);
+    }
     public function orderEarrings($id)
     {
         $earringsInfo = DB::table('order_details')
@@ -312,5 +321,81 @@ class OrderController extends Controller
         }
     
         return response()->json(['message' => 'Pendiente eliminado correctamente']);
+    }
+
+    public function generatePDFfilter(Request $request)
+    {
+        try {
+            $filteredOrders = $request->input('filteredOrders');
+            if (empty($filteredOrders)) {
+                return response()->json(['error' => 'No orders selected'], 400);
+            }
+
+            $orders = DB::table('orders')
+                ->join('users', 'orders.operator', '=', 'users.id')
+                ->whereIn('orders.id', $filteredOrders)
+                ->where('orders.status', 4)
+                ->select('orders.*', 'users.name', 'users.a_paterno', 'users.a_materno')
+                ->get();
+
+            if ($orders->isEmpty()) {
+                return response()->json(['message' => 'Órdenes no encontradas'], 404);
+            } else {
+                $tablas = ['', 'tractocamiones', 'remolques', 'dollys', 'volteos', 'toneles', 'tortons', 'autobuses', 'sprinters', 'utilitarios', 'maquinarias'];
+
+                foreach ($orders as $order) {
+                    $fallas = DB::table('order_details')
+                        ->join('earrings', 'order_details.id_earring', '=', 'earrings.id')
+                        ->where('order_details.id_order', $order->id)
+                        ->select('earrings.description') // Selecciona solo la descripción de la falla
+                        ->pluck('description'); // Pluck se utiliza para obtener una lista de valores
+
+                    $order->fallas = $fallas;
+
+                    $firstEarring = DB::table('order_details')
+                        ->join('earrings', 'order_details.id_earring', '=', 'earrings.id')
+                        ->where('order_details.id_order', $order->id)
+                        ->select('earrings.type', 'earrings.unit', 'earrings.type_mtto', 'earrings.fm' )
+                        ->first();
+
+                    if ($firstEarring) {                    
+                        if (isset($firstEarring->type) && isset($firstEarring->unit)) {
+                            $id_unit = $firstEarring->unit;
+                            $unit = DB::table($tablas[$firstEarring->type])->select('no_economic')->where('id', $id_unit)->first();
+                            $order->no_economic = $unit->no_economic? $unit->no_economic: 'N/A';
+                        }
+
+                        $order->type_mtto = $firstEarring->type_mtto;
+
+                        if ($firstEarring->fm != 0) {
+                            $revisions = Revisions::where('id', $firstEarring->fm)->first();
+                            if ($revisions) {
+                                $order->odometro = $revisions->odometro ? $revisions->odometro : 'N/A';
+                            }
+                        }
+                    }
+                     // Calcular la diferencia de tiempo en minutos
+                     $dateAttended = Carbon::parse($order->date_attended);
+                     $dateIn = Carbon::parse($order->date_in);
+                     $order->time = $dateAttended->diffInMinutes($dateIn);
+                }
+
+                $html = view('pdf.orders', compact('orders'))->render();
+
+                $dompdf = new \Dompdf\Dompdf();
+                $dompdf->loadHtml($html);
+                $dompdf->setPaper('A4', 'landscape');
+                $dompdf->render();
+
+                $pdfContent = $dompdf->output();
+
+                Storage::disk('public')->put('orders/Filter.pdf', $pdfContent);
+
+                return response($pdfContent, 200)->header('Content-Type', 'application/pdf');
+            }
+        } catch (\Exception $e) {
+            Log::error('Error generating PDF: ' . $e->getMessage());
+            return response()->json(['error' => 'Error generating PDF'], 500);
+        }
     }
 }
