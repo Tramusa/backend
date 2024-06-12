@@ -10,7 +10,7 @@ class Tires extends Model
     use HasFactory;
     
     protected $fillable = [
-        'serie', 'brand', 'depth', 'extent', 'model', 'layers', 'number_dot', 'lrh_lrg', 'simple_maximum', 'double_maximum', 'suitable_renewal',
+        'id', 'serie', 'brand', 'depth', 'extent', 'model', 'layers', 'number_dot', 'lrh_lrg', 'simple_maximum', 'double_maximum', 'suitable_renewal',
     ];
 
     public function ctrlTires()

@@ -45,12 +45,11 @@ class CtrlTiresController extends Controller
         }
         
         // Create the tire record in CtrlTires
-        $tire = CtrlTires::create($data);
-        $tireId = $tire->id; // Get the ID of the newly registered tire
+        CtrlTires::create($data);
         
         // Generate the registration activity in HistoryTire
         HistoryTire::create([
-            'tire_ctrl' => $tireId, // Use the ID of the tire
+            'tire_ctrl' => $data['id'], // Use the ID of the tire
             'activity' => 'Registro',
             'date' => now(),
             'details' => 'Registro',

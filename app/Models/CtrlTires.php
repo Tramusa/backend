@@ -10,7 +10,7 @@ class CtrlTires extends Model
     use HasFactory;
 
     protected $fillable = [
-        'tire', 'type',  'unit', 'odometro', 'installation_date', 'status', 'position'
+        'id', 'tire', 'type',  'unit', 'odometro', 'installation_date', 'status', 'position'
     ];
 
     public function tireInfo()
