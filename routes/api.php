@@ -18,6 +18,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProgramsController;
 use App\Http\Controllers\ProgramsMttoVehiclesController;
 use App\Http\Controllers\RenovationsTireController;
+use App\Http\Controllers\RepairTireController;
 use App\Http\Controllers\RevisionsController;
 use App\Http\Controllers\RevisionsTireController;
 use App\Http\Controllers\TiresController;
@@ -133,9 +134,7 @@ Route::middleware('auth:sanctum')->post('/createInspection', [InspectionsControl
 Route::middleware('auth:sanctum')->post('/finishInspection', [InspectionsController::class, 'finish']);
 Route::middleware('auth:sanctum')->get('/inspections-report/{id}', [InspectionsController::class, 'inspectionsReport']);
 
-Route::middleware('auth:sanctum')->get('/earrings', [EarringsController::class, 'index']);
-Route::middleware('auth:sanctum')->get('/earring/{id}', [EarringsController::class, 'show']);
-Route::middleware('auth:sanctum')->put('/earring/{id}', [EarringsController::class, 'update']);
+Route::middleware('auth:sanctum')->apiResource('earrings', EarringsController::class);
 
 Route::middleware('auth:sanctum')->post('/addCECO', [CustomersController::class, 'addceco']);
 Route::middleware('auth:sanctum')->get('/cecosR', [CustomersController::class, 'cecosR']);
@@ -203,3 +202,4 @@ Route::middleware('auth:sanctum')->apiResource('ctrl-tires', CtrlTiresController
 Route::middleware('auth:sanctum')->apiResource('history-tires', HistoryTireController::class);
 Route::middleware('auth:sanctum')->apiResource('revisions-tires', RevisionsTireController::class);
 Route::middleware('auth:sanctum')->apiResource('renovation-tires', RenovationsTireController::class);
+Route::middleware('auth:sanctum')->apiResource('repair-tires', RepairTireController::class);

@@ -129,4 +129,16 @@ class EarringsController extends Controller
         
         return response()->json(['message' => 'Earrings updated successfully.']); 
     }
+
+    public function destroy($id)
+    {
+        $earring = Earrings::findOrFail($id);
+        if (!$earring) {
+            return response()->json(['message' => 'Falla no encontrada.'], 404);
+        }
+
+        $earring->delete();
+
+        return response()->json(['message' => 'Falla eliminadas exitosamente.'], 201);
+    }
 }
