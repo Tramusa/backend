@@ -55,7 +55,9 @@ class RenovationsTireController extends Controller
             'tire_ctrl' => $data['tire'],
             'activity' => 'Renovacion',
             'date' => now(),
-            'details' => 'Estatus: '.$newStatus,
+            'details' => 'Estatus: '.$newStatus.', Tipo Piso: '.$data['floor_type']. ', Proveedor: '.$data['supplier'],
         ]);
+        
+        return response()->json(['message' => 'Renovación agregada exitosamente.'], 201);
     }
 }

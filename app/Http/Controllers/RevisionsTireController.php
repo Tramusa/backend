@@ -64,6 +64,13 @@ class RevisionsTireController extends Controller
         $idTire = $data['tire'];//ID TIRE  
         $data['date'] = now(); // 1. Add current date when finalizing
         
+        // Update odometro in CtrlTires and update depth in Tires
+        $tireCtrl = CtrlTires::findOrFail($idTire);
+        if ($tireCtrl && $tireCtrl->odometro >= $data['odometro']) {
+            return response()->json(['message' => 'El valor del odómetro no puede ser menor o igual al ya registrado.'], 400);
+        }
+        $tireCtrl->update(['odometro' => $data['odometro']]);
+
         // 2. Calculate average of the measured values and set details 
         $average = ($data['internal_1'] + $data['center_1'] + $data['external_1'] + $data['internal_2'] + $data['center_2'] + $data['external_2'] + $data['internal_3'] + $data['center_3'] + $data['external_3']) / 9;
         $details = '';
@@ -80,11 +87,6 @@ class RevisionsTireController extends Controller
             'date' => now(),
             'details' => $details,
         ]);
-
-        // 4. Update odometro in CtrlTires and update depth in Tires
-        // Update the odometer in CtrlTires
-        $tireCtrl = CtrlTires::findOrFail($idTire);
-        $tireCtrl->update(['odometro' => $data['odometro']]);
 
         // Update the depth in Tires
         $tire = Tires::findOrFail($idTire);
