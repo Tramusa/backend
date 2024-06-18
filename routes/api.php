@@ -81,13 +81,36 @@ Route::middleware('auth:sanctum')->get('/inspectionsCount', function () {
     return response()->json(['total' => count($inspections)]);
 });
 Route::middleware('auth:sanctum')->get('/revisionCount/{user}', function ($user) {
-    $revisions = DB::table('revisions')->where('status', 1)->where('responsible', $user)->get();
+    $user = auth()->user();
+
+    if ($user) {
+        if ($user->rol === 'Administrador') {
+            // Si es Administrador, mostrar todos con status 1
+            $revisions = DB::table('revisions')->where('status', 1)->get();
+        } elseif ($user->rol === 'Coordinador Logistica Concentrado') {
+            // Si es Coordinador de Concentrado, mostrar todos menos los de type 7, 8, 9
+            $revisions = DB::table('revisions')
+                ->where('status', 1)
+                ->whereNotIn('type', [7, 8, 9])
+                ->get();
+        } elseif ($user->rol === 'Coordinador Logistica Personal' || $user->rol === 'Supervisor de Seguridad e Higiene') {
+            // Si es Coordinador, mostrar solo los de type 7, 8, 9
+            $revisions = DB::table('revisions')
+                ->where('status', 1)
+                ->whereIn('type', [7, 8, 9])
+                ->get();
+        } else {
+            // Si no, mostrar solo los de su usuario
+            $revisions = DB::table('revisions')
+                ->where('status', 1)
+                ->where('responsible', $user->id)
+                ->get();
+        }
+    }
+    
     return response()->json(['total' => count($revisions)]);
 });
-Route::middleware('auth:sanctum')->get('/revisionsCount', function () {
-    $revisions = DB::table('revisions')->where('status', 1)->get();
-    return response()->json(['total' => count($revisions)]);
-});
+
 Route::middleware('auth:sanctum')->get('/earringsCount', function () {
     $earrings = DB::table('earrings')->where('status', 1)->get();
     return response()->json(['total' => count($earrings)]);
