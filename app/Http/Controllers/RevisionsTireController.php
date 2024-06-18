@@ -7,6 +7,8 @@ use App\Models\HistoryTire;
 use App\Models\RevisionsTires;
 use App\Models\Tires;
 use Illuminate\Http\Request;
+use Illuminate\Log\Logger;
+use Illuminate\Support\Facades\Log;
 
 class RevisionsTireController extends Controller
 {
@@ -16,6 +18,13 @@ class RevisionsTireController extends Controller
 
         // Actions to perform if status == 1 (Finalize)
         if ($request->status == 1) {
+            // Update odometro in CtrlTires and update depth in Tires
+            $tireCtrl = CtrlTires::findOrFail($data['tire']);
+            if ($tireCtrl && $tireCtrl->odometro >= $data['odometro']) {
+                return response()->json(['message' => 'El valor del odómetro no puede ser menor o igual al ya registrado.'], 400);
+            }
+            $tireCtrl->update(['odometro' => $data['odometro']]);
+
             $this->finalizeTireRevision($data);
         }        
 
@@ -50,6 +59,13 @@ class RevisionsTireController extends Controller
 
         // Actions to perform if status == 1 (Finalize)
         if ($request->status == 1) {
+            // Update odometro in CtrlTires and update depth in Tires
+            $tireCtrl = CtrlTires::findOrFail($data['tire']);
+            if ($tireCtrl && $tireCtrl->odometro >= $data['odometro']) {
+                return response()->json(['message' => 'El valor del odómetro no puede ser menor o igual al ya registrado.'], 400);
+            }
+            $tireCtrl->update(['odometro' => $data['odometro']]);
+
             $this->finalizeTireRevision($data);
         }
 
@@ -63,13 +79,6 @@ class RevisionsTireController extends Controller
     {
         $idTire = $data['tire'];//ID TIRE  
         $data['date'] = now(); // 1. Add current date when finalizing
-        
-        // Update odometro in CtrlTires and update depth in Tires
-        $tireCtrl = CtrlTires::findOrFail($idTire);
-        if ($tireCtrl && $tireCtrl->odometro >= $data['odometro']) {
-            return response()->json(['message' => 'El valor del odómetro no puede ser menor o igual al ya registrado.'], 400);
-        }
-        $tireCtrl->update(['odometro' => $data['odometro']]);
 
         // 2. Calculate average of the measured values and set details 
         $average = ($data['internal_1'] + $data['center_1'] + $data['external_1'] + $data['internal_2'] + $data['center_2'] + $data['external_2'] + $data['internal_3'] + $data['center_3'] + $data['external_3']) / 9;
@@ -80,21 +89,20 @@ class RevisionsTireController extends Controller
             $details = 'Observación! : LLanta proxima a ser cambiada con 7mm o menos';
         }
 
-        // 3. Generate activity in the tire's history
-        HistoryTire::create([
-            'tire_ctrl' => $idTire,
-            'activity' => 'Revision',
-            'date' => now(),
-            'details' => $details,
-        ]);
+        try {
+            HistoryTire::create([
+                'tire_ctrl' => $idTire,
+                'activity' => 'Revision',
+                'date' => now(),
+                'details' => $details,
+            ]);
+            Log::info('Historial creado para el neumático ' . $idTire);
+        } catch (\Exception $e) {
+            Log::error('Error al crear el historial del neumático: ' . $e->getMessage());
+        }
 
         // Update the depth in Tires
         $tire = Tires::findOrFail($idTire);
         $tire->update(['depth' => $average]);
-
-        //ESTO DEBE APLICAR PARA RENOVACIONES Y ES ESTATUS MAS R EN USO (N) por EN USO (R) o EN USO (RR)
-        //  Update the status of the tire in CtrlTires to 'R'
-        //$tireCtrl = CtrlTires::findOrFail($idTire); // Find the tire control record, or return 404 if not found
-        //$tireCtrl->update(['status' => 'R']); //  updating the status
     }
 }
