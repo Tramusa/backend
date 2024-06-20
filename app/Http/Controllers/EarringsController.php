@@ -136,9 +136,21 @@ class EarringsController extends Controller
         if (!$earring) {
             return response()->json(['message' => 'Falla no encontrada.'], 404);
         }
-
-        $earring->delete();
-
-        return response()->json(['message' => 'Falla eliminadas exitosamente.'], 201);
+    
+        $user = auth()->user();
+    
+        if ($user) {
+            $allowedRoles = ['Coordinador Logistica Concentrado', 'Coordinador Logistica Personal'];
+    
+            if (!in_array($user->rol, $allowedRoles)) {
+                return response()->json(['message' => 'No tienes permiso para eliminar esta falla.'], 403);
+            }
+    
+            $earring->delete();
+    
+            return response()->json(['message' => 'Falla eliminada exitosamente.'], 201);
+        }
+    
+        return response()->json(['message' => 'Usuario no autenticado.'], 401);
     }
 }
