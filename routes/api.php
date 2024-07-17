@@ -3,6 +3,8 @@
 use App\Http\Controllers\AddressGroupController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CategoryProductsController;
+use App\Http\Controllers\CollaboratorsController;
 use App\Http\Controllers\CtrlTiresController;
 use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\DocsPDFsController;
@@ -10,10 +12,13 @@ use App\Http\Controllers\EarringsController;
 use App\Http\Controllers\ExpirationUnitsController;
 use App\Http\Controllers\HistoryTireController;
 use App\Http\Controllers\InspectionsController;
+use App\Http\Controllers\MayorAccountController;
 use App\Http\Controllers\MissingDocsController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ParentAccountController;
 use App\Http\Controllers\PeajesController;
 use App\Http\Controllers\PointsInterest;
+use App\Http\Controllers\ProductsServicesController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProgramsController;
 use App\Http\Controllers\ProgramsMttoVehiclesController;
@@ -21,9 +26,12 @@ use App\Http\Controllers\RenovationsTireController;
 use App\Http\Controllers\RepairTireController;
 use App\Http\Controllers\RevisionsController;
 use App\Http\Controllers\RevisionsTireController;
+use App\Http\Controllers\SubTitleAccountController;
 use App\Http\Controllers\TiresController;
+use App\Http\Controllers\TitleAccountController;
 use App\Http\Controllers\TripController;
 use App\Http\Controllers\UnitController;
+use App\Http\Controllers\WorkAreasController;
 use Illuminate\Support\Facades\DB;
 
 Route::post('/login', [AuthController::class, 'login']);
@@ -107,7 +115,7 @@ Route::middleware('auth:sanctum')->get('/revisionCount/{user}', function ($user)
                 ->get();
         }
     }
-    
+     
     return response()->json(['total' => count($revisions)]);
 });
 
@@ -226,3 +234,11 @@ Route::middleware('auth:sanctum')->apiResource('history-tires', HistoryTireContr
 Route::middleware('auth:sanctum')->apiResource('revisions-tires', RevisionsTireController::class);
 Route::middleware('auth:sanctum')->apiResource('renovation-tires', RenovationsTireController::class);
 Route::middleware('auth:sanctum')->apiResource('repair-tires', RepairTireController::class);
+Route::middleware('auth:sanctum')->apiResource('work-areas', WorkAreasController::class);
+Route::middleware('auth:sanctum')->apiResource('collaborators', CollaboratorsController::class);
+Route::middleware('auth:sanctum')->apiResource('parents-account', ParentAccountController::class);
+Route::middleware('auth:sanctum')->apiResource('title-account', TitleAccountController::class);
+Route::middleware('auth:sanctum')->apiResource('subtitle-account', SubTitleAccountController::class);
+Route::middleware('auth:sanctum')->apiResource('mayor-account', MayorAccountController::class);
+Route::middleware('auth:sanctum')->apiResource('categories', CategoryProductsController::class);
+Route::middleware('auth:sanctum')->apiResource('products-services', ProductsServicesController::class);

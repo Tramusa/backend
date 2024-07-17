@@ -74,28 +74,8 @@
       .logoImg{
         width: 100%;
         margin: 10px 0 10px 0;
-      }
+      }    
 
-      #ruta {
-        flex: 3;   
-        text-align: center;      
-      }     
-
-
-      h1 {
-        font-family: "Arial Narrow", Arial, sans-serif;
-        border-top: 2.5px solid  #D1D1D1;
-        border-bottom: 2.5px solid  #D1D1D1;
-        border-right: 2.5px solid  #D1D1D1;
-        border-left: 2.5px solid  #D1D1D1;
-        color: #FFFFFF;
-        font-size: 1.2em;
-        line-height: 1.4em;
-        font-weight: bold;
-        text-align: center;
-        margin: 0 0 20px 0;
-        background: #1E4E79;
-      }
 
       h2 {
         font-family: "Arial Narrow", Arial, sans-serif;
@@ -190,38 +170,6 @@
         </div>
       </div>
 
-      
-
-      <!-- A PARTIR DE AQUI QUIERO QUE SE DIVIDA EN DOS COLUMNAS Y QUE VALLA AGREGANDO TABLAS DE LA MISMA MEDIDA
-      <table style="width: 100%;">
-        <tr>
-          <th colspan="1">QUIÉN SOLICITA EL SERVICIO / Applicant's services name</th>
-          <th colspan="1">COORDINADOR DE LOGÍSTICA / Logistic cordinator</th>
-        </tr>
-        <tr>
-          <td colspan="1">
-            <div class="names"></div>
-            <div id="involved">
-              <div><span class="izq">Área / Area:</span></div>
-              <div><span class="izq">Tel / Mobile phone:</span></div>
-              <div><span class="izq">Correo electrónico / E-mail:</span><a href="mailto:"></a></div>
-              <div><span class="izq">Orden de Compra / CECO:</span></div>
-            </div>
-            <div style="clear: both;"></div>
-          </td>
-          <td colspan="1">
-            <div class="names"></div>
-            <div id="involved">
-              <div><span class="izq">Área / Area:</span></div>
-              <div><span class="izq">Tel / Mobile phone:</span>433-109-9996</div>
-              <div><span class="izq">Correo electrónico / E-mail:</span><a href="mailto:"></a></div>
-            </div>
-            <div style="clear: both;"></div>
-          </td>
-        </tr>
-      </table>
-      
-    -->
       
     </main>
   </body>
