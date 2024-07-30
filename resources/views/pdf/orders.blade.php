@@ -50,10 +50,10 @@
                     <td>{{ $order->id }}</td>
                     <td>{{ $order->date_attended }}</td>
                     <td>{{ $order->no_economic}}</td>
-                    <td>{{ $order->odometro }}</td>
+                    <td>{{ $order->odometro ?? ' ' }}</td>
                     <td>{{ $order->name }} {{ $order->a_paterno }} {{ $order->a_materno }}</td>
                     <td>{{ $order->type_mtto }}</td>
-                    <td>{{ $order->fallas }}</td>
+                    <td>{{ $order->fallas[0] }}</td>
                     <td>{{ $order->repair }}</td>
                     <td>{{ $order->time }} min.</td>
                     <td>${{ number_format($order->total_mano + $order->total_parts, 2) }}</td>                    

@@ -27,6 +27,8 @@ use App\Http\Controllers\RepairTireController;
 use App\Http\Controllers\RevisionsController;
 use App\Http\Controllers\RevisionsTireController;
 use App\Http\Controllers\SubTitleAccountController;
+use App\Http\Controllers\SupplierBanckController;
+use App\Http\Controllers\SuppliersController;
 use App\Http\Controllers\TiresController;
 use App\Http\Controllers\TitleAccountController;
 use App\Http\Controllers\TripController;
@@ -242,3 +244,5 @@ Route::middleware('auth:sanctum')->apiResource('subtitle-account', SubTitleAccou
 Route::middleware('auth:sanctum')->apiResource('mayor-account', MayorAccountController::class);
 Route::middleware('auth:sanctum')->apiResource('categories', CategoryProductsController::class);
 Route::middleware('auth:sanctum')->apiResource('products-services', ProductsServicesController::class);
+Route::middleware('auth:sanctum')->apiResource('suppliers', SuppliersController::class);
+Route::middleware('auth:sanctum')->apiResource('suppliers-banck', SupplierBanckController::class);

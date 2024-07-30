@@ -6,7 +6,6 @@ use App\Models\ProductsServices;
 use Illuminate\Http\Request;
 
 class ProductsServicesController extends Controller
-
 {
     public function index()
     {

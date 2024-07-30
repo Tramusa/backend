@@ -10,6 +10,6 @@ class ProductsServices extends Model
     use HasFactory;
 
     protected $fillable = [
-        'id', 'category', 'name', 'price', 'iva', 'unit_measure', 'inventory', 'stock', 'min', 'max'
+        'id', 'category', 'name', 'price', 'ieps', 'iva', 'ret_iva', 'ret_ish', 'unit_measure', 'inventory', 'stock', 'min', 'max'
     ];
 }
