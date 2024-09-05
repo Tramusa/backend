@@ -8,9 +8,14 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::create('products_services', function (Blueprint $table) {
+        Schema::create('details_requisitions', function (Blueprint $table) {
             $table->id();
-            $table->integer('category');
+            $table->integer('id_user');
+            $table->foreignId('id_requisition')
+                ->constrained('requisitions')
+                ->onDelete('cascade') // Eliminación en cascada al borrar una requisision
+                ->nullable();
+            $table->integer('id_product');
             $table->string('name');
             $table->decimal('price', 8, 2);
             $table->float('isr')->nullable();            
@@ -18,16 +23,14 @@ return new class extends Migration
             $table->float('ret_iva')->nullable();
             $table->integer('ret_ish')->nullable();
             $table->string('unit_measure');
-            $table->string('inventory');
-            $table->float('stock')->nullable();
-            $table->float('min')->nullable();
-            $table->float('max')->nullable();
+            $table->integer('cantidad');
+            $table->string('justific')->nullable();
             $table->timestamps();
-        });    
+        });
     }
-  
+
     public function down()
     {
-        Schema::dropIfExists('products_services');
+        Schema::dropIfExists('details_requisitions');
     }
 };
