@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\SupplierBanck;
 use App\Models\Suppliers;
 use Illuminate\Http\Request;
 
@@ -16,9 +17,13 @@ class SuppliersController extends Controller
     public function store(Request $request)
     {
         $supplier = new Suppliers($request->all());
-
         $supplier->save();
-        return response()->json(['message' => 'Proveedor registrado con exito'], 201);
+
+        // Actualizar los bancos con id_supplier = 0
+        SupplierBanck::where('id_supplier', 0)
+            ->update(['id_supplier' => $supplier->id]);
+
+        return response()->json(['message' => 'Proveedor registrado con éxito'], 201);
     }
 
     public function show($id)
@@ -36,6 +41,22 @@ class SuppliersController extends Controller
         $supplier->update($request->all());
         
         return response()->json(['message' => 'Proveedor actualizado exitosamente.'], 201);
+    }
+
+    public function searchQuery(Request $request)
+    {
+        $query = $request->input('supplier');
+
+        $suppliers = Suppliers::query()
+            ->select('id', 'business_name') // Solo selecciona los campos necesarios
+            ->when($query, function ($q) use ($query) {
+                $q->where('business_name', 'like', '%' . $query . '%')
+                ->orWhere('tradename', 'like', '%' . $query . '%');
+            })
+            ->take(8)
+            ->get();
+
+        return response()->json($suppliers);
     }
 
     public function destroy($id)
