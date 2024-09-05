@@ -44,4 +44,22 @@ class ProductsServicesController extends Controller
 
         return response()->json(['message' => 'Producto o Servicio eliminado exitosamente.'], 201);
     }
+
+    public function searchQuery(Request $request)
+    {
+        $query = $request->input('name');
+        $idProduct = $request->input('id_product');
+
+        $products = ProductsServices::query()
+            ->when($query, function ($q) use ($query) {
+                $q->where('name', 'like', '%' . $query . '%');
+            })
+            ->when($idProduct, function ($q) use ($idProduct) {
+                $q->orWhere('id', 'like', '%' . $idProduct . '%');
+            })
+            ->take(8)
+            ->get();
+
+        return response()->json($products);
+    }
 }
