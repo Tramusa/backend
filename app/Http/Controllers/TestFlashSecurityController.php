@@ -8,6 +8,14 @@ use Illuminate\Support\Facades\Auth;
 
 class TestFlashSecurityController extends Controller
 {
+    public function index() {
+        $testResponses = TestFlashSecurity::with('user')
+            ->orderBy('id', 'desc') // Ordenar por ID de forma descendente (más reciente primero)
+            ->get();
+            
+        return response()->json($testResponses);
+    }
+
     public function store(Request $request)
     {
         $data = $request->validate([

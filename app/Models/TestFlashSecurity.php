@@ -19,4 +19,9 @@ class TestFlashSecurity extends Model
         'question6',
         'status'
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
