@@ -23,6 +23,8 @@ return new class extends Migration
             $table->string('date_authorized')->nullable();
             $table->integer('authorized')->nullable();
             $table->string('date_atended')->nullable();
+            $table->string('analyze')->nullable();
+            $table->string('comprobante')->nullable();
             $table->timestamps();
         });
     }

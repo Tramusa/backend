@@ -233,8 +233,8 @@
         <table style="width: 100%; border: 1px solid #000;">            
             <tr>
                 <td class="bottom-border-only" style="border: 1px solid #000; font-weight: bold; text-align: center;"><br><br><br>{{ $Data->collaboratorInfo->name ?? '-' }}<br>{{ $Data->work_areaInfo->name ?? '-' }}</td>
+                <td class="bottom-border-only" style="border: 1px solid #000; font-weight: bold; text-align: center;"><br><br><br>{{ $Data->user_analyze->name ?? '-' }} {{ $Data->user_analyze->a_paterno ?? '-' }} {{ $Data->user_analyze->a_materno ?? '-' }}<br>{{ $Data->user_analyze->rol ?? '-' }}</td>
                 <td class="bottom-border-only" style="border: 1px solid #000; font-weight: bold; text-align: center;"><br><br><br>{{ $Data->user_authorized->name ?? '-' }} {{ $Data->user_authorized->a_paterno ?? '-' }} {{ $Data->user_authorized->a_materno ?? '-' }}<br>{{ $Data->user_authorized->rol ?? '-' }}</td>
-                <td class="bottom-border-only" style="border: 1px solid #000; font-weight: bold; text-align: center;"><br><br><br><br><br>-</td>
             </tr>
             <tr>
                 <td class="blue-bg" style="width: 33%; text-align: center;">ÁREA SOLICITANTE </td>

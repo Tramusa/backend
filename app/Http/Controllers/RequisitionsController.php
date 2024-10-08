@@ -16,24 +16,33 @@ class RequisitionsController extends Controller
     {
         // Obtener el estado de las requisiciones desde la solicitud, si existe
         $status = $request->query('status');
-
+    
         // Construir la consulta
         $query = Requisitions::query();
-
+    
         // Filtrar por estado si se proporciona
         if ($status) {
             $query->where('status', $status);
         }
-
+    
         // Filtrar las requisiciones con id diferente de 0 y cargar las relaciones necesarias
         $requisitions = $query->where('id', '!=', 0)
-                        ->with('work_areaInfo')
-                        ->with('collaboratorInfo')
-                        ->with('parent_accountInfo')
-                        ->with('title_accountInfo')
-                        ->with('mayor_accountInfo')
-                        ->with('subtitle_accountInfo')
-                        ->get();
+            ->with([
+                'work_areaInfo',
+                'collaboratorInfo',
+                'parent_accountInfo',
+                'title_accountInfo',
+                'mayor_accountInfo',
+                'subtitle_accountInfo'
+            ])
+            ->get();
+    
+        // Recorrer cada orden de compra para agregar la URL del comprobante
+        foreach ($requisitions as $requisition) {
+            $requisition->comprobante_url = $requisition->comprobante
+                ? asset(Storage::url($requisition->comprobante))
+                : null; // O manejar el caso donde no hay comprobante
+        }
 
         // Devolver la respuesta JSON con las requisiciones filtradas
         return response()->json($requisitions);
@@ -42,9 +51,18 @@ class RequisitionsController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
-        $data = $request->all();
+        // Decodificar el JSON de dataAdd
+        $dataAdd = json_decode($request->dataAdd, true);
+
+        // Combinar dataAdd con otros datos del request
+        $data = array_merge($request->all(), $dataAdd);
+
+        // Asignar el ID del usuario y el estado 'PENDIENTE'
         $data['id_user'] = $user->id;
         $data['status'] = 'PENDIENTE';
+        
+      
+        // Crear la nueva requisición
         $requisition = new Requisitions($data);
         $requisition->save();
 
@@ -53,9 +71,18 @@ class RequisitionsController extends Controller
             ->where('id_user', $user->id)
             ->update(['id_requisition' => $requisition->id]);
 
+       // Manejar el archivo PDF si está presente
+        if ($request->hasFile('pdf')) {
+            // Subir el archivo a la carpeta 'public/Comprobantes'
+            $path = $request->file('pdf')->store('Comprobantes', 'public');
+            $requisition->comprobante = $path; // Guardar la ruta del archivo en 'comprobante'
+            $requisition->save(); // Guardar los cambios en la requisición
+        }
+        
         // Generar el PDF y devolverlo
         return $this->generarPDF($requisition->id);
     }
+
 
     public function generarPDF($requisition){
         $pdfContent = $this->PDF($requisition);
@@ -82,6 +109,7 @@ class RequisitionsController extends Controller
                     ->with('mayor_accountInfo') // Eager load  relationship
                     ->with('subtitle_accountInfo') // Eager load  relationship
                     ->with('user_authorized') // Eager load  relationship
+                    ->with('user_analyze') // Eager load  relationship
                     ->first();
 
         $logoImagePath = public_path('imgPDF/logo.png');

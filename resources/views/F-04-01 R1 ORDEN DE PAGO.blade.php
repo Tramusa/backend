@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>F-04-03 R4 ORDEN DE COMPRA</title>
+    <title>F-04-01 R1 ORDEN DE PAGO</title>
     <style>
       .clearfix:after {
         content: "";
@@ -146,55 +146,47 @@
         </div>
       </div>
       <div class="column-2"><br>
-        <p class="title">ORDEN DE COMPRA</p>
-        <h2>ÁREA: ADMINISTRACIÓN     .     F-04-03 R4      .    REVISIÓN: DICIEMBRE 2019</h2>
+        <p class="title">ORDEN DE PAGO</p>
+        <h2>ÁREA: ADMINISTRACIÓN     .     F-04-01 R1 </h2>
       </div>      
     </header>
     <main> 
       <div class="row">
         <table style="width: 100%;"><br>
             <tr>
-                <td class="yellow-bg" style="width: 13%;">FOLIO REQ.</td>
-                <td class="bottom-border-only" style="width: 18%; font-weight: bold;">{{ $Data->requisition->id ?? '-' }}</td>
-                <td class="yellow-bg" style="width: 15%;">FOLIO ORDEN</td>
-                <td class="bottom-border-only" style="width: 18%; font-weight: bold;">{{ $Data->id ?? '-' }}</td>
-                <td class="yellow-bg" style="width: 9%;">FECHA </td>
-                <td class="bottom-border-only" style="width: 27%; font-weight: bold;">{{ $fecha ?? '-' }}</td>
+                <td class="yellow-bg" style="width: 16%;">FOLIO</td>
+                <td class="bottom-border-only" style="width: 24%; font-weight: bold;">F-04-01-{{ $Data->requisition->id ?? '-' }}</td>
+                <td class="yellow-bg" style="width: 14%;">FECHA </td>
+                <td class="bottom-border-only" style="width: 36%; font-weight: bold;">{{ $fecha ?? '-' }}</td>
             </tr>
         </table>
       </div>  
       <div class="row">
         <table style="width: 100%;">
             <tr>
-                <td class="yellow-bg" style="width: 30%;">ÁREA SOLICITANTE</td>
-                <td class="yellow-bg" style="width: 30%;">NOMBRE SOLICITANTE</td>
-                <td class="yellow-bg" style="width: 40%;">CUENTA CONTABLE</td>
+                <td class="yellow-bg" style="width: 26%;">NOMBRE PROVEEDOR</td>
+                <td class="yellow-bg" style="width: 26%;">CONTACTO PROVEEDOR</td>
+                <td class="yellow-bg" style="width: 26%;">TELEFONO PROVEEDOR</td>
+                <td class="yellow-bg" style="width: 22%;">EMAIL PROVEEDOR</td>
             </tr>
             <tr>
                 <td class="bottom-border-only">{{ $Data->requisition->work_areaInfo->name ?? '-' }}</td>
                 <td class="bottom-border-only">{{ $Data->requisition->collaboratorInfo->name ?? '-' }}</td>
+                <td class="bottom-border-only">{{ $Data->requisition->collaboratorInfo->name ?? '-' }}</td>
                 <td class="bottom-border-only">{{ $Data->requisition->parent_accountInfo->name ?? '-' }} - {{ $Data->requisition->title_accountInfo->name ?? '' }} - {{ $Data->requisition->subtitle_accountInfo->name ?? '' }} - {{ $Data->requisition->mayor_accountInfo->name ?? '' }}</td>
             </tr>
         </table>
-      </div>  
-     <div class="row">
-        <table style="width: 100%;"><br>
-            <tr>
-                <td class="yellow-bg" style="width: 20%;">PROVEEDOR</td>
-                <td class="bottom-border-only">{{ $Data->supplier->business_name ?? '-' }}</td>
-            </tr>
-        </table>
-      </div>   
+      </div>    
       <div class="row">
         <table style="width: 100%;"><br>
           <tr>
-            <td class="blue-bg">CANTIDAD </td>
-            <td class="blue-bg">CLAVE </td>
-            <td class="blue-bg">UDM </td>
-            <td class="blue-bg">DESCRIPCIÓN </td>
-            <td class="blue-bg">COSTO</td>
-            <td class="blue-bg">IVA</td>
+            <td class="blue-bg">O. COMPRA </td>
+            <td class="blue-bg">CTA </td>
+            <td class="blue-bg">F. FACTURA </td>
+            <td class="blue-bg">FEC. FACTURA </td>
             <td class="blue-bg">IMPORTE</td>
+            <td class="blue-bg">M.PAGO</td>
+            <td class="blue-bg">SU PAGO</td>
           </tr>
           @php
             // Inicializar variables
@@ -256,7 +248,7 @@
       </div>   
       <div class="row">
         <div class="column-2-1">
-          <p class="title-blue">ADICIONALES</p>
+          <p class="title-blue">OBSERVACIONES</p>
           <div style="border: 1px solid #000; min-height: 100px; padding: 10px;">
               {{ $Data->additional ?? 'No hay información adicional' }}
           </div>

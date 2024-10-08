@@ -37,6 +37,16 @@ class PurchaseOrderController extends Controller
                 'performInfo',
                 'authorizeInfo'
             ])->get();
+            
+        // Recorrer cada orden de compra para agregar la URL del comprobante
+        foreach ($purchaseOrders as $order) {
+            if ($order->requisition && $order->requisition->comprobante) {
+                // Generar la URL completa para el comprobante
+                $order->requisition->comprobante_url =  asset(Storage::url($order->requisition->comprobante));
+            } else {
+                $order->requisition->comprobante_url = null; // O manejar el caso donde no hay comprobante
+            }
+        }
     
         // Devolver la respuesta JSON con las ordenes de compra filtradas
         return response()->json($purchaseOrders);
@@ -67,6 +77,8 @@ class PurchaseOrderController extends Controller
         // Actualizar el estado de la requisición a 'ORDEN COMPRA'
         $requisition = Requisitions::find($orderData['id_requisition']);
         $requisition->status = 'ORDEN COMPRA';
+        $requisition->date_atended = now();
+        $requisition->analyze = $user->id;
         $requisition->save();
         
         // Generar el PDF y devolverlo
@@ -122,6 +134,63 @@ class PurchaseOrderController extends Controller
         $dompdf->render();
         
         return $dompdf->output();                     
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:APROBADA,CANCELADA',
+        ]);
+        // Verifica si el usuario está autenticado
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['message' => 'Usuario no autenticado'], 401);
+        }
+
+        $order = PurchaseOrder::findOrFail($id);
+        $order->status = $request->input('status');
+        $order->authorize = $request->input('status') === 'APROBADA' ? $user->id : null;
+        $order->cancel_reason = $request->input('reason');
+
+        // Si el estado es CANCELADA, actualiza también el estado de la requisición relacionada
+        if ($request->input('status') === 'CANCELADA') {
+            $order->authorize = null; // Borra cualquier autorización anterior
+
+            // Encuentra la requisición relacionada con esta orden
+            $requisition = Requisitions::where('id', $order->id_requisition)->first();
+            
+            // Si existe la requisición, actualiza su estado
+            if ($requisition) {
+                $requisition->status = 'PENDIENTE';
+                $requisition->save();
+            }
+        }
+
+        $order->save();
+
+        return response()->json(['message' => 'Estatus actualizado correctamente']);
+    }
+
+    public function updatePdf(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:pdf|max:2048',
+            'requisitionId' => 'required|integer|exists:requisitions,id',
+        ]);
+
+        $requisition = Requisitions::find($request->input('requisitionId'));
+
+        // Eliminar el archivo anterior si existe
+        if ($requisition->comprobante) {
+            Storage::delete($requisition->comprobante);
+        }
+
+        // Guardar el nuevo archivo
+        $path = $request->file('file')->store('Comprobantes', 'public');
+        $requisition->comprobante = $path;
+        $requisition->save();
+
+        return response()->json(['message' => 'PDF actualizado exitosamente']);
     }
 
 }

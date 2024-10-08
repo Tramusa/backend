@@ -11,7 +11,7 @@ class Requisitions extends Model
     use HasFactory;
 
     protected $fillable = [
-        'id_user', 'id_work_area', 'id_collaborator', 'date', 'id_parent_account', 'id_title_account', 'id_subtitle_account', 'id_mayor_account', 'observations', 'status', 'date_authorized', 'authorized', 'date_atended'
+        'id_user', 'id_work_area', 'id_collaborator', 'date', 'id_parent_account', 'id_title_account', 'id_subtitle_account', 'id_mayor_account', 'observations', 'status', 'date_authorized', 'authorized', 'date_atended', 'analyze', 'comprobante'
     ];
 
     public function product()
@@ -57,5 +57,10 @@ class Requisitions extends Model
     public function user_authorized()
     {
         return $this->hasOne(User::class, 'id', 'authorized');
+    }
+
+    public function user_analyze()
+    {
+        return $this->hasOne(User::class, 'id', 'analyze');
     }
 }

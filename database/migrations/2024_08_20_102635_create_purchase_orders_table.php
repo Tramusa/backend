@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('status')->default('PENDIENTE');
             $table->string('additional')->nullable();
             $table->float('total')->nullable();
+            $table->string('cancel_reason')->nullable();
             $table->timestamps();
         });
     }
