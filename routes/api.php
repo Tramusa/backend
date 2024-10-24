@@ -263,3 +263,9 @@ Route::middleware('auth:sanctum')->put('/purchase-orders/{id}/status', [Purchase
 Route::middleware('auth:sanctum')->post('/update-pdf', [PurchaseOrderController::class, 'updatePdf']);
 Route::middleware('auth:sanctum')->apiResource('payment-orders', PaymentOrderController::class);
 Route::middleware('auth:sanctum')->apiResource('test-flash', TestFlashSecurityController::class);
+Route::middleware('auth:sanctum')->get('/payment-pdf/{order}', [PaymentOrderController::class, 'generarPDF']);
+Route::middleware('auth:sanctum')->put('/payment-orders/{id}/status', [PaymentOrderController::class, 'updateStatus']);
+Route::middleware('auth:sanctum')->post('/update-pdf-payment', [PaymentOrderController::class, 'updatePdf']);
+
+
+

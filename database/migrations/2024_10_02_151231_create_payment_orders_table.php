@@ -19,6 +19,9 @@ return new class extends Migration
             $table->string('banck');
             $table->string('reference')->nullable();
             $table->string('comprobante')->nullable();
+            $table->integer('elaborate')->nullable();
+            $table->integer('authorize')->nullable();
+            $table->string('status')->default('PENDIENTE');
             $table->timestamps();
         });
     }
