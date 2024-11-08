@@ -18,10 +18,16 @@ class PurchaseOrderController extends Controller
     {
         // Obtener el estado de las ordenes de compra desde la solicitud, si existe
         $status = $request->query('status');
-    
+
+        $supplierId = $request->query('supplier');
+
         // Construir la consulta
         $query = PurchaseOrder::query();
-    
+
+        if ($supplierId) {
+            $query->where('id_supplier', $supplierId);
+        }
+        
         // Filtrar por estado si se proporciona
         if ($status) {
             $query->where('status', $status);

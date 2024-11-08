@@ -3,6 +3,7 @@
 use App\Http\Controllers\AddressGroupController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BalanceSuppliersController;
 use App\Http\Controllers\CategoryProductsController;
 use App\Http\Controllers\CollaboratorsController;
 use App\Http\Controllers\CtrlTiresController;
@@ -18,6 +19,7 @@ use App\Http\Controllers\MissingDocsController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ParentAccountController;
 use App\Http\Controllers\PaymentOrderController;
+use App\Http\Controllers\PaymentSuppliersController;
 use App\Http\Controllers\PeajesController;
 use App\Http\Controllers\PointsInterest;
 use App\Http\Controllers\ProductsServicesController;
@@ -267,5 +269,6 @@ Route::middleware('auth:sanctum')->get('/payment-pdf/{order}', [PaymentOrderCont
 Route::middleware('auth:sanctum')->put('/payment-orders/{id}/status', [PaymentOrderController::class, 'updateStatus']);
 Route::middleware('auth:sanctum')->post('/update-pdf-payment', [PaymentOrderController::class, 'updatePdf']);
 
-
+Route::middleware('auth:sanctum')->apiResource('balance-suppliers', BalanceSuppliersController::class);
+Route::middleware('auth:sanctum')->apiResource('payment-billings', PaymentSuppliersController::class);
 

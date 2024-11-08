@@ -12,4 +12,9 @@ class Suppliers extends Model
     protected $fillable = [
         'type_person', 'business_name', 'tradename', 'RFC', 'country', 'state', 'municipality', 'location', 'street', 'no_int', 'no_ext', 'cologne', 'postal_code', 'phone', 'e_mail', 'discount', 'credit_sale', 'credit_days', 'credit_limit',
     ];
+
+    public function bankDetails()
+    {
+        return $this->hasMany(SupplierBanck::class, 'id_supplier');
+    }
 }

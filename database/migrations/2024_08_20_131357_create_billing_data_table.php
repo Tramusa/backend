@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('date');
             $table->string('payment_form');
             $table->string('payment_method');
+            $table->integer('payment')->default(0);
             $table->timestamps();
         });
     }

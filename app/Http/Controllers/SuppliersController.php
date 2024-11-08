@@ -10,7 +10,7 @@ class SuppliersController extends Controller
 {
     public function index()
     {
-        $suppliers = Suppliers::all(); 
+        $suppliers = Suppliers::with('bankDetails')->get();
         return response()->json($suppliers); 
     }
 
