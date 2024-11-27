@@ -153,19 +153,12 @@ Route::middleware('auth:sanctum')->get('/responsible', function () {
     return response()->json($users);
 });
 
-Route::middleware('auth:sanctum')->get('/programs', [ProgramsController::class, 'index']);
-Route::middleware('auth:sanctum')->post('/addMto', [ProgramsController::class, 'create']);
+Route::middleware('auth:sanctum')->apiResource('program-mttos', ProgramsController::class);
 Route::middleware('auth:sanctum')->get('/unitsMto/{type}', [ProgramsController::class, 'units']);
-Route::middleware('auth:sanctum')->get('/mto/{id}', [ProgramsController::class, 'show']);
-Route::middleware('auth:sanctum')->put('/mto/{id}', [ProgramsController::class, 'update']);
-Route::middleware('auth:sanctum')->delete('/deleteMto/{id}', [ProgramsController::class, 'destroy']);
 
-Route::middleware('auth:sanctum')->get('/revisions', [RevisionsController::class, 'index']);
-Route::middleware('auth:sanctum')->get('/revision/{id}', [RevisionsController::class, 'show']);
-Route::middleware('auth:sanctum')->post('/createRevision', [RevisionsController::class, 'create']);
+Route::middleware('auth:sanctum')->apiResource('revisions', RevisionsController::class);
 Route::middleware('auth:sanctum')->post('/finishRevision', [RevisionsController::class, 'finish']);
 Route::middleware('auth:sanctum')->get('/revisions-report/{id}', [RevisionsController::class, 'revisionsReport']);
-Route::middleware('auth:sanctum')->put('/revision/{id}', [RevisionsController::class, 'update']);
 Route::middleware('auth:sanctum')->get('/revisions-details/{id}', [RevisionsController::class, 'showDetails']);
 
 Route::middleware('auth:sanctum')->get('/inspections', [InspectionsController::class, 'index']);
@@ -208,11 +201,7 @@ Route::middleware('auth:sanctum')->delete('/peajeR/{id}/{ruta}', [PeajesControll
 Route::middleware('auth:sanctum')->delete('/peaje/{id}', [PeajesController::class, 'destroy']);
 Route::middleware('auth:sanctum')->get('/generar-pdf', [PeajesController::class, 'generarPDF']);
 
-Route::middleware('auth:sanctum')->get('/groups', [AddressGroupController::class, 'index']);
-Route::middleware('auth:sanctum')->post('/createGroup', [AddressGroupController::class, 'create']);
-Route::middleware('auth:sanctum')->get('/group/{id}', [AddressGroupController::class, 'show']);
-Route::middleware('auth:sanctum')->put('/group/{id}', [AddressGroupController::class, 'update']);
-Route::middleware('auth:sanctum')->delete('/group/{id}', [AddressGroupController::class, 'destroy']);
+Route::middleware('auth:sanctum')->apiResource('groups', AddressGroupController::class);
 
 Route::middleware('auth:sanctum')->get('/expirationsUnits', [ExpirationUnitsController::class, 'index']);
 Route::middleware('auth:sanctum')->get('/expirationUnit/{id}', [ExpirationUnitsController::class, 'show']);

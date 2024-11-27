@@ -13,13 +13,12 @@ class AddressGroupController extends Controller
         return response()->json($groups);
     }
 
-    public function create(Request $request)
+    public function store(Request $request)
     {
         $peaje = new AddressGroup($request->all());
         $peaje->save();
         return response()->json(['message' => 'Grupo registrado con exito'], 201);
     }
-
 
     public function show($id)
     {

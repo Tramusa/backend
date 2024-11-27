@@ -120,7 +120,7 @@ class RevisionsController extends Controller
         return response()->json($revisions);
     }
 
-    public function create(Request $request)
+    public function store(Request $request)
     {
         try {
             // Obtén el tipo y el ID de la unidad de la solicitud
@@ -409,5 +409,12 @@ class RevisionsController extends Controller
         ];
 
         return response()->json($response);
+    }
+
+    public function destroy($id)
+    {
+        Revisions::destroy($id);
+
+        return response()->json(['message' => 'Revision eliminado exitosamente.'], 201);
     }
 }

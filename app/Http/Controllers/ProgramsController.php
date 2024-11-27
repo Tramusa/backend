@@ -14,7 +14,7 @@ class ProgramsController extends Controller
         return response()->json($programs);
     }
 
-    public function create(Request $request)
+    public function store(Request $request)
     {
         $program = new Programs($request->all());                
         $program->save();
