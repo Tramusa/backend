@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AddressGroupController;
+use App\Http\Controllers\ApplicantsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BalanceSuppliersController;
@@ -260,4 +261,4 @@ Route::middleware('auth:sanctum')->post('/update-pdf-payment', [PaymentOrderCont
 
 Route::middleware('auth:sanctum')->apiResource('balance-suppliers', BalanceSuppliersController::class);
 Route::middleware('auth:sanctum')->apiResource('payment-billings', PaymentSuppliersController::class);
-
+Route::middleware('auth:sanctum')->apiResource('applicants', ApplicantsController::class);
