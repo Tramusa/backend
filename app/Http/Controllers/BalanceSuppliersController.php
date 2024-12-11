@@ -60,58 +60,57 @@ class BalanceSuppliersController extends Controller
     }
 
     public function show($id)
-{
-    $balance = []; // Array to store supplier data with approved orders
+    {
+        $balance = []; // Array to store supplier data with approved orders
 
-    // Get the specific supplier along with bank details
-    $supplier = Suppliers::where('id', $id)->with('bankDetails')->first();
+        // Get the specific supplier along with bank details
+        $supplier = Suppliers::where('id', $id)->with('bankDetails')->first();
 
-    if ($supplier) {
-        // Filter approved payment orders for the supplier
-        $approvedPayments = PaymentOrder::where('supplier', $id)
-            ->where('status', 'APROBADA')
-            ->get();
+        if ($supplier) {
+            // Filter approved payment orders for the supplier
+            $approvedPayments = PaymentOrder::where('supplier', $id)
+                ->where('status', 'APROBADA')
+                ->get();
 
-        // If the supplier has approved orders, calculate the total
-        if ($approvedPayments->isNotEmpty()) {
-            // Load purchase orders for each approved payment order
-            $approvedPayments = $approvedPayments->map(function ($payment) {
-                return [
-                    'payment' => $payment,
-                    'purchaseOrders' => $payment->purchaseOrders(), // Load associated purchase orders
-                ];
-            })->collect(); // Convert to a collection to use collection methods
-
-            // Filter purchase orders with unpaid invoices (where payment == 0)
-            $orders = $approvedPayments->flatMap(function ($paymentOrder) {
-                return collect($paymentOrder['purchaseOrders'])->filter(function ($purchaseOrder) {
-                    return $purchaseOrder->billing && $purchaseOrder->billing->payment == 0;
-                });
-            });
-
-            // Calculate the total for unpaid invoices only
-            $totalAmount = $orders->sum(function ($item) {
-                return $item->total ?? 0;
-            });
-
-            // Populate the balance array with supplier data and totals
-            $balance = [
-                'supplier' => $supplier,
-                'orders' => $orders,
-                'total_payments' => $totalAmount,
-                'bank_details' => $supplier->bankDetails->map(function ($bank) {
+            // If the supplier has approved orders, calculate the total
+            if ($approvedPayments->isNotEmpty()) {
+                // Load purchase orders for each approved payment order
+                $approvedPayments = $approvedPayments->map(function ($payment) {
                     return [
-                        'bank' => $bank->banck,
-                        'account' => $bank->account,
-                        'clabe' => $bank->clabe,
+                        'payment' => $payment,
+                        'purchaseOrders' => $payment->purchaseOrders(), // Load associated purchase orders
                     ];
-                }),
-            ];
+                })->collect(); // Convert to a collection to use collection methods
+
+                // Filter purchase orders with unpaid invoices (where payment == 0)
+                $orders = $approvedPayments->flatMap(function ($paymentOrder) {
+                    return collect($paymentOrder['purchaseOrders'])->filter(function ($purchaseOrder) {
+                        return $purchaseOrder->billing && $purchaseOrder->billing->payment == 0;
+                    });
+                });
+
+                // Calculate the total for unpaid invoices only
+                $totalAmount = $orders->sum(function ($item) {
+                    return $item->total ?? 0;
+                });
+
+                // Populate the balance array with supplier data and totals
+                $balance = [
+                    'supplier' => $supplier,
+                    'orders' => $orders,
+                    'total_payments' => $totalAmount,
+                    'bank_details' => $supplier->bankDetails->map(function ($bank) {
+                        return [
+                            'bank' => $bank->banck,
+                            'account' => $bank->account,
+                            'clabe' => $bank->clabe,
+                        ];
+                    }),
+                ];
+            }
         }
+
+        return response()->json($balance);
     }
-
-    return response()->json($balance);
-}
-
 
 }

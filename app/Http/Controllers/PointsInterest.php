@@ -14,7 +14,7 @@ class PointsInterest extends Controller
 {
     public function index()
     {
-        $addresses = ModelsPointsInterest::all(); 
+        $addresses = ModelsPointsInterest::orderBy('name', 'asc')->get(); 
         return response()->json($addresses);
     }
 
