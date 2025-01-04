@@ -87,82 +87,50 @@ class ProgramsMttoVehiclesController extends Controller
         return response()->json(['message' => 'Actividad eliminada exitosamente.'], 201);
     }
 
-    private function PDF($activity)
+    
+    public function generarPDF(Request $request)
     {
-        $DataActivity = ProgramsMttoVehicles::find($activity);
-        $Activitys = ProgramsMttoVehicles::where('type', $DataActivity->type)->where('unit', $DataActivity->unit)->get();
-
-        $tablas = ['', 'tractocamiones', 'remolques', 'dollys', 'volteos', 'toneles', 'tortons', 'autobuses', 'sprinters', 'utilitarios', 'maquinarias'];
-        foreach ($Activitys as $Activity) {            
-            $unit = DB::table($tablas[$Activity->type])->select('no_economic')->where('id', $Activity->unit)->first();
-            
-            if ($unit && $unit->no_economic) {
-                $Activity->no_economic = $unit->no_economic;
-            } else {
-                $Activity->no_economic = null; 
-            }
-            
-            $dates = []; // Arreglo para almacenar las  SEMANAS
-            $periodicitySums = [ // Definir la suma  según la periodicidad
-                'Quincenal' => 2,
-                'Mensual' => 4,
-                'Bimestral' => 8,
-                'Trimestral' => 12,
-                'Cuatrimestral' => 16,
-                'Semestral' => 24,
-            ];
-
-            $date = $Activity->start;
-
-            if ($Activity->periodicity !== 'Anual') {
-                while ($date <= 52) {
-                    $dates[] = $date;
-                    $date += $periodicitySums[$Activity->periodicity];
-                }
-            }else{
-                $dates[] = $date;
-            }
-
-            $Activity->dates = $dates; // Agregar el arreglo de fechas al objeto $Activity
-        }  
-        
-        $currentWeek = date('W'); // SEMANA ACTUAL
-
-        $fechaActual = Carbon::now();// Obtener la fecha actual
-
-        // Obtener el nombre del día de la semana en español
-        $nombreDia = $fechaActual->locale('es')->isoFormat('dddd');
-
-        // Obtener el nombre del mes en español
-        $nombreMes = $fechaActual->locale('es')->isoFormat('MMMM');
-
-        // Formatear la fecha según el formato deseado
-        $fecha = "$nombreDia, {$fechaActual->day} de $nombreMes del {$fechaActual->year}";
-
+        $activities = $request->input('activities');
+    
+        if (!$activities || empty($activities)) {
+            return response()->json(['message' => 'No se proporcionaron actividades'], 400);
+        }
+    
+        // Obtener la fecha actual en español
+        $fechaActual = Carbon::now();
+        $fecha = $fechaActual->locale('es')->isoFormat('dddd, D [de] MMMM [de] YYYY');
+        $currentWeek = $fechaActual->week;
+    
+        // Convertir el logo a base64
         $logoImagePath = public_path('imgPDF/logo.png');
-        $logoImage = $this->getImageBase64($logoImagePath);// Convertir las imágenes a base64
- 
+        $logoImage = $this->getImageBase64($logoImagePath);
+    
+        // Preparar los datos para la vista
         $data = [
             'logoImage' => $logoImage,
-            'Activitys' => $Activitys,
+            'Activitys' => $activities,
             'fecha' => $fecha,
             'currentWeek' => $currentWeek,
         ];
-
+    
+        // Renderizar la vista con los datos
         $html = view('PR-05-01-R1 PROGRAMA DE MANTENIMIENTO A VEHICULOS', $data)->render();
-
+    
+        // Configuración de Dompdf
         $dompdf = new Dompdf();
         $dompdf->loadHtml($html);
         $dompdf->setPaper('A4', 'landscape');
         $dompdf->render();
-        
-        return $dompdf->output();                     
-    }
-
-    public function generarPDF($activity){
-        $pdfContent = $this->PDF($activity);
-        Storage::disk('public')->put('pdfs/program-mtto'. ($activity) . '.pdf', $pdfContent);
-        return response($pdfContent, 200)->header('Content-Type', 'application/pdf');// Devolver el contenido del PDF
+        $pdfContent = $dompdf->output();   
+    
+        // Generar un nombre único para el archivo PDF
+        $filename = 'Programa_Mantenimiento_' . now()->format('Ymd_His') . '.pdf';
+    
+        // Guardar el PDF en el almacenamiento
+        Storage::disk('public')->put('pdfs/' . $filename, $pdfContent);
+    
+        // Devolver el contenido del PDF
+        return response($pdfContent, 200)->header('Content-Type', 'application/pdf');
     }
 
     private function getImageBase64($imagePath)

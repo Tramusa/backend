@@ -11,7 +11,7 @@
       }
 
       header {
-        padding: 10px 0px;
+        padding: 5px 0px;
       }
 
       .column-1 {
@@ -58,7 +58,7 @@
         position: relative;
         width: 27cm; /* Ancho de la página en orientación horizontal */
         height: 19cm; /* Altura de la página en orientación horizontal */
-        margin: 0 auto;
+        margin: auto;
         color: #001028;
         background: #FFFFFF;
         font-size: 11px;
@@ -105,20 +105,29 @@
         text-align: center;
         margin: 0 0 0 0;
       }
-      
+
       table {
         border-collapse: collapse;
         border-spacing: 0;
-        margin-bottom: 10px;
+        width: 100%;
+        margin-bottom: 15px;
+      }
+
+      table th, table td {
+        page-break-inside: avoid;
+        text-align: center;
+        border: 1px solid #000;
+      }
+
+      .page-break {
+        page-break-before: always;
       }
 
       table th {
         font-family: "Arial Narrow", Arial, sans-serif;
-        text-align: center;
         padding: 0px 0px;
         color: #FFFFFF;
         font-size: 1.1em;
-        border: 1px solid #000;
         white-space: nowrap;        
         font-weight: bold;
         background: #1E4E79;
@@ -126,11 +135,6 @@
 
       .line {
         border-left: 20px solid #F26726;
-      }
-
-      table td {
-        text-align: center;
-        border: 1px solid #000;
       }
     </style>
   </head>
@@ -159,14 +163,14 @@
                     <td>{{ $currentWeek }}</td>
                 </tr>
             </table>
-        </div>      
-        <div class="row">        
-          <table style="width: 101%;">
-            <tr>
+        </div>
+        <div style="clear: both;"></div>             
+        <table style="width: 101%;">
+          <tr>
               <th colspan="4"></th>
               <th colspan="52">Semana</th>
-            </tr>
-            <tr>
+          </tr>
+          <tr>
               <th>Unidad</th>
               <th>Actividad</th>
               <th>Inicio</th>
@@ -174,35 +178,40 @@
               @for($i = 1; $i <= 52; $i++)
                   <th>{{$i}}</th>
               @endfor
-            </tr>
-            @foreach($Activitys as $activity)
-            <tr>
-                <td>{{ $activity->no_economic }}</td>
-                <td style="text-align: left;">{{ $activity->activity }}</td>
-                <td>{{ $activity->start }}</td>
-                <td>{{ $activity->periodicity }}</td>
-                @for($i = 1; $i <= 52; $i++)
-                  @php
-                      $found = false;
-                  @endphp
-                  @foreach($activity->dates as $date)
-                      @if($date == $i)
-                          @php
-                              $found = true;
-                              break;
-                          @endphp
-                      @endif
-                  @endforeach
-                  @if($found)
-                      <td>X</td>
-                  @else
-                      <td></td>
-                  @endif
-              @endfor
-            </tr>
-            @endforeach
-          </table>
-        </div>      
+          </tr>
+
+          @php
+              $previousNoEconomic = ''; // Variable para almacenar el valor previo de no_economic
+          @endphp
+
+          @foreach($Activitys as $activity)
+              @if($previousNoEconomic != $activity['no_economic']) 
+                  <!-- Si el valor de no_economic cambia, agregar fila azul como separador -->
+                  <tr style="background-color: #007BFF; color: white;">
+                      <th colspan="56">
+                          Unidad: {{ $activity['no_economic'] }}
+                      </th>
+                  </tr>
+              @endif
+
+              <!-- Fila con los datos de la actividad -->
+              <tr>                  
+                  <td>{{ $activity['no_economic'] ?? ' ' }}</td>
+                  <td style="text-align: left;">{{ $activity['activity'] ?? ' ' }}</td>
+                  <td>{{ $activity['start'] ?? ' ' }}</td>
+                  <td>{{ $activity['periodicity'] ?? ' ' }}</td>
+                  @for($i = 1; $i <= 52; $i++)
+                      <td>
+                          {{ in_array($i, $activity['dates']) ? 'X' : '' }}
+                      </td>
+                  @endfor
+              </tr> 
+
+              @php
+                  $previousNoEconomic = $activity['no_economic']; // Actualiza el valor de no_economic
+              @endphp
+          @endforeach
+      </table>  
     </main>
   </body>
 </html>

@@ -80,11 +80,11 @@ Route::middleware('auth:sanctum')->post('/addUnit', [TripController::class, 'add
 Route::middleware('auth:sanctum')->get('/unitsTrip/{trip}', [TripController::class, 'show']);
 Route::middleware('auth:sanctum')->delete('/deleteUnit/{id}', [TripController::class, 'deleteUnit']);
 Route::middleware('auth:sanctum')->put('/updateTrip/{trip}', [TripController::class, 'update']);
-Route::middleware('auth:sanctum')->get('/trips/{type}', [TripController::class, 'showTrips']);
 Route::middleware('auth:sanctum')->get('/finishTrip/{trip}', [TripController::class, 'finish']);
 Route::middleware('auth:sanctum')->get('/trip/{id}', [TripController::class, 'showTrip']);
 Route::middleware('auth:sanctum')->get('/rutaTrip', [TripController::class, 'rutaTrip']);
 Route::middleware('auth:sanctum')->get('/generar-pdf/{trip}', [TripController::class, 'generarPDF']);
+Route::middleware('auth:sanctum')->apiResource('trips', TripController::class);
 
 Route::middleware('auth:sanctum')->get('/tripsCount', function () {
     $trips = DB::table('trips')->whereIn('status', [0, 1])->get();
@@ -226,7 +226,7 @@ Route::middleware('auth:sanctum')->post('/docs-pdfs/{id}', [DocsPDFsController::
 
 Route::middleware('auth:sanctum')->apiResource('missing-docs', MissingDocsController::class);
 Route::middleware('auth:sanctum')->apiResource('programs-mtto', ProgramsMttoVehiclesController::class);
-Route::middleware('auth:sanctum')->get('/pdf-mtto/{activity}', [ProgramsMttoVehiclesController::class, 'generarPDF']);
+Route::middleware('auth:sanctum')->post('/pdf-mtto', [ProgramsMttoVehiclesController::class, 'generarPDF']);
 Route::middleware('auth:sanctum')->apiResource('tires', TiresController::class);
 Route::middleware('auth:sanctum')->apiResource('ctrl-tires', CtrlTiresController::class);
 Route::middleware('auth:sanctum')->apiResource('history-tires', HistoryTireController::class);
