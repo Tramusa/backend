@@ -51,14 +51,18 @@ class DetailsRequisitionsController extends Controller
         return response()->json(['message' => 'Producto o servicio agregado con éxito'], 201);
     }
     public function show($id)
-    {        
-        $user = Auth::user();// Get the logged-in user
-
-        // Fetch details requisitions for the logged-in user where id_product is not 0
-        $detailsRequisitions = DetailsRequisitions::where('id_user', $user->id)
-                                                  ->where('id_requisition', $id)
-                                                  ->get();
-
+    {
+        if ($id == 0) {
+            // Si el id es 0, filtrar por el usuario autenticado
+            $user = Auth::user(); // Obtener el usuario autenticado
+            $detailsRequisitions = DetailsRequisitions::where('id_user', $user->id)
+                                                      ->where('id_requisition', $id)
+                                                      ->get();
+        } else {
+            // Si el id no es 0, no filtrar por el usuario
+            $detailsRequisitions = DetailsRequisitions::where('id_requisition', $id)->get();
+        }
+    
         return response()->json($detailsRequisitions);
     }
 
