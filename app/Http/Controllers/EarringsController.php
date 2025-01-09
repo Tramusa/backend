@@ -140,7 +140,7 @@ class EarringsController extends Controller
         $user = auth()->user();
     
         if ($user) {
-            $allowedRoles = ['Coordinador Logistica Concentrado', 'Coordinador Logistica Personal'];
+            $allowedRoles = ['Coordinador Logistica Concentrado', 'Coordinador Logistica Personal', 'Coordinador Mantenimiento'];
     
             if (!in_array($user->rol, $allowedRoles)) {
                 return response()->json(['message' => 'No tienes permiso para eliminar esta falla.'], 403);
