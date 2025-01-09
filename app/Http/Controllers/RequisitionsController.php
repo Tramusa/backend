@@ -114,12 +114,8 @@ class RequisitionsController extends Controller
 
         $logoImagePath = public_path('imgPDF/logo.png');
         $logoImage = $this->getImageBase64($logoImagePath);// Convertir las imágenes a base64
-        $user = Auth::user();
 
-        // Fetch details requisitions for the logged-in user where id_product is not 0
-        $detailsRequisitions = DetailsRequisitions::where('id_user', $user->id)
-                                                  ->where('id_requisition', $requisition)
-                                                  ->get();
+        $detailsRequisitions = DetailsRequisitions::where('id_requisition', $requisition)->get();
 
         $data = [
             'logoImage' => $logoImage,
