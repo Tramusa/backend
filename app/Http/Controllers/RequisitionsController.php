@@ -175,7 +175,7 @@ class RequisitionsController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|in:APROBADA,CANCELADA',
+            'status' => 'required|in:APROBADA,CANCELADA,PENDIENTE',
         ]);
         // Verifica si el usuario está autenticado
         $user = Auth::user();
