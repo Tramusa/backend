@@ -20,7 +20,7 @@ class DetailsRequisitionsController extends Controller
             'ret_iva' => 'nullable|numeric', // Retención de IVA del producto
             'ret_ish' => 'nullable|numeric', // Retención de ISH del producto
             'unit_measure' => 'required|string', // Unidad de medida del producto
-            'cantidad' => 'required|integer|min:1', // Cantidad debe ser mayor que 0
+            'cantidad' => 'required|numeric|min:0.1', // Cantidad debe ser mayor que 0
             'justific' => 'nullable|string', // Justificación es opcional
             'id_requisition' => 'nullable|integer|exists:requisitions,id', // Validar si id_requisition es proporcionado
         ]);
