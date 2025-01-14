@@ -18,7 +18,6 @@ class PurchaseOrderController extends Controller
     {
         // Obtener el estado de las ordenes de compra desde la solicitud, si existe
         $status = $request->query('status');
-
         $supplierId = $request->query('supplier');
 
         // Construir la consulta
@@ -27,37 +26,42 @@ class PurchaseOrderController extends Controller
         if ($supplierId) {
             $query->where('id_supplier', $supplierId);
         }
-        
+
         // Filtrar por estado si se proporciona
         if ($status) {
             $query->where('status', $status);
         }
-    
+
         // Filtrar las ordenes de compra con id diferente de 0 y cargar las relaciones necesarias
         $purchaseOrders = $query->with([
                 'requisition' => function ($query) {
                     $query->with(['work_areaInfo', 'collaboratorInfo']);
                 },
                 'supplier',
-                'billing',
                 'performInfo',
                 'authorizeInfo'
             ])->get();
-            
-        // Recorrer cada orden de compra para agregar la URL del comprobante
+
+        // Recorrer cada orden de compra para agregar la URL del comprobante y la factura
         foreach ($purchaseOrders as $order) {
+            // Comprobante
             if ($order->requisition && $order->requisition->comprobante) {
-                // Generar la URL completa para el comprobante
                 $order->requisition->comprobante_url =  asset(Storage::url($order->requisition->comprobante));
             } else {
-                $order->requisition->comprobante_url = null; // O manejar el caso donde no hay comprobante
+                $order->requisition->comprobante_url = null;
+            }
+
+            // Factura (billing)
+            $billing = $order->billing(); // Aquí obtenemos la factura
+            if ($billing) {
+                $order->billing = $billing; // Añadimos la información de la factura a la orden
             }
         }
-    
+
         // Devolver la respuesta JSON con las ordenes de compra filtradas
         return response()->json($purchaseOrders);
     }
-
+    
     public function store(Request $request)
     {
         // Extraer los campos principales
@@ -75,10 +79,24 @@ class PurchaseOrderController extends Controller
         }
         
         // Crear la orden de compra
-        $order = PurchaseOrder::create($orderData);
-        // Crear datso de facturion
+    $order = PurchaseOrder::create($orderData);
+    
+    // Verificar si la factura ya existe
+    $billing = BillingData::find($billingData['id']);
+    if ($billing) {
+        // La factura ya existe, verificar si la orden ya está registrada
+        $orderIds = explode(',', $billing->id_order);  // Separar los IDs de la orden existentes
+        if (!in_array($order->id, $orderIds)) {
+            // Agregar el nuevo ID de la orden
+            $billing->id_order .= ',' . $order->id;
+            $billing->save();
+        }
+    } else {
+        // La factura no existe, crear un nuevo registro
         $billingData['id_order'] = $order->id;
         BillingData::create($billingData);
+    }
+
 
         // Actualizar el estado de la requisición a 'ORDEN COMPRA'
         $requisition = Requisitions::find($orderData['id_requisition']);

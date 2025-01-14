@@ -23,9 +23,12 @@ class PurchaseOrder extends Model
         return $this->belongsTo(Suppliers::class, 'id_supplier');
     }
 
+    /**
+     * Relación personalizada para obtener la factura asociada.
+     */
     public function billing()
     {
-        return $this->hasOne(BillingData::class, 'id_order', 'id');
+        return BillingData::whereRaw("FIND_IN_SET(?, id_order)", [$this->id])->first();
     }
 
     public function performInfo()
