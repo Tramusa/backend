@@ -18,11 +18,10 @@ class PaymentOrder extends Model
         return $this->belongsTo(Suppliers::class, 'supplier');
     }
 
-    // Convert orders string to array of IDs and use it to retrieve related PurchaseOrders
     public function purchaseOrders()
     {
-        $orderIds = explode(',', $this->orders); // Convert the string into an array of IDs
-        return PurchaseOrder::whereIn('id', $orderIds)->with(['billing'])->with(['requisition'])->get();
+        $orderIds = explode(',', $this->orders); // Convertir el string en un array de IDs
+        return PurchaseOrder::whereIn('id', $orderIds)->with(['requisition'])->get(); // Cargar solo 'requisition' por ahora
     }
 
     public function authorizeInfo()

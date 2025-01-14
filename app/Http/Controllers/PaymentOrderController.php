@@ -41,6 +41,11 @@ class PaymentOrderController extends Controller
                 if ($purchaseOrder->requisition && $purchaseOrder->requisition->comprobante) {
                     $purchaseOrder->requisition->comprobante = asset(Storage::url($purchaseOrder->requisition->comprobante));
                 }
+                // Factura (billing)
+                $billing = $purchaseOrder->billing(); // Aquí obtenemos la factura
+                if ($billing) {
+                    $purchaseOrder->billing = $billing; // Añadimos la información de la factura a la orden
+                }
                 return $purchaseOrder;
             });
         });
