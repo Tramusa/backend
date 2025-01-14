@@ -130,11 +130,18 @@ class PaymentOrderController extends Controller
             $fecha = Carbon::parse(now())->locale('es')->isoFormat('dddd, D [de] MMMM [de] YYYY');
         }
 
-        // After retrieving the PaymentOrder, get the related purchase orders
+        // Después de obtener el PaymentOrder, cargar las órdenes de compra relacionadas
         if ($paymentData) {
-            $paymentData->purchaseOrders = $paymentData->purchaseOrders(); // Manually load purchase orders
+            // Cargar las órdenes de compra manualmente
+            $paymentData->purchaseOrders = $paymentData->purchaseOrders()->map(function ($purchaseOrder) {
+                // Factura (billing)
+                $billing = $purchaseOrder->billing(); // Aquí obtenemos la factura
+                if ($billing) {
+                    $purchaseOrder->billing = $billing; // Añadimos la información de la factura a la orden
+                }
+                return $purchaseOrder;
+            });
         }
-        //Logger($paymentData);
 
         $logoImagePath = public_path('imgPDF/logo.png');
         $logoImage = $this->getImageBase64($logoImagePath);// Convertir las imágenes a base64
