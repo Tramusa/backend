@@ -10,7 +10,7 @@ class BillingData extends Model
     use HasFactory;
     
     protected $fillable = [
-        'id', 'id_order', 'date', 'payment_form', 'payment_method'
+        'id', 'folio', 'id_supplier', 'id_order', 'date', 'payment_form', 'payment_method'
     ];
 
     public function order()
