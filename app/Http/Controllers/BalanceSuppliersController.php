@@ -8,46 +8,51 @@ use Illuminate\Http\Request;
 
 class BalanceSuppliersController extends Controller
 {
+ 
     public function index()
     {
-        $balance = []; // Array donde se almacenarán los datos de proveedores con órdenes aprobadas
-
-        // Recorremos todos los proveedores
+        $balance = []; // Array para almacenar los datos de los proveedores con órdenes aprobadas
+    
         // Obtener todos los proveedores junto con sus detalles bancarios
         $suppliers = Suppliers::with('bankDetails')->get();
-
+    
         foreach ($suppliers as $supplier) {
-            // Filtramos las órdenes de pago aprobadas para cada proveedor
+            // Obtener las órdenes de pago aprobadas del proveedor
             $approvedPayments = PaymentOrder::where('supplier', $supplier->id)
                 ->where('status', 'APROBADA')
-                ->get();
-
-            // Si el proveedor tiene órdenes aprobadas, calculamos el total
+                ->get(); // Sin cargar las relaciones de forma anticipada con 'with()'
+    
+            // Si el proveedor tiene órdenes aprobadas
             if ($approvedPayments->isNotEmpty()) {
-                $approvedPayments = $approvedPayments->map(function ($payment) {
-                    return [
-                        'purchaseOrders' => $payment->purchaseOrders(), // Load associated purchase orders
-                    ];
-                })->collect(); // Convert to a collection to use collection methods
-                // Filter purchase orders with unpaid invoices (where payment == 0)
-                $orders = $approvedPayments->flatMap(function ($paymentOrder) {
-                    return collect($paymentOrder['purchaseOrders'])->filter(function ($purchaseOrder) {
+                // Cargar las órdenes de compra manualmente
+                $approvedPayments->each(function ($paymentData) {
+                    $paymentData->purchaseOrders = $paymentData->purchaseOrders()->map(function ($purchaseOrder) {
+                        // Factura (billing)
+                        $billing = $purchaseOrder->billing(); // Aquí obtenemos la factura
+                        $purchaseOrder->billing = $billing ?: ''; // Asignamos la factura al objeto de la orden de compra
+                        return $purchaseOrder;
+                    });
+                });
+    
+                // Filtrar las órdenes de compra con facturas no pagadas
+                $unpaidOrders = $approvedPayments->flatMap(function ($payment) {
+                    return $payment->purchaseOrders->filter(function ($purchaseOrder) {
                         return $purchaseOrder->billing && $purchaseOrder->billing->payment == 0;
                     });
                 });
-
-                // Calculate the total for unpaid invoices only
-                $totalAmount = $orders->sum(function ($item) {
-                    return $item->total ?? 0;
+    
+                // Calcular el total de las facturas no pagadas
+                $totalAmount = $unpaidOrders->sum(function ($order) {
+                    return $order->billing->total ?? 0;
                 });
-
-                // Agregamos al array balance los datos del proveedor y el total
+    
+                // Agregar los datos al balance
                 $balance[] = [
                     'supplier' => $supplier,
                     'total_payments' => $totalAmount,
                     'bank_details' => $supplier->bankDetails->map(function ($bank) {
                         return [
-                            'banck' => $bank->banck,
+                            'bank' => $bank->banck,
                             'account' => $bank->account,
                             'clabe' => $bank->clabe,
                         ];
@@ -55,7 +60,7 @@ class BalanceSuppliersController extends Controller
                 ];
             }
         }
-
+    
         return response()->json($balance);
     }
 

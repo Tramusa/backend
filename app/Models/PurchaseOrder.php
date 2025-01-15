@@ -28,8 +28,7 @@ class PurchaseOrder extends Model
      */
     public function billing()
     {
-        $result = BillingData::whereRaw("FIND_IN_SET(?, id_order)", [$this->id])->first();
-        return $result ?: null; // Explicitly handle null case
+        return BillingData::whereRaw("FIND_IN_SET(?, id_order)", [$this->id])->first() ?: null;
     }
 
     public function performInfo()

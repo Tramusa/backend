@@ -136,9 +136,7 @@ class PaymentOrderController extends Controller
             $paymentData->purchaseOrders = $paymentData->purchaseOrders()->map(function ($purchaseOrder) {
                 // Factura (billing)
                 $billing = $purchaseOrder->billing(); // Aquí obtenemos la factura
-                if ($billing) {
-                    $purchaseOrder->billing = $billing; // Añadimos la información de la factura a la orden
-                }
+                $purchaseOrder->billing = $billing ?: '';
                 return $purchaseOrder;
             });
         }
