@@ -52,9 +52,9 @@ class BalanceSuppliersController extends Controller
                     'total_payments' => $totalAmount,
                     'bank_details' => $supplier->bankDetails->map(function ($bank) {
                         return [
-                            'bank' => $bank->banck,
-                            'account' => $bank->account,
-                            'clabe' => $bank->clabe,
+                            'bank' => $bank->banck ?? '',
+                            'account' => $bank->account ?? '',
+                            'clabe' => $bank->clabe ?? '',
                         ];
                     }),
                 ];
