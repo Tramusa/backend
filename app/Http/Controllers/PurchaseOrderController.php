@@ -79,24 +79,27 @@ class PurchaseOrderController extends Controller
         }
         
         // Crear la orden de compra
-    $order = PurchaseOrder::create($orderData);
-    
-    // Verificar si la factura ya existe
-    $billing = BillingData::find($billingData['id']);
-    if ($billing) {
-        // La factura ya existe, verificar si la orden ya está registrada
-        $orderIds = explode(',', $billing->id_order);  // Separar los IDs de la orden existentes
-        if (!in_array($order->id, $orderIds)) {
-            // Agregar el nuevo ID de la orden
-            $billing->id_order .= ',' . $order->id;
-            $billing->save();
-        }
-    } else {
-        // La factura no existe, crear un nuevo registro
-        $billingData['id_order'] = $order->id;
-        BillingData::create($billingData);
-    }
+        $order = PurchaseOrder::create($orderData);
+        
+        // Verificar si la factura ya existe considerando folio e id_supplier
+        $billing = BillingData::where('folio', $billingData['folio'])
+            ->where('id_supplier', $orderData['id_supplier'])
+            ->first();
 
+        if ($billing) {
+            // La factura ya existe, verificar si la orden ya está registrada
+            $orderIds = explode(',', $billing->id_order); // Separar los IDs de la orden existentes
+            if (!in_array($order->id, $orderIds)) {
+                // Agregar el nuevo ID de la orden
+                $billing->id_order .= ',' . $order->id;
+                $billing->save();
+            }
+        } else {
+            // La factura no existe, crear un nuevo registro con id_supplier
+            $billingData['id_order'] = $order->id;
+            $billingData['id_supplier'] = $orderData['id_supplier']; // Agregar id_supplier al registro
+            BillingData::create($billingData);
+        }
 
         // Actualizar el estado de la requisición a 'ORDEN COMPRA'
         $requisition = Requisitions::find($orderData['id_requisition']);
