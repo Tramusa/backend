@@ -47,17 +47,18 @@ class BalanceSuppliersController extends Controller
                 });
     
                 // Agregar los datos al balance
-                $balance[] = [
-                    'supplier' => $supplier,
-                    'total_payments' => $totalAmount,
-                    'bank_details' => $supplier->bankDetails->map(function ($bank) {
-                        return [
-                            'bank' => $bank->banck ?? '',
-                            'account' => $bank->account ?? '',
-                            'clabe' => $bank->clabe ?? '',
-                        ];
-                    }),
-                ];
+$balance[] = [
+    'supplier' => $supplier,
+    'total_payments' => $totalAmount,
+    'bank_details' => $supplier->bankDetails->isNotEmpty() ? $supplier->bankDetails->map(function ($bank) {
+        return [
+            'bank' => $bank->banck ?? 'N/A',   // Si 'banck' es nulo, se usa 'N/A'
+            'account' => $bank->account ?? 'N/A', // Si 'account' es nulo, se usa 'N/A'
+            'clabe' => $bank->clabe ?? 'N/A',   // Si 'clabe' es nulo, se usa 'N/A'
+        ];
+    }) : [], // Si no tiene detalles bancarios, devuelve un array vacío
+];
+
             }
         }
     
