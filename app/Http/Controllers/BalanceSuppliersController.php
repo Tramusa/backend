@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\PaymentOrder;
 use App\Models\Suppliers;
 use Illuminate\Http\Request;
+use Illuminate\Log\Logger;
 
 class BalanceSuppliersController extends Controller
 {
@@ -39,28 +40,28 @@ class BalanceSuppliersController extends Controller
                     return $payment->purchaseOrders->filter(function ($purchaseOrder) {
                         return $purchaseOrder->billing && $purchaseOrder->billing->payment == 0;
                     });
-                });
-    
+                });             
+
                 // Calcular el total de las facturas no pagadas
                 $totalAmount = $unpaidOrders->sum(function ($order) {
-                    return $order->billing->total ?? 0;
+                    return $order->total ?? 0;
                 });
     
-// Agregar los datos al balance
-$balance[] = [
-    'supplier' => $supplier,
-    'total_payments' => $totalAmount,
-    'bank_details' => $supplier->bankDetails->isNotEmpty() 
-        ? $supplier->bankDetails->map(function ($bank) {
-            // Verificar si existen detalles bancarios y asignar valores en consecuencia
-            return [
-                'bank' => isset($bank->banck) ? $bank->banck : '',  // Si no existe, asigna una cadena vacía
-                'account' => isset($bank->account) ? $bank->account : '',  // Si no existe, asigna una cadena vacía
-                'clabe' => isset($bank->clabe) ? $bank->clabe : '',  // Si no existe, asigna una cadena vacía
-            ];
-        }) 
-        : [['bank' => '', 'account' => '', 'clabe' => '']],  // Si no tiene detalles bancarios, asigna valores vacíos
-];
+                // Agregar los datos al balance
+                $balance[] = [
+                    'supplier' => $supplier,
+                    'total_payments' => $totalAmount,
+                    'bank_details' => $supplier->bankDetails->isNotEmpty() 
+                        ? $supplier->bankDetails->map(function ($bank) {
+                            // Verificar si existen detalles bancarios y asignar valores en consecuencia
+                            return [
+                                'bank' => isset($bank->banck) ? $bank->banck : '',  // Si no existe, asigna una cadena vacía
+                                'account' => isset($bank->account) ? $bank->account : '',  // Si no existe, asigna una cadena vacía
+                                'clabe' => isset($bank->clabe) ? $bank->clabe : '',  // Si no existe, asigna una cadena vacía
+                            ];
+                        }) 
+                        : [['bank' => '', 'account' => '', 'clabe' => '']],  // Si no tiene detalles bancarios, asigna valores vacíos
+                ];
             }
         }
     
@@ -82,14 +83,16 @@ $balance[] = [
 
             // If the supplier has approved orders, calculate the total
             if ($approvedPayments->isNotEmpty()) {
-                // Load purchase orders for each approved payment order
-                $approvedPayments = $approvedPayments->map(function ($payment) {
-                    return [
-                        'payment' => $payment,
-                        'purchaseOrders' => $payment->purchaseOrders(), // Load associated purchase orders
-                    ];
-                })->collect(); // Convert to a collection to use collection methods
-
+                 // Cargar las órdenes de compra manualmente
+                 $approvedPayments->each(function ($paymentData) {
+                    $paymentData->purchaseOrders = $paymentData->purchaseOrders()->map(function ($purchaseOrder) {
+                        // Factura (billing)
+                        $billing = $purchaseOrder->billing(); // Aquí obtenemos la factura
+                        $purchaseOrder->billing = $billing ?: ''; // Asignamos la factura al objeto de la orden de compra
+                        return $purchaseOrder;
+                    });
+                });
+                
                 // Filter purchase orders with unpaid invoices (where payment == 0)
                 $orders = $approvedPayments->flatMap(function ($paymentOrder) {
                     return collect($paymentOrder['purchaseOrders'])->filter(function ($purchaseOrder) {
