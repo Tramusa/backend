@@ -192,7 +192,7 @@
           <tr>
             <td class="bottom-border-only">{{ $order->id ?? '-' }}</td>
             <td class="bottom-border-only">{{ $order->requisition->id_parent_account.'-'.$order->requisition->id_title_account.'-'.$order->requisition->id_subtitle_account.'-'.$order->requisition->id_mayor_account }}</td>
-            <td class="bottom-border-only">{{ $order->billing->id ?? '-'}}</td>
+            <td class="bottom-border-only">{{ $order->billing->folio ?? '-'}}</td>
             <td class="bottom-border-only">{{ $order->billing->date ?? '-'}}</td>
             <td class="bottom-border-only">${{ number_format($order->total, 2) }}</td>
             <td class="bottom-border-only">{{ $order->billing->payment_method ?? '-'}}</td> <!-- O el campo que corresponda -->
