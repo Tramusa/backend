@@ -4,12 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\PaymentOrder;
 use App\Models\Suppliers;
-use Illuminate\Http\Request;
-use Illuminate\Log\Logger;
 
 class BalanceSuppliersController extends Controller
-{
- 
+{ 
     public function index()
     {
         $balance = []; // Array para almacenar los datos de los proveedores con órdenes aprobadas
@@ -26,11 +23,16 @@ class BalanceSuppliersController extends Controller
             // Si el proveedor tiene órdenes aprobadas
             if ($approvedPayments->isNotEmpty()) {
                 // Cargar las órdenes de compra manualmente
-                $approvedPayments->each(function ($paymentData) {
-                    $paymentData->purchaseOrders = $paymentData->purchaseOrders()->map(function ($purchaseOrder) {
-                        // Factura (billing)
+                $approvedPayments->each(function ($paymentData) use ($supplier){
+                    $paymentData->purchaseOrders = $paymentData->purchaseOrders()->map(function ($purchaseOrder) use ($supplier){
+                        // Obtener la factura (billing) de la orden de compra
                         $billing = $purchaseOrder->billing(); // Aquí obtenemos la factura
-                        $purchaseOrder->billing = $billing ?: ''; // Asignamos la factura al objeto de la orden de compra
+                        // Verificar si billing pertenece al proveedor actual
+                        if ($billing && $billing->id_supplier == $supplier->id) {
+                            $purchaseOrder->billing = $billing; // Asignamos la factura si coincide el proveedor
+                        } else {
+                            $purchaseOrder->billing = null; // Si no coincide, ignoramos la factura
+                        }
                         return $purchaseOrder;
                     });
                 });
@@ -84,11 +86,16 @@ class BalanceSuppliersController extends Controller
             // If the supplier has approved orders, calculate the total
             if ($approvedPayments->isNotEmpty()) {
                  // Cargar las órdenes de compra manualmente
-                 $approvedPayments->each(function ($paymentData) {
-                    $paymentData->purchaseOrders = $paymentData->purchaseOrders()->map(function ($purchaseOrder) {
-                        // Factura (billing)
+                $approvedPayments->each(function ($paymentData) use ($id){
+                    $paymentData->purchaseOrders = $paymentData->purchaseOrders()->map(function ($purchaseOrder) use ($id){
+                        // Obtener la factura (billing) de la orden de compra
                         $billing = $purchaseOrder->billing(); // Aquí obtenemos la factura
-                        $purchaseOrder->billing = $billing ?: ''; // Asignamos la factura al objeto de la orden de compra
+                        // Verificar si billing pertenece al proveedor actual
+                        if ($billing && $billing->id_supplier == $id) {
+                            $purchaseOrder->billing = $billing; // Asignamos la factura si coincide el proveedor
+                        } else {
+                            $purchaseOrder->billing = null; // Si no coincide, ignoramos la factura
+                        }
                         return $purchaseOrder;
                     });
                 });
@@ -123,5 +130,4 @@ class BalanceSuppliersController extends Controller
 
         return response()->json($balance);
     }
-
 }
