@@ -9,6 +9,7 @@ use App\Models\Requisitions;
 use Carbon\Carbon;
 use Dompdf\Dompdf;
 use Illuminate\Http\Request;
+use Illuminate\Log\Logger;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -200,24 +201,67 @@ class PurchaseOrderController extends Controller
 
     public function updatePdf(Request $request)
     {
+        Logger($request);
+        // Validar que la requisición existe
         $request->validate([
-            'file' => 'required|file|mimes:pdf|max:2048',
             'requisitionId' => 'required|integer|exists:requisitions,id',
         ]);
 
-        $requisition = Requisitions::find($request->input('requisitionId'));
-
-        // Eliminar el archivo anterior si existe
-        if ($requisition->comprobante) {
-            Storage::delete($requisition->comprobante);
+        // Validar archivo PDF si se proporciona
+        $file = $request->file('file');
+        if ($file) {
+            $request->validate([
+                'file' => 'file|mimes:pdf|max:2048',
+            ]);
         }
 
-        // Guardar el nuevo archivo
-        $path = $request->file('file')->store('Comprobantes', 'public');
-        $requisition->comprobante = $path;
-        $requisition->save();
+        // Obtener la requisición
+        $requisition = Requisitions::findOrFail($request->input('requisitionId'));
 
-        return response()->json(['message' => 'PDF actualizado exitosamente']);
+        // Si se proporciona un archivo PDF
+        if ($file) {
+            // Eliminar el archivo anterior si existe
+            if ($requisition->comprobante) {
+                Storage::delete($requisition->comprobante);
+            }
+
+            // Guardar el nuevo archivo PDF
+            $path = $file->store('Comprobantes', 'public');
+            $requisition->comprobante = $path;
+            $requisition->save(); // Guardar cambios en la requisición
+        }
+
+        $billing_id = $request->id;
+        // Validar los datos de Billing (folio, fecha, forma de pago, etc.)
+        $billingData = $request->only(['folio', 'date', 'payment_form', 'payment_method']);
+        
+        if (!empty($billingData)) {
+            $request->validate([
+                'folio' => 'nullable|string|max:255',
+                'date' => 'nullable|date',
+                'payment_form' => 'nullable|string|max:255',
+                'payment_method' => 'nullable|string|max:255',
+            ]);
+
+            // Obtener los datos de BillingData
+            $billing = BillingData::where('id', $request->id)->first();
+
+            // Verificar si se encontró el BillingData con el ID proporcionado
+            if ($billing) {
+                // Actualizar los campos de BillingData
+                $billing->update([
+                    'folio' => $billingData['folio'] ?? $billing->folio,
+                    'date' => $billingData['date'] ?? $billing->date,
+                    'payment_form' => $billingData['payment_form'] ?? $billing->payment_form,
+                    'payment_method' => $billingData['payment_method'] ?? $billing->payment_method,
+                ]);
+            } else {
+                // Si no se encuentra el BillingData con el ID, podemos devolver un error
+                return response()->json(['message' => 'No se encontraron datos de facturación con ese ID'], 404);
+            }
+        }
+
+        return response()->json(['message' => 'PDF/datos de facturación actualizados exitosamente']);
     }
 
 }
