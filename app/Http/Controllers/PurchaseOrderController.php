@@ -167,7 +167,7 @@ class PurchaseOrderController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|in:APROBADA,CANCELADA',
+            'status' => 'required|in:APROBADA,CANCELADA,PENDIENTE',
         ]);
         // Verifica si el usuario está autenticado
         $user = Auth::user();
@@ -192,6 +192,8 @@ class PurchaseOrderController extends Controller
                 $requisition->status = 'PENDIENTE';
                 $requisition->save();
             }
+        }elseif ($request->input('status') === 'PENDIENTE'){
+            $order->authorize = null; // Borra cualquier autorización anterior
         }
 
         $order->save();
