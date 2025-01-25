@@ -171,12 +171,28 @@
             </tr>
             <tr>
               <td class="bottom-border-only">{{ $Data->supplierInfo->business_name ?? '-' }}</td>
-              <td class="bottom-border-only">{{ $Data->supplierInfo->tradename ?? '-' }}</td>
+              <td class="bottom-border-only">{{ $Data->supplierInfo->name_contact ?? '-' }}</td>
               <td class="bottom-border-only">{{ $Data->supplierInfo->phone ?? '-' }}</td>
               <td class="bottom-border-only">{{ $Data->supplierInfo->e_mail ?? '-' }}</td>
             </tr>
         </table>
       </div>    
+      <div class="row">
+        <table style="width: 100%;">
+            <tr>
+              <td class="yellow-bg" style="width: 20%;">BANCO</td>
+              <td class="yellow-bg" style="width: 35%;">CUENTA</td>
+              <td class="yellow-bg" style="width: 35%;">CLABE</td>
+              <td class="yellow-bg" style="width: 10%;">MONEDA</td>
+            </tr>
+            <tr>
+              <td class="bottom-border-only">{{ $Data->supplierInfo->firstBankDetail->banck ?? '-' }}</td>
+              <td class="bottom-border-only">{{ $Data->supplierInfo->firstBankDetail->account ?? '-' }}</td>
+              <td class="bottom-border-only">{{ $Data->supplierInfo->firstBankDetail->clabe ?? '-' }}</td>
+              <td class="bottom-border-only">{{ $Data->supplierInfo->firstBankDetail->moneda ?? '-' }}</td>
+            </tr>
+        </table>
+      </div> 
       <div class="row">
         <table style="width: 100%;"><br>
           <tr>
@@ -213,7 +229,7 @@
           <table style="width: 100%; border: 0;">
             <tr>
                 <td class="title-blue" style="width: 48%; text-align: right;">TOTAL PAGO</td>
-                <td class="bottom-border-only" style="width: 52%; text-align: right; font-weight: bold;">${{ number_format($Data->total, 2) }}</td>
+                <td class="bottom-border-only" style="width: 52%; text-align: right; font-weight: bold;">${{ number_format($Data->payment, 2) }}</td>
             </tr>
             <tr>
                 <td class="title-blue" style="width: 48%; text-align: right;">FORMA DE PAGO</td>

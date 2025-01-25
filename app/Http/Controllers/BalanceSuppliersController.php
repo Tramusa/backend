@@ -18,51 +18,25 @@ class BalanceSuppliersController extends Controller
             // Obtener las órdenes de pago aprobadas del proveedor
             $approvedPayments = PaymentOrder::where('supplier', $supplier->id)
                 ->where('status', 'APROBADA')
-                ->get(); // Sin cargar las relaciones de forma anticipada con 'with()'
+                ->get();
     
-            // Si el proveedor tiene órdenes aprobadas
-            if ($approvedPayments->isNotEmpty()) {
-                // Cargar las órdenes de compra manualmente
-                $approvedPayments->each(function ($paymentData) use ($supplier){
-                    $paymentData->purchaseOrders = $paymentData->purchaseOrders()->map(function ($purchaseOrder) use ($supplier){
-                        // Obtener la factura (billing) de la orden de compra
-                        $billing = $purchaseOrder->billing(); // Aquí obtenemos la factura
-                        // Verificar si billing pertenece al proveedor actual
-                        if ($billing && $billing->id_supplier == $supplier->id) {
-                            $purchaseOrder->billing = $billing; // Asignamos la factura si coincide el proveedor
-                        } else {
-                            $purchaseOrder->billing = null; // Si no coincide, ignoramos la factura
-                        }
-                        return $purchaseOrder;
-                    });
-                });
+            // Calcular el total sumando directamente el campo 'payment' de las órdenes aprobadas
+            $totalAmount = $approvedPayments->sum('payment');
     
-                // Filtrar las órdenes de compra con facturas no pagadas
-                $unpaidOrders = $approvedPayments->flatMap(function ($payment) {
-                    return $payment->purchaseOrders->filter(function ($purchaseOrder) {
-                        return $purchaseOrder->billing && $purchaseOrder->billing->payment == 0;
-                    });
-                });             
-
-                // Calcular el total de las facturas no pagadas
-                $totalAmount = $unpaidOrders->sum(function ($order) {
-                    return $order->total ?? 0;
-                });
-    
-                // Agregar los datos al balance
+            // Si el proveedor tiene órdenes aprobadas y un total > 0, agregarlo al balance
+            if ($totalAmount > 0) {
                 $balance[] = [
                     'supplier' => $supplier,
                     'total_payments' => $totalAmount,
-                    'bank_details' => $supplier->bankDetails->isNotEmpty() 
+                    'bank_details' => $supplier->bankDetails->isNotEmpty()
                         ? $supplier->bankDetails->map(function ($bank) {
-                            // Verificar si existen detalles bancarios y asignar valores en consecuencia
                             return [
-                                'bank' => isset($bank->banck) ? $bank->banck : '',  // Si no existe, asigna una cadena vacía
-                                'account' => isset($bank->account) ? $bank->account : '',  // Si no existe, asigna una cadena vacía
-                                'clabe' => isset($bank->clabe) ? $bank->clabe : '',  // Si no existe, asigna una cadena vacía
+                                'bank' => $bank->banck ?? '', // Valor por defecto: cadena vacía
+                                'account' => $bank->account ?? '',
+                                'clabe' => $bank->clabe ?? '',
                             ];
-                        }) 
-                        : [['bank' => '', 'account' => '', 'clabe' => '']],  // Si no tiene detalles bancarios, asigna valores vacíos
+                        })
+                        : [['bank' => '', 'account' => '', 'clabe' => '']], // Valores vacíos si no hay detalles bancarios
                 ];
             }
         }
@@ -85,13 +59,18 @@ class BalanceSuppliersController extends Controller
 
             // If the supplier has approved orders, calculate the total
             if ($approvedPayments->isNotEmpty()) {
+                // Calcular el total sumando directamente el campo 'payment' de las órdenes aprobadas
+                $totalAmount = $approvedPayments->sum('payment');
                  // Cargar las órdenes de compra manualmente
                 $approvedPayments->each(function ($paymentData) use ($id){
-                    $paymentData->purchaseOrders = $paymentData->purchaseOrders()->map(function ($purchaseOrder) use ($id){
+                    $paymentData->purchaseOrders = $paymentData->purchaseOrders()->map(function ($purchaseOrder) use ($id, $paymentData){
                         // Obtener la factura (billing) de la orden de compra
                         $billing = $purchaseOrder->billing(); // Aquí obtenemos la factura
                         // Verificar si billing pertenece al proveedor actual
                         if ($billing && $billing->id_supplier == $id) {
+                            // Asignar el total de approvedPayments al total de la factura
+                            $billing->total = $paymentData->payment; // Asignamos el payment como total a la factura
+
                             $purchaseOrder->billing = $billing; // Asignamos la factura si coincide el proveedor
                         } else {
                             $purchaseOrder->billing = null; // Si no coincide, ignoramos la factura
@@ -105,11 +84,6 @@ class BalanceSuppliersController extends Controller
                     return collect($paymentOrder['purchaseOrders'])->filter(function ($purchaseOrder) {
                         return $purchaseOrder->billing && $purchaseOrder->billing->payment == 0;
                     });
-                });
-
-                // Calculate the total for unpaid invoices only
-                $totalAmount = $orders->sum(function ($item) {
-                    return $item->total ?? 0;
                 });
 
                 // Populate the balance array with supplier data and totals

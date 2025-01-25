@@ -63,7 +63,7 @@ class PaymentOrderController extends Controller
             'supplier' => 'required|integer|exists:suppliers,id',
             'orders' => 'required|string', // Validar que sea una cadena
             'total' => 'required|string',
-            'payment' => 'required|string|numeric|min:' . $request->input('total'), // Verificar que el pago sea igual o mayor al total
+            'payment' => 'required|string|numeric', // Verificar que el pago sea igual o mayor al total
             'payment_form' => 'required|string',
             'date' => 'required|date',
             'banck' => 'nullable|string',
@@ -119,9 +119,10 @@ class PaymentOrderController extends Controller
     {       
         $paymentData = PaymentOrder::where('id', $payment)
             ->with([
-                'supplierInfo',
+                'supplierInfo.firstBankDetail', // Cambiar a firstBankDetail
                 'elaborateInfo',
-                'authorizeInfo'])
+                'authorizeInfo'
+            ])
             ->first();
 
         if ($paymentData && $paymentData->date) {

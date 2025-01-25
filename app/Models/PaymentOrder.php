@@ -17,6 +17,7 @@ class PaymentOrder extends Model
     {
         return $this->belongsTo(Suppliers::class, 'supplier');
     }
+    
 
     public function purchaseOrders()
     {

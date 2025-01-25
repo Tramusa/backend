@@ -10,8 +10,10 @@ class SuppliersController extends Controller
 {
     public function index()
     {
-        $suppliers = Suppliers::with('bankDetails')->get();
-        return response()->json($suppliers); 
+        $suppliers = Suppliers::with('bankDetails')
+            ->orderBy('business_name', 'asc') // Orden ascendente por 'business_name'
+            ->get();
+        return response()->json($suppliers);
     }
 
     public function store(Request $request)
