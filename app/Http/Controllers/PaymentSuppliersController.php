@@ -42,28 +42,40 @@ class PaymentSuppliersController extends Controller
     
         // Actualizar el estado de cada factura a PAGADA
         BillingData::whereIn('id', $billingIds)->update(['payment' => 1]);
-
+        //LOGGER($billingIds);
         // Obtener los IDs únicos de las órdenes de compra relacionadas
         $purchaseOrderIds = BillingData::whereIn('id', $billingIds)
-            ->pluck('id_order')
-            ->unique();
+        ->pluck('id_order')
+        ->unique();
 
-    
+        // logger('Valores de purchaseOrderIds:', $purchaseOrderIds->toArray());
+
+        // Asegurar que los valores sean un array de enteros (por si vienen como un solo string con comas)
+        if ($purchaseOrderIds->count() === 1 && str_contains($purchaseOrderIds->first(), ',')) {
+        $purchaseOrderIds = collect(explode(',', $purchaseOrderIds->first()))
+            ->map(fn($id) => trim($id));
+        }
+
         foreach ($purchaseOrderIds as $purchaseOrderId) {
             // Verificar si la orden de compra pertenece a una orden de pago
-            $paymentOrder = PaymentOrder::whereRaw("REPLACE(orders, ' ', '') LIKE ?", ['%' . $purchaseOrderId . '%'])->first();
+            $paymentOrder = PaymentOrder::whereRaw("FIND_IN_SET(?, REPLACE(orders, ' ', ''))", [$purchaseOrderId])->first();
 
             if ($paymentOrder) {
+                //logger('Orden de pago encontrada:', [$paymentOrder]);
+
                 // Verificar si existen facturas no pagadas en las órdenes de compra relacionadas
-                $unpaidBillingsExist = BillingData::whereIn('id_order', explode(',', $paymentOrder->orders))
+                $unpaidBillingsExist = BillingData::whereIn('id_order', explode(',', str_replace(' ', '', $paymentOrder->orders)))
                     ->where('payment', 0)
                     ->where('id_supplier', $paymentOrder->supplier) // Verificar el proveedor
                     ->exists();
-    
+
                 // Actualizar estado de la orden de pago si todas las facturas están pagadas
                 if (!$unpaidBillingsExist) {
+                    //logger('ENTRA - DEBERIA ESTAR PAGADA');
                     $paymentOrder->update(['status' => 'PAGADA']);
                 }
+            } else {
+                //logger("No se encontró una orden de pago para el ID: $purchaseOrderId");
             }
         }
     
