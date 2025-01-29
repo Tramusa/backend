@@ -71,6 +71,17 @@ class PurchaseOrderController extends Controller
         $orderData['perform'] = $user->id;
         // Extraer la información de facturación
         $billingData = $request->input('Billing');
+        // Validar si la orden de compra ya existe antes de crearla
+        $order = PurchaseOrder::firstOrCreate([
+            'id_requisition' => $orderData['id_requisition'],
+            'date_order' => $orderData['date_order'],
+            'id_supplier' => $orderData['id_supplier'],
+            'total' => $orderData['total']
+        ], $orderData);
+
+        if (!$order->wasRecentlyCreated) {
+            return response()->json(['error' => 'La orden de compra ya ha sido registrada.'], 409);
+        }
 
         // Actualizar precios de los productos
         $products = $request->input('products');

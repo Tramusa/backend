@@ -70,6 +70,7 @@ class PaymentOrderController extends Controller
             'reference' => 'nullable|string',
             'comprobante' => 'nullable|file|mimes:pdf', // Si se sube un archivo comprobante
         ]);
+        
 
         // Validar manualmente que cada ID de orden de compra exista
         $orderIds = array_map('trim', $orderIds); // Asegurarse de quitar espacios
@@ -77,6 +78,20 @@ class PaymentOrderController extends Controller
 
         if (count($validOrders) !== count($orderIds)) {
             return response()->json(['error' => 'Algunas órdenes no existen.'], 422);
+        }
+
+        $existingPayment = PaymentOrder::where([
+            'supplier' => $validated['supplier'],
+            'orders' => $validated['orders'],
+            'total' => $validated['total'],
+            'payment_form' => $validated['payment_form'],
+            'date' => $validated['date'],
+            'payment' => $validated['payment'],
+            'banck' =>  $validated['banck'],
+        ])->first();
+        
+        if ($existingPayment) {
+            return response()->json(['error' => 'Esta orden de pago ya ha sido registrada.'], 409);
         }
 
         // Actualizar el estado de cada orden a "PAGADA"
