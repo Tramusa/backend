@@ -42,11 +42,12 @@ class PaymentSuppliersController extends Controller
     
         // Actualizar el estado de cada factura a PAGADA
         BillingData::whereIn('id', $billingIds)->update(['payment' => 1]);
-    
+
         // Obtener los IDs únicos de las órdenes de compra relacionadas
         $purchaseOrderIds = BillingData::whereIn('id', $billingIds)
             ->pluck('id_order')
             ->unique();
+
     
         foreach ($purchaseOrderIds as $purchaseOrderId) {
             // Verificar si la orden de compra pertenece a una orden de pago
@@ -56,6 +57,7 @@ class PaymentSuppliersController extends Controller
                 // Verificar si existen facturas no pagadas en las órdenes de compra relacionadas
                 $unpaidBillingsExist = BillingData::whereIn('id_order', explode(',', $paymentOrder->orders))
                     ->where('payment', 0)
+                    ->where('id_supplier', $paymentOrder->supplier) // Verificar el proveedor
                     ->exists();
     
                 // Actualizar estado de la orden de pago si todas las facturas están pagadas
