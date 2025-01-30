@@ -95,6 +95,9 @@ class ProgramsMttoVehiclesController extends Controller
         if (!$activities || empty($activities)) {
             return response()->json(['message' => 'No se proporcionaron actividades'], 400);
         }
+
+        // Ordenar las actividades por no_economic
+        $activities = collect($activities)->sortBy('no_economic')->values()->all();
     
         // Obtener la fecha actual en español
         $fechaActual = Carbon::now();
