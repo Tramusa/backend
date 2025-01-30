@@ -10,7 +10,7 @@ class Suppliers extends Model
     use HasFactory;      
 
     protected $fillable = [
-        'type_person', 'business_name', 'tradename', 'area', 'RFC', 'country', 'state', 'municipality', 'location', 'street', 'no_int', 'no_ext', 'cologne', 'postal_code', 'name_contact', 'phone', 'e_mail', 'discount', 'credit_sale', 'credit_days', 'credit_limit',
+        'type_person', 'business_name', 'tradename', 'payment_method', 'area', 'RFC', 'country', 'state', 'municipality', 'location', 'street', 'no_int', 'no_ext', 'cologne', 'postal_code', 'name_contact', 'phone', 'e_mail', 'discount', 'credit_sale', 'credit_days', 'credit_limit',
     ];
 
     public function bankDetails()

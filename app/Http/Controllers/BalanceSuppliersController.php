@@ -75,6 +75,14 @@ class BalanceSuppliersController extends Controller
                         } else {
                             $purchaseOrder->billing = null; // Si no coincide, ignoramos la factura
                         }
+                        // Obtener la requisición con la relación 'subtitle_accountInfo'
+                        $requisition = $purchaseOrder->requisition()->with('subtitle_accountInfo')->first();
+
+                        // Verificar si hay requisición y asignar el nombre del subtítulo si existe
+                        $purchaseOrder->subtitle = $requisition && $requisition->subtitle_accountInfo
+                            ? $requisition->subtitle_accountInfo->name
+                            : null;
+
                         return $purchaseOrder;
                     });
                 });
