@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\PaymentOrder;
 use App\Models\Suppliers;
+use Carbon\Carbon;
+use Dompdf\Dompdf;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class BalanceSuppliersController extends Controller
 { 
@@ -112,4 +116,61 @@ class BalanceSuppliersController extends Controller
 
         return response()->json($balance);
     }
+
+    public function store(Request $request)
+    {
+        $supplierInfo = $request->input('supplierInfo');
+        $orders = $request->input('orders');
+
+        if (!$supplierInfo || empty($orders)) {
+            return response()->json(['message' => 'Datos incompletos'], 400);
+        }
+    
+        // Obtener la fecha actual en español
+        $fechaActual = Carbon::now();
+        $fecha = $fechaActual->locale('es')->isoFormat('dddd, D [de] MMMM [de] YYYY');
+    
+        // Convertir el logo a base64
+        $logoImagePath = public_path('imgPDF/logo.png');
+        $logoImage = $this->getImageBase64($logoImagePath);
+    
+        // Calcular el total de todas las órdenes
+        $totalAdeudado = array_sum(array_column($orders, 'total'));
+
+        // Preparar los datos para la vista
+        $dataPDF = [
+            'logoImage' => $logoImage,
+            'supplierInfo' => $supplierInfo,
+            'orders' => $orders,
+            'totalAdeudado' => $totalAdeudado,
+            'fecha' => $fecha
+        ];
+    
+        // Renderizar la vista con los datos
+        $html = view('DETALLES SALDO PROVEEDOR', $dataPDF)->render();
+    
+        // Configuración de Dompdf
+        $dompdf = new Dompdf();
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->render();
+        $pdfContent = $dompdf->output();   
+    
+        // Generar un nombre único para el archivo PDF
+        $filename = 'Detalles_Saldo_Proveedor_#'.$supplierInfo['supplier'].'_' . now()->format('Ymd_His') . '.pdf';
+    
+        // Guardar el PDF en el almacenamiento
+        Storage::disk('public')->put('pdfs/' . $filename, $pdfContent);
+    
+        // Devolver el contenido del PDF
+        return response($pdfContent, 200)->header('Content-Type', 'application/pdf');
+    }
+
+    private function getImageBase64($imagePath)
+    {
+        $file = file_get_contents($imagePath);
+        $base64 = base64_encode($file);
+        return 'data:image/png;base64,' . $base64;
+    }
+
 }

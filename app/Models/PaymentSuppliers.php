@@ -12,4 +12,12 @@ class PaymentSuppliers extends Model
     protected $fillable = [
         'quality', 'billings', 'date', 'supplier', 'user'
     ];
+
+    public function billings()
+    {
+        return BillingData::whereIn('id', explode(',', $this->billings))
+                        ->pluck('folio')
+                        ->implode(', ');
+    }
+
 }
