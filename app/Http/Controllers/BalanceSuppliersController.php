@@ -7,6 +7,7 @@ use App\Models\Suppliers;
 use Carbon\Carbon;
 use Dompdf\Dompdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class BalanceSuppliersController extends Controller
@@ -72,13 +73,28 @@ class BalanceSuppliersController extends Controller
                         $billing = $purchaseOrder->billing(); // Aquí obtenemos la factura
                         // Verificar si billing pertenece al proveedor actual
                         if ($billing && $billing->id_supplier == $id) {
-                            // Asignar el total de approvedPayments al total de la factura
-                            $billing->total = $paymentData->payment; // Asignamos el payment como total a la factura
 
-                            $purchaseOrder->billing = $billing; // Asignamos la factura si coincide el proveedor
+                            // Obtener todas las órdenes de compra asociadas a la factura
+                            $orderIds = explode(',', $billing->id_order); // Convertir la cadena "228,229" en un array [228, 229]
+
+                            // Obtener la suma total de pagos para todas las órdenes de compra de la factura
+                            $relatedPayments = DB::table('payment_orders')
+                                ->where(function ($query) use ($orderIds) {
+                                    foreach ($orderIds as $orderId) {
+                                        $query->orWhereRaw("FIND_IN_SET(?, orders)", [$orderId]);
+                                    }
+                                })
+                                ->sum('payment'); // Sumamos todos los pagos relacionados
+
+                            // Asignamos la suma total a la factura
+                            $billing->total = $relatedPayments;
+
+                            // Asignamos la factura si coincide el proveedor
+                            $purchaseOrder->billing = $billing;
                         } else {
                             $purchaseOrder->billing = null; // Si no coincide, ignoramos la factura
                         }
+
                         // Obtener la requisición con la relación 'subtitle_accountInfo'
                         $requisition = $purchaseOrder->requisition()->with('subtitle_accountInfo')->first();
 

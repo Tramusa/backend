@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\BillingData;
 use App\Models\PaymentOrder;
 use App\Models\PaymentSuppliers;
+use App\Models\PurchaseOrder;
 use Illuminate\Http\Request;
 use Illuminate\Log\Logger;
+use Illuminate\Support\Facades\DB;
 
 class PaymentSuppliersController extends Controller
 {
@@ -37,7 +39,7 @@ class PaymentSuppliersController extends Controller
         // Convertir y validar las facturas proporcionadas
         $billingIds = array_map('trim', explode(',', $request->input('billings')));
     
-        // Obtener solo las facturas con `payment == 1`
+        // Obtener solo las facturas con `payment == 0`
         $validBillings = BillingData::whereIn('id', $billingIds)
             ->where('payment', 0)
             ->pluck('id')
@@ -49,50 +51,63 @@ class PaymentSuppliersController extends Controller
     
         // Actualizar el estado de las facturas a PAGADA
         BillingData::whereIn('id', $validBillings)->update(['payment' => 1]);
-    
-        // Obtener los IDs únicos de las órdenes de compra relacionadas
-        $purchaseOrderIds = BillingData::whereIn('id', $validBillings)
-            ->pluck('id_order')
-            ->unique()
-            ->toArray();
-    
-        //logger('Valores de purchaseOrderIds:', $purchaseOrderIds);
-    
-        // Asegurar que los valores sean un array de enteros (por si vienen como string con comas)
-        $cleanedOrderIds = [];
-        foreach ($purchaseOrderIds as $orderId) {
-            if (str_contains($orderId, ',')) {
-                $cleanedOrderIds = array_merge($cleanedOrderIds, array_map('trim', explode(',', $orderId)));
-            } else {
-                $cleanedOrderIds[] = $orderId;
+ 
+        // 1️⃣ OBTENEMOS TODAS LAS ÓRDENES DE PAGO APROBADAS DEL PROVEEDOR
+        $paymentOrders = DB::table('payment_orders')
+            ->where('supplier', $validated['supplier'])
+            ->where('status', 'APROBADA')
+            ->get();
+
+        //$payments = collect();
+        $orderIdsToUpdate = []; // Array para almacenar los IDs de órdenes encontradas
+
+        foreach ($paymentOrders as $order) {
+            // ✅ Eliminamos espacios y convertimos en array
+            $cleanOrders = explode(',', str_replace(' ', '', $order->orders));
+
+            // 2️⃣ OBTENEMOS FACTURAS RELACIONADAS
+            $billingData = DB::table('billing_data')
+                ->where('id_supplier', $validated['supplier'])
+                ->whereIn('id', $validBillings)
+                ->where(function ($query) use ($cleanOrders) {
+                    foreach ($cleanOrders as $cleanOrder) {
+                        $query->orWhereRaw("FIND_IN_SET(?, REPLACE(billing_data.id_order, ' ', ''))", [$cleanOrder]);
+                    }
+                })
+                ->get();
+
+            // 3️⃣ GUARDAMOS LAS ÓRDENES ENCONTRADAS Y SU INFO
+            if ($billingData->isNotEmpty()) {
+                $orderIdsToUpdate[] = $order->id; // Guardamos el ID para actualizar el status
+
+    //         foreach ($billingData as $billing) {
+    //             $payments->push((object) [
+    //                 'id' => $order->id,
+    //                 'supplier' => $order->supplier,
+    //                 'status' => 'PAGADA', // Ya cambiamos el status en la vista
+    //                 'orders' => $order->orders,
+    //                 'matched_id_order' => $billing->id_order,
+    //                 'folio' => $billing->folio,
+    //                 'id_supplier' => $billing->id_supplier,
+    //                 'payment' => $billing->payment,
+    //             ]);
+    //         }
             }
         }
-    
-        // Verificar si las órdenes de compra están en órdenes de pago y actualizar su estado
-        foreach ($cleanedOrderIds as $purchaseOrderId) {
-            $paymentOrder = PaymentOrder::whereRaw("FIND_IN_SET(?, REPLACE(orders, ' ', ''))", [$purchaseOrderId])
-                ->where('supplier', $request->supplier)
-                ->first();
-    
-            if ($paymentOrder) {
-                //logger('Orden de pago encontrada:', [$paymentOrder]);
-    
-                // Verificar si existen facturas no pagadas en las órdenes de compra relacionadas
-                $unpaidBillingsExist = BillingData::whereIn('id_order', explode(',', str_replace(' ', '', $paymentOrder->orders)))
-                    ->where('payment', 0)
-                    ->where('id_supplier', $paymentOrder->supplier)
-                    ->exists();
-    
-                // Si todas las facturas están pagadas, marcar la orden de pago como PAGADA
-                if (!$unpaidBillingsExist) {
-                    //logger('ENTRA - DEBERIA ESTAR PAGADA');
-                    $paymentOrder->update(['status' => 'PAGADA']);
-                }
-            } else {
-                //logger("No se encontró una orden de pago para el ID: $purchaseOrderId");
-            }
+
+        // 4️⃣ ACTUALIZAMOS LAS ÓRDENES EN LA BASE DE DATOS
+        if (!empty($orderIdsToUpdate)) {
+        DB::table('payment_orders')
+            ->whereIn('id', $orderIdsToUpdate)
+            ->update(['status' => 'PAGADA']);
         }
-    
+
+        // 5️⃣ IMPRIMIMOS RESULTADOS
+        // LOGGER("RELACIÓN DE ÓRDENES DE PAGO ENCONTRADAS Y ACTUALIZADAS A 'PAGADA'");
+        // $payments->each(function ($p) {
+        //     LOGGER("| {$p->id} | {$p->supplier} | {$p->status} | {$p->orders} LIKE {$p->matched_id_order} | {$p->folio} | {$p->payment} |");
+        // });
+
         // Crear el registro de pago
         $payment = PaymentSuppliers::create($validated);
     
