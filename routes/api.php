@@ -12,9 +12,12 @@ use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\DetailsRequisitionsController;
 use App\Http\Controllers\DocsPDFsController;
 use App\Http\Controllers\EarringsController;
+use App\Http\Controllers\EntryDetailsController;
 use App\Http\Controllers\ExpirationUnitsController;
 use App\Http\Controllers\HistoryTireController;
 use App\Http\Controllers\InspectionsController;
+use App\Http\Controllers\InventoryDetailsController;
+use App\Http\Controllers\InventoryEntriesController;
 use App\Http\Controllers\MayorAccountController;
 use App\Http\Controllers\MissingDocsController;
 use App\Http\Controllers\OrderController;
@@ -41,7 +44,9 @@ use App\Http\Controllers\TiresController;
 use App\Http\Controllers\TitleAccountController;
 use App\Http\Controllers\TripController;
 use App\Http\Controllers\UnitController;
+use App\Http\Controllers\WarehousesController;
 use App\Http\Controllers\WorkAreasController;
+use App\Models\Warehouses;
 use Illuminate\Support\Facades\DB;
 
 Route::post('/login', [AuthController::class, 'login']);
@@ -73,18 +78,15 @@ Route::middleware('auth:sanctum')->post('/upload-pdf', [UnitController::class, '
 Route::middleware('auth:sanctum')->post('/docsUnits', [UnitController::class, 'show']);
 Route::middleware('auth:sanctum')->delete('/docsUnits/{id}', [UnitController::class, 'destroyDocs']);
 
-Route::middleware('auth:sanctum')->post('/createTrip', [TripController::class, 'create']);
+Route::middleware('auth:sanctum')->apiResource('trips', TripController::class);
 Route::middleware('auth:sanctum')->get('/operators', [TripController::class, 'operatorsAll']);
 Route::middleware('auth:sanctum')->get('/search', [TripController::class, 'search']);
 Route::middleware('auth:sanctum')->post('/addUnit', [TripController::class, 'addUnit']);
-Route::middleware('auth:sanctum')->get('/unitsTrip/{trip}', [TripController::class, 'show']);
 Route::middleware('auth:sanctum')->delete('/deleteUnit/{id}', [TripController::class, 'deleteUnit']);
-Route::middleware('auth:sanctum')->put('/updateTrip/{trip}', [TripController::class, 'update']);
 Route::middleware('auth:sanctum')->get('/finishTrip/{trip}', [TripController::class, 'finish']);
 Route::middleware('auth:sanctum')->get('/trip/{id}', [TripController::class, 'showTrip']);
 Route::middleware('auth:sanctum')->get('/rutaTrip', [TripController::class, 'rutaTrip']);
 Route::middleware('auth:sanctum')->get('/generar-pdf/{trip}', [TripController::class, 'generarPDF']);
-Route::middleware('auth:sanctum')->apiResource('trips', TripController::class);
 
 Route::middleware('auth:sanctum')->get('/tripsCount', function () {
     $trips = DB::table('trips')->whereIn('status', [0, 1])->get();
@@ -258,7 +260,12 @@ Route::middleware('auth:sanctum')->apiResource('test-flash', TestFlashSecurityCo
 Route::middleware('auth:sanctum')->get('/payment-pdf/{order}', [PaymentOrderController::class, 'generarPDF']);
 Route::middleware('auth:sanctum')->put('/payment-orders/{id}/status', [PaymentOrderController::class, 'updateStatus']);
 Route::middleware('auth:sanctum')->post('/update-pdf-payment', [PaymentOrderController::class, 'updatePdf']);
-
 Route::middleware('auth:sanctum')->apiResource('balance-suppliers', BalanceSuppliersController::class);
 Route::middleware('auth:sanctum')->apiResource('payment-billings', PaymentSuppliersController::class);
 Route::middleware('auth:sanctum')->apiResource('applicants', ApplicantsController::class);
+//MODULE INVENTORIES
+Route::middleware('auth:sanctum')->apiResource('warehouses', WarehousesController::class);
+Route::middleware('auth:sanctum')->apiResource('inventory_details', InventoryDetailsController::class);
+Route::middleware('auth:sanctum')->apiResource('inventory_entries', InventoryEntriesController::class);
+Route::middleware('auth:sanctum')->apiResource('entry_details', EntryDetailsController::class);
+Route::middleware('auth:sanctum')->get('/invoices/{supplierId}/status/{status}', [PaymentOrderController::class, 'getInvoicesWithAllStatusOrders']);
