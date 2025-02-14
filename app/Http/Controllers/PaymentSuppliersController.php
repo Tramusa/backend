@@ -3,9 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\BillingData;
-use App\Models\PaymentOrder;
 use App\Models\PaymentSuppliers;
-use App\Models\PurchaseOrder;
 use Illuminate\Http\Request;
 use Illuminate\Log\Logger;
 use Illuminate\Support\Facades\DB;
@@ -24,7 +22,6 @@ class PaymentSuppliersController extends Controller
 
         return response()->json($payments);
     }
-
     public function store(Request $request)
     {
         // Validar los datos principales
@@ -51,63 +48,33 @@ class PaymentSuppliersController extends Controller
     
         // Actualizar el estado de las facturas a PAGADA
         BillingData::whereIn('id', $validBillings)->update(['payment' => 1]);
- 
-        // 1️⃣ OBTENEMOS TODAS LAS ÓRDENES DE PAGO APROBADAS DEL PROVEEDOR
-        $paymentOrders = DB::table('payment_orders')
-            ->where('supplier', $validated['supplier'])
-            ->where('status', 'APROBADA')
-            ->get();
-
-        //$payments = collect();
-        $orderIdsToUpdate = []; // Array para almacenar los IDs de órdenes encontradas
-
-        foreach ($paymentOrders as $order) {
-            // ✅ Eliminamos espacios y convertimos en array
-            $cleanOrders = explode(',', str_replace(' ', '', $order->orders));
-
-            // 2️⃣ OBTENEMOS FACTURAS RELACIONADAS
-            $billingData = DB::table('billing_data')
-                ->where('id_supplier', $validated['supplier'])
-                ->whereIn('id', $validBillings)
-                ->where(function ($query) use ($cleanOrders) {
-                    foreach ($cleanOrders as $cleanOrder) {
-                        $query->orWhereRaw("FIND_IN_SET(?, REPLACE(billing_data.id_order, ' ', ''))", [$cleanOrder]);
-                    }
-                })
-                ->get();
-
-            // 3️⃣ GUARDAMOS LAS ÓRDENES ENCONTRADAS Y SU INFO
-            if ($billingData->isNotEmpty()) {
-                $orderIdsToUpdate[] = $order->id; // Guardamos el ID para actualizar el status
-
-    //         foreach ($billingData as $billing) {
-    //             $payments->push((object) [
-    //                 'id' => $order->id,
-    //                 'supplier' => $order->supplier,
-    //                 'status' => 'PAGADA', // Ya cambiamos el status en la vista
-    //                 'orders' => $order->orders,
-    //                 'matched_id_order' => $billing->id_order,
-    //                 'folio' => $billing->folio,
-    //                 'id_supplier' => $billing->id_supplier,
-    //                 'payment' => $billing->payment,
-    //             ]);
-    //         }
+    
+        // Obtener órdenes de pago relacionadas con las facturas enviadas
+        $paymentOrderIds = BillingData::whereIn('id', $validBillings)
+            ->pluck('id_paymentOrder')
+            ->unique()
+            ->toArray();
+    
+        $ordersToUpdate = [];
+    
+        // Verificar si todas las facturas de cada orden de pago están pagadas
+        foreach ($paymentOrderIds as $paymentOrderId) {
+            $pendingBillings = BillingData::where('id_paymentOrder', $paymentOrderId)
+                ->where('payment', 0)
+                ->exists();
+    
+            if (!$pendingBillings) {
+                $ordersToUpdate[] = $paymentOrderId;
             }
         }
-
-        // 4️⃣ ACTUALIZAMOS LAS ÓRDENES EN LA BASE DE DATOS
-        if (!empty($orderIdsToUpdate)) {
-        DB::table('payment_orders')
-            ->whereIn('id', $orderIdsToUpdate)
-            ->update(['status' => 'PAGADA']);
+    
+        // Actualizar las órdenes de pago a `PAGADA` si todas sus facturas están pagadas
+        if (!empty($ordersToUpdate)) {
+            DB::table('payment_orders')
+                ->whereIn('id', $ordersToUpdate)
+                ->update(['status' => 'PAGADA']);
         }
-
-        // 5️⃣ IMPRIMIMOS RESULTADOS
-        // LOGGER("RELACIÓN DE ÓRDENES DE PAGO ENCONTRADAS Y ACTUALIZADAS A 'PAGADA'");
-        // $payments->each(function ($p) {
-        //     LOGGER("| {$p->id} | {$p->supplier} | {$p->status} | {$p->orders} LIKE {$p->matched_id_order} | {$p->folio} | {$p->payment} |");
-        // });
-
+    
         // Crear el registro de pago
         $payment = PaymentSuppliers::create($validated);
     
@@ -117,7 +84,5 @@ class PaymentSuppliersController extends Controller
     
         return response()->json(['error' => 'Error al crear el pago'], 500);
     }
-    
-
     
 }

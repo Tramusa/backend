@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BillingData;
 use App\Models\PaymentOrder;
 use App\Models\PurchaseOrder;
 use Carbon\Carbon;
@@ -35,33 +36,53 @@ class PaymentOrderController extends Controller
                 $payment->comprobante = asset(Storage::url($payment->comprobante));
             }
 
-            // Cargar las órdenes de compra personalizadas
-            $payment->purchaseOrders = $payment->purchaseOrders()->map(function ($purchaseOrder) {
-                // Generar URL para el comprobante de la requisición de cada orden de compra
-                if ($purchaseOrder->requisition && $purchaseOrder->requisition->comprobante) {
-                    $purchaseOrder->requisition->comprobante = asset(Storage::url($purchaseOrder->requisition->comprobante));
-                }
-                // Factura (billing)
-                $billing = $purchaseOrder->billing(); // Aquí obtenemos la factura
-                if ($billing) {
-                    $purchaseOrder->billing = $billing; // Añadimos la información de la factura a la orden
-                }
-                return $purchaseOrder;
-            });
+            // Si el estado es APROBADA o PAGADA, agregar facturas con sus órdenes y requisiciones
+            if (in_array($payment->status, ['APROBADA', 'PAGADA'])) {
+                $billings = BillingData::where('id_supplier', $payment->supplier)
+                    ->where('id_paymentOrder', $payment->id) // Filtrar por id_paymentOrder
+                    ->get()
+                    ->map(function ($billing) use ($payment) {
+                        $orderIds = explode(',', $billing->id_order); // Convertir lista en array
+                        
+                        // Obtener todas las órdenes de la factura con su requisición
+                        $orders = PurchaseOrder::whereIn('id', $orderIds)
+                            ->with('requisition')
+                            ->get();
+
+                        // Verificar si todas las órdenes pertenecen al pago
+                        if ($orders->isNotEmpty()) {
+                            // Agregar las órdenes a la factura
+                            foreach ($orders as $order) {
+                                // Si existe un comprobante, generamos la URL pública
+                                if ($order->requisition && $order->requisition->comprobante) {
+                                    $order->requisition->comprobante = asset(Storage::url($order->requisition->comprobante));
+                                } else {
+                                    $order->requisition->comprobante = null;
+                                }
+                            }
+                            $billing->orders = $orders;
+                            return $billing;
+                        }
+                    })
+                    ->filter(); // Elimina los valores null
+
+                // Agregar las facturas al pago
+                $payment->billings = $billings->values();
+            }
         });
 
         return response()->json($payments);
     }
 
     public function store(Request $request)
-    {
-        // Convertir la cadena de órdenes en un array
-        $orderIds = explode(',', $request->input('orders'));
+    {        
+        $orderIds = explode(',', $request->input('orders')); // Convertir la cadena de órdenes en un array
+        $billingsIds = explode(',', $request->input('billings')); // Convertir la cadena de facturas en un array
 
         // Validar los datos principales
         $validated = $request->validate([
             'supplier' => 'required|integer|exists:suppliers,id',
-            'orders' => 'required|string', // Validar que sea una cadena
+            'billings' => 'required|string', // Validar que las facturas sean una cadena
             'total' => 'required|string',
             'payment' => 'required|string|numeric', // Verificar que el pago sea igual o mayor al total
             'payment_form' => 'required|string',
@@ -71,45 +92,56 @@ class PaymentOrderController extends Controller
             'comprobante' => 'nullable|file|mimes:pdf', // Si se sube un archivo comprobante
         ]);
         
-
-        // Validar manualmente que cada ID de orden de compra exista
-        $orderIds = array_map('trim', $orderIds); // Asegurarse de quitar espacios
+        // ✅ Validar manualmente que cada ID de orden de compra exista
+        $orderIds = array_map('trim', $orderIds); // Limpiar espacios
         $validOrders = PurchaseOrder::whereIn('id', $orderIds)->pluck('id')->toArray();
 
         if (count($validOrders) !== count($orderIds)) {
             return response()->json(['error' => 'Algunas órdenes no existen.'], 422);
         }
 
+        // ✅ Validar que las facturas existan en la BD
+        $billingsIds = array_map('trim', $billingsIds);
+        $validBillings = BillingData::whereIn('id', $billingsIds)->pluck('id')->toArray();
+
+        if (count($validBillings) !== count($billingsIds)) {
+            return response()->json(['error' => 'Algunas facturas no existen.'], 422);
+        }
+
+        // Verificar si ya existe esta orden de pago
         $existingPayment = PaymentOrder::where([
             'supplier' => $validated['supplier'],
-            'orders' => $validated['orders'],
             'total' => $validated['total'],
             'payment_form' => $validated['payment_form'],
             'date' => $validated['date'],
             'payment' => $validated['payment'],
-            'banck' =>  $validated['banck'],
+            'banck' => $validated['banck'],
         ])->first();
         
         if ($existingPayment) {
             return response()->json(['error' => 'Esta orden de pago ya ha sido registrada.'], 409);
         }
 
-        // Actualizar el estado de cada orden a "PAGADA"
+        // ✅ Actualizar el estado de las órdenes a "PAGADA"
         PurchaseOrder::whereIn('id', $orderIds)->update(['status' => 'PAGADA']);
 
-        // Si se envía un comprobante, lo almacenamos
+        // ✅ Si se envía un comprobante, almacenarlo
         if ($request->hasFile('comprobante')) {
             $validated['comprobante'] = $request->file('comprobante')->store('Comprobantes', 'public');
         }
 
+        // ✅ Registrar quién elaboró la orden
         $user = Auth::user();
-        $validated['elaborate'] =  $user->id;
+        $validated['elaborate'] = $user->id;
 
-        // Crear la nueva orden de pago
+        // ✅ Crear la nueva orden de pago
         $payment = PaymentOrder::create($validated);
-        // Generar el PDF y devolverlo
+
         if ($payment) {
-            // Generar el PDF y devolverlo
+            // ✅ Actualizar el campo `id_paymentOrder` en las **facturas** (`billings`)
+            BillingData::whereIn('id', $billingsIds)->update(['id_paymentOrder' => $payment->id]);
+
+            // ✅ Devolver el PDF generado
             return $this->generarPDF($payment->id);
         }
     }
@@ -146,19 +178,32 @@ class PaymentOrderController extends Controller
             $fecha = Carbon::parse(now())->locale('es')->isoFormat('dddd, D [de] MMMM [de] YYYY');
         }
 
-        // Después de obtener el PaymentOrder, cargar las órdenes de compra relacionadas
+        // Después de obtener el PaymentOrder, cargar las facturas y sus órdenes de compra relacionadas
         if ($paymentData) {
-            // Cargar las órdenes de compra manualmente
-            $paymentData->purchaseOrders = $paymentData->purchaseOrders()->map(function ($purchaseOrder) {
-                // Factura (billing)
-                $billing = $purchaseOrder->billing(); // Aquí obtenemos la factura
-                $purchaseOrder->billing = $billing ?: '';
-                return $purchaseOrder;
-            });
+            // Cargar las facturas que tienen asignado este PaymentOrder (billing_data.id_paymentOrder = PaymentOrder.id)
+            $billings = BillingData::where('id_paymentOrder', $paymentData->id)->get()
+                ->map(function ($billing) {
+                    $orderIds = explode(',', $billing->id_order); // Convertir lista en array
+                
+                    // Obtener todas las órdenes de compra con los datos de las requisiciones
+                    $orders = PurchaseOrder::whereIn('id', $orderIds)
+                        ->with('requisition') // Eager load the related requisition data
+                        ->get();
+
+                    // Verificar si todas las órdenes tienen el estado deseado
+                    if ($orders->isNotEmpty()) {
+                        // Agregar las órdenes a la factura antes de devolverla
+                        $billing->purchaseOrders = $orders;
+                        return $billing;
+                    }
+                });
+
+            // Asignar las facturas cargadas al objeto $paymentData
+            $paymentData->billings = $billings;
         }
 
         $logoImagePath = public_path('imgPDF/logo.png');
-        $logoImage = $this->getImageBase64($logoImagePath);// Convertir las imágenes a base64
+        $logoImage = $this->getImageBase64($logoImagePath); // Convertir las imágenes a base64
 
         $data = [
             'logoImage' => $logoImage,
@@ -236,4 +281,28 @@ class PaymentOrderController extends Controller
 
         return response()->json(['message' => 'PDF actualizado exitosamente']);
     }
+
+    public function getInvoicesWithAllStatusOrders($supplierId, $status)
+    {
+        // Obtener facturas con sus órdenes relacionadas
+        $billings = BillingData::where('id_supplier', $supplierId)
+            ->get()
+            ->map(function ($billing) use ($status) {
+                $orderIds = explode(',', $billing->id_order); // Convertir lista en array
+                
+                // Obtener todas las órdenes de la factura
+                $orders = PurchaseOrder::whereIn('id', $orderIds)->get();
+
+                // Verificar si todas las órdenes tienen el estado deseado
+                if ($orders->isNotEmpty() && $orders->every(fn($order) => $order->status === $status)) {
+                    // Agregar las órdenes a la factura antes de devolverla
+                    $billing->orders = $orders;
+                    return $billing;
+                }
+            })
+            ->filter(); // Elimina los valores null
+
+        return response()->json($billings->values()); // Resetear índices del array
+    }
+
 }

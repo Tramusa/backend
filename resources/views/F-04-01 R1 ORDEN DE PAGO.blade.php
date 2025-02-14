@@ -204,16 +204,22 @@
             <td class="blue-bg">M.PAGO</td>
             <td class="blue-bg">SU PAGO</td>
           </tr>
-          @foreach ($Data->purchaseOrders as $order)
-          <tr>
-            <td class="bottom-border-only">{{ $order->id ?? '-' }}</td>
-            <td class="bottom-border-only">{{ $order->requisition->id_parent_account.'-'.$order->requisition->id_title_account.'-'.$order->requisition->id_subtitle_account.'-'.$order->requisition->id_mayor_account }}</td>
-            <td class="bottom-border-only">{{ $order->billing->folio ?? '-'}}</td>
-            <td class="bottom-border-only">{{ $order->billing->date ?? '-'}}</td>
-            <td class="bottom-border-only">${{ number_format($order->total, 2) }}</td>
-            <td class="bottom-border-only">{{ $order->billing->payment_method ?? '-'}}</td> <!-- O el campo que corresponda -->
-            <td class="bottom-border-only">${{ number_format($order->total, 2) }}</td>
-          </tr>
+          <!-- Recorremos las facturas dentro de $paymentData -->
+          @foreach ($Data->billings as $billing)
+              <!-- Recorrer las órdenes de compra asociadas a cada factura -->
+              @foreach ($billing->purchaseOrders as $order)
+              <tr>
+                <td class="bottom-border-only">{{ $order->id ?? '-' }}</td>
+                <td class="bottom-border-only">
+                  {{ $order->requisition->id_parent_account.'-'.$order->requisition->id_title_account.'-'.$order->requisition->id_subtitle_account.'-'.$order->requisition->id_mayor_account }}
+                </td>
+                <td class="bottom-border-only">{{ $billing->folio ?? '-'}}</td>
+                <td class="bottom-border-only">{{ $billing->date ?? '-'}}</td>
+                <td class="bottom-border-only">${{ number_format($order->total, 2) }}</td>
+                <td class="bottom-border-only">{{ $billing->payment_method ?? '-'}}</td> <!-- O el campo que corresponda -->
+                <td class="bottom-border-only">${{ number_format($order->total, 2) }}</td>
+              </tr>
+              @endforeach
           @endforeach
         </table>
       </div>   

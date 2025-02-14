@@ -11,7 +11,6 @@ return new class extends Migration
         Schema::create('payment_orders', function (Blueprint $table) {
             $table->id();            
             $table->integer('supplier');
-            $table->string('orders');// List 111, 222, 444
             $table->string('total');
             $table->string('payment');
             $table->string('payment_form');

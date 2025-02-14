@@ -95,9 +95,11 @@ class PurchaseOrderController extends Controller
         // Crear la orden de compra
         $order = PurchaseOrder::create($orderData);
         
-        // Verificar si la factura ya existe considerando folio e id_supplier
+        // Verificar si la factura ya existe considerando folio e id_supplier SIN PAGAR 
         $billing = BillingData::where('folio', $billingData['folio'])
             ->where('id_supplier', $orderData['id_supplier'])
+            ->where('id_paymentOrder', null)
+            ->where('payment', 0)
             ->first();
 
         if ($billing) {
@@ -216,7 +218,6 @@ class PurchaseOrderController extends Controller
 
     public function updatePdf(Request $request)
     {
-        Logger($request);
         // Validar que la requisición existe
         $request->validate([
             'requisitionId' => 'required|integer|exists:requisitions,id',
@@ -246,7 +247,6 @@ class PurchaseOrderController extends Controller
             $requisition->save(); // Guardar cambios en la requisición
         }
 
-        $billing_id = $request->id;
         // Validar los datos de Billing (folio, fecha, forma de pago, etc.)
         $billingData = $request->only(['folio', 'date', 'payment_form', 'payment_method']);
         
@@ -276,7 +276,7 @@ class PurchaseOrderController extends Controller
             }
         }
 
-        return response()->json(['message' => 'PDF/datos de facturación actualizados exitosamente']);
+        return response()->json(['message' => 'PDF y/o datos de facturación actualizados exitosamente']);
     }
 
 }

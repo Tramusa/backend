@@ -10,11 +10,11 @@ class BillingData extends Model
     use HasFactory;
     
     protected $fillable = [
-        'id', 'folio', 'id_supplier', 'id_order', 'date', 'payment_form', 'payment_method'
+        'id', 'folio', 'id_supplier', 'id_paymentOrder', 'id_order', 'date', 'payment_form', 'payment_method'
     ];
 
-    public function order()
+    public function orders()
     {
-        return $this->hasOne(BillingData::class, 'id', 'id_order');
+        return $this->belongsToMany(PurchaseOrder::class, 'billing_orders', 'billing_id', 'order_id');
     }
 }

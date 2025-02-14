@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BillingData;
 use App\Models\PaymentOrder;
+use App\Models\PurchaseOrder;
 use App\Models\Suppliers;
 use Carbon\Carbon;
 use Dompdf\Dompdf;
@@ -48,91 +50,77 @@ class BalanceSuppliersController extends Controller
     
         return response()->json($balance);
     }
-
     public function show($id)
     {
-        $balance = []; // Array to store supplier data with approved orders
-
-        // Get the specific supplier along with bank details
+        $balance = []; // Array para almacenar la información del proveedor con órdenes aprobadas
+    
+        // Obtener el proveedor con sus datos bancarios
         $supplier = Suppliers::where('id', $id)->with('bankDetails')->first();
-
-        if ($supplier) {
-            // Filter approved payment orders for the supplier
-            $approvedPayments = PaymentOrder::where('supplier', $id)
-                ->where('status', 'APROBADA')
+    
+        if (!$supplier) {
+            return response()->json(['message' => 'Proveedor no encontrado'], 404);
+        }
+    
+        // Obtener todas las órdenes de pago aprobadas del proveedor
+        $approvedPayments = PaymentOrder::where('supplier', $id)
+            ->where('status', 'APROBADA')
+            ->get();
+    
+        if ($approvedPayments->isEmpty()) {
+            return response()->json(['message' => 'No hay órdenes de pago aprobadas'], 200);
+        }
+    
+        $totalAmount = 0; // Para calcular la suma total de todas las órdenes de compra
+        $billings = []; // Para almacenar todas las facturas con sus órdenes y requisiciones
+    
+        foreach ($approvedPayments as $paymentOrder) {
+            // Obtener facturas relacionadas con la orden de pago
+            $billingData = BillingData::where('id_paymentOrder', $paymentOrder->id)->get();
+    
+            foreach ($billingData as $billing) {
+                $orderIds = explode(',', $billing->id_order); // Convertimos la lista en array
+    
+                // Obtener las órdenes de compra con sus requisiciones y cuentas contables relacionadas
+                $purchaseOrders = PurchaseOrder::whereIn('id', $orderIds)
+                ->with(['requisition' => function ($query) {
+                    $query->with('subtitle_accountInfo');
+                }])
                 ->get();
-
-            // If the supplier has approved orders, calculate the total
-            if ($approvedPayments->isNotEmpty()) {
-                // Calcular el total sumando directamente el campo 'payment' de las órdenes aprobadas
-                $totalAmount = $approvedPayments->sum('payment');
-                 // Cargar las órdenes de compra manualmente
-                $approvedPayments->each(function ($paymentData) use ($id){
-                    $paymentData->purchaseOrders = $paymentData->purchaseOrders()->map(function ($purchaseOrder) use ($id, $paymentData){
-                        // Obtener la factura (billing) de la orden de compra
-                        $billing = $purchaseOrder->billing(); // Aquí obtenemos la factura
-                        // Verificar si billing pertenece al proveedor actual
-                        if ($billing && $billing->id_supplier == $id) {
-
-                            // Obtener todas las órdenes de compra asociadas a la factura
-                            $orderIds = explode(',', $billing->id_order); // Convertir la cadena "228,229" en un array [228, 229]
-
-                            // Obtener la suma total de pagos para todas las órdenes de compra de la factura
-                            $relatedPayments = DB::table('payment_orders')
-                                ->where(function ($query) use ($orderIds) {
-                                    foreach ($orderIds as $orderId) {
-                                        $query->orWhereRaw("FIND_IN_SET(?, orders)", [$orderId]);
-                                    }
-                                })
-                                ->sum('payment'); // Sumamos todos los pagos relacionados
-
-                            // Asignamos la suma total a la factura
-                            $billing->total = $relatedPayments;
-
-                            // Asignamos la factura si coincide el proveedor
-                            $purchaseOrder->billing = $billing;
-                        } else {
-                            $purchaseOrder->billing = null; // Si no coincide, ignoramos la factura
-                        }
-
-                        // Obtener la requisición con la relación 'subtitle_accountInfo'
-                        $requisition = $purchaseOrder->requisition()->with('subtitle_accountInfo')->first();
-
-                        // Verificar si hay requisición y asignar el nombre del subtítulo si existe
-                        $purchaseOrder->subtitle = $requisition && $requisition->subtitle_accountInfo
-                            ? $requisition->subtitle_accountInfo->name
-                            : null;
-
-                        return $purchaseOrder;
-                    });
-                });
-                
-                // Filter purchase orders with unpaid invoices (where payment == 0)
-                $orders = $approvedPayments->flatMap(function ($paymentOrder) {
-                    return collect($paymentOrder['purchaseOrders'])->filter(function ($purchaseOrder) {
-                        return $purchaseOrder->billing && $purchaseOrder->billing->payment == 0;
-                    });
-                });
-
-                // Populate the balance array with supplier data and totals
-                $balance = [
-                    'supplier' => $supplier,
-                    'orders' => $orders,
-                    'total_payments' => $totalAmount,
-                    'bank_details' => $supplier->bankDetails->map(function ($bank) {
-                        return [
-                            'bank' => $bank->banck,
-                            'account' => $bank->account,
-                            'clabe' => $bank->clabe,
-                        ];
-                    }),
+    
+                // Sumar el total de las órdenes de compra asociadas
+                $billingTotal = $purchaseOrders->sum('total');
+                $totalAmount += $billingTotal;
+    
+                // Agregar la factura con sus órdenes de compra y requisiciones
+                $billings[] = [
+                    'billing_id' => $billing->id,
+                    'billing_folio' => $billing->folio,
+                    'billing_date' => $billing->date,
+                    'payment_method' => $billing->payment_method,
+                    'billing_total' => $billingTotal,
+                    'payment_form' => $billing->payment_form,
+                    'purchase_orders' => $purchaseOrders->toArray(), // Pasamos todo el objeto completo
                 ];
             }
         }
-
+    
+        // Construcción del balance final
+        $balance = [
+            'supplier' => $supplier,
+            'billings' => $billings,
+            'total_payments' => $totalAmount,
+            'bank_details' => $supplier->bankDetails->map(function ($bank) {
+                return [
+                    'bank' => $bank->bank, // Corregido error de 'banck' a 'bank'
+                    'account' => $bank->account,
+                    'clabe' => $bank->clabe,
+                ];
+            }),
+        ];
+    
         return response()->json($balance);
     }
-
+    
     public function store(Request $request)
     {
         $supplierInfo = $request->input('supplierInfo');
