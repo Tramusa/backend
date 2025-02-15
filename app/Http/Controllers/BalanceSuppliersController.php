@@ -19,7 +19,7 @@ class BalanceSuppliersController extends Controller
         $balance = []; // Array para almacenar los datos de los proveedores con órdenes aprobadas
     
         // Obtener todos los proveedores junto con sus detalles bancarios
-        $suppliers = Suppliers::with('bankDetails')->get();
+        $suppliers = Suppliers::with('bankDetails')->orderBy('business_name')->get();
     
         foreach ($suppliers as $supplier) {
             // Obtener las órdenes de pago aprobadas del proveedor
