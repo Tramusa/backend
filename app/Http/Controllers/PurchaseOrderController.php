@@ -207,6 +207,24 @@ class PurchaseOrderController extends Controller
                 $requisition->status = 'PENDIENTE';
                 $requisition->save();
             }
+             // Buscar facturas que contengan esta orden en id_order
+            $billings = BillingData::where('id_order', 'LIKE', "%{$id}%")->get();
+
+            foreach ($billings as $billing) {
+                $orderIds = explode(',', $billing->id_order);
+                
+                // Eliminar la orden cancelada del array
+                $orderIds = array_filter($orderIds, fn($orderId) => $orderId != $id);
+
+                if (empty($orderIds)) {
+                    // Si no quedan órdenes, eliminar la factura
+                    $billing->delete();
+                } else {
+                    // Si quedan órdenes, actualizar la factura
+                    $billing->id_order = implode(',', $orderIds);
+                    $billing->save();
+                }
+            }
         }elseif ($request->input('status') === 'PENDIENTE'){
             $order->authorize = null; // Borra cualquier autorización anterior
         }

@@ -269,3 +269,4 @@ Route::middleware('auth:sanctum')->apiResource('inventory_details', InventoryDet
 Route::middleware('auth:sanctum')->apiResource('inventory_entries', InventoryEntriesController::class);
 Route::middleware('auth:sanctum')->apiResource('entry_details', EntryDetailsController::class);
 Route::middleware('auth:sanctum')->get('/invoices/{supplierId}/status/{status}', [PaymentOrderController::class, 'getInvoicesWithAllStatusOrders']);
+Route::middleware('auth:sanctum')->post('/pdf-balance', [BalanceSuppliersController::class, 'balancePDF']);

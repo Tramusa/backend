@@ -34,22 +34,14 @@ class BalanceSuppliersController extends Controller
             if ($totalAmount > 0) {
                 $balance[] = [
                     'supplier' => $supplier,
-                    'total_payments' => $totalAmount,
-                    'bank_details' => $supplier->bankDetails->isNotEmpty()
-                        ? $supplier->bankDetails->map(function ($bank) {
-                            return [
-                                'bank' => $bank->banck ?? '', // Valor por defecto: cadena vacía
-                                'account' => $bank->account ?? '',
-                                'clabe' => $bank->clabe ?? '',
-                            ];
-                        })
-                        : [['bank' => '', 'account' => '', 'clabe' => '']], // Valores vacíos si no hay detalles bancarios
+                    'total_payments' => $totalAmount,                   
                 ];
             }
         }
     
         return response()->json($balance);
     }
+
     public function show($id)
     {
         $balance = []; // Array para almacenar la información del proveedor con órdenes aprobadas
@@ -162,6 +154,55 @@ class BalanceSuppliersController extends Controller
     
         // Generar un nombre único para el archivo PDF
         $filename = 'Detalles_Saldo_Proveedor_#'.$supplierInfo['supplier'].'_' . now()->format('Ymd_His') . '.pdf';
+    
+        // Guardar el PDF en el almacenamiento
+        Storage::disk('public')->put('pdfs/' . $filename, $pdfContent);
+    
+        // Devolver el contenido del PDF
+        return response($pdfContent, 200)->header('Content-Type', 'application/pdf');
+    }
+
+    public function balancePDF(Request $request){
+        $suppliersInfo = $request->input('suppliersInfo');
+        $totalAdeudado = $request->input('totalAdeudado');
+        $capital = $request->input('capital');
+        $saldoDisponible = $request->input('saldoDisponible');
+
+        if (!$suppliersInfo || empty($totalAdeudado)) {
+            return response()->json(['message' => 'Datos incompletos'], 400);
+        }
+    
+        // Obtener la fecha actual en español
+        $fechaActual = Carbon::now();
+        $fecha = $fechaActual->locale('es')->isoFormat('dddd, D [de] MMMM [de] YYYY');
+    
+        // Convertir el logo a base64
+        $logoImagePath = public_path('imgPDF/logo.png');
+        $logoImage = $this->getImageBase64($logoImagePath);
+    
+
+        // Preparar los datos para la vista
+        $dataPDF = [
+            'logoImage' => $logoImage,
+            'supplierInfo' => $suppliersInfo,
+            'totalAdeudado' => $totalAdeudado,
+            'capital' => $capital,
+            'saldoDisponible' => $saldoDisponible,
+            'fecha' => $fecha
+        ];
+    
+        // Renderizar la vista con los datos
+        $html = view('SALDO PROVEEDORES', $dataPDF)->render();
+    
+        // Configuración de Dompdf
+        $dompdf = new Dompdf();
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->render();
+        $pdfContent = $dompdf->output();   
+    
+        // Generar un nombre único para el archivo PDF
+        $filename = 'Saldo_Proveedores_' . now()->format('Ymd_His') . '.pdf';
     
         // Guardar el PDF en el almacenamiento
         Storage::disk('public')->put('pdfs/' . $filename, $pdfContent);
