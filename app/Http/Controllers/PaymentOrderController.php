@@ -116,6 +116,7 @@ class PaymentOrderController extends Controller
             'date' => $validated['date'],
             'payment' => $validated['payment'],
             'banck' => $validated['banck'],
+            'status' => 'PENDIENTE', 
         ])->first();
         
         if ($existingPayment) {
