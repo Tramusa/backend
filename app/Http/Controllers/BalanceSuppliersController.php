@@ -101,13 +101,6 @@ class BalanceSuppliersController extends Controller
             'supplier' => $supplier,
             'billings' => $billings,
             'total_payments' => $totalAmount,
-            'bank_details' => $supplier->bankDetails->map(function ($bank) {
-                return [
-                    'bank' => $bank->bank, // Corregido error de 'banck' a 'bank'
-                    'account' => $bank->account,
-                    'clabe' => $bank->clabe,
-                ];
-            }),
         ];
     
         return response()->json($balance);

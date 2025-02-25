@@ -240,18 +240,22 @@ class PaymentOrderController extends Controller
          // Si el estado es CANCELADA, actualiza también el estado de las órdenes de compra
         if ($request->input('status') === 'CANCELADA') {
             $order->authorize = null; // Borra cualquier autorización anterior
-
-            // Convierte los IDs de las órdenes de compra a un array
-            $orderIds = explode(',', $order->orders);
-
-            // Encuentra las órdenes de compra correspondientes
-            $purchaseOrders = PurchaseOrder::whereIn('id', $orderIds)->get();
-
-            // Si existen las órdenes, recorre y actualiza su estado
-            foreach ($purchaseOrders as $purchaseOrder) {
-                $purchaseOrder->status = 'APROBADA';  // O el estado que quieras poner
-                $purchaseOrder->save();
-            }
+            if ($order) {
+                // Cargar las facturas que tienen asignado este PaymentOrder (billing_data.id_paymentOrder = PaymentOrder.id)
+                BillingData::where('id_paymentOrder', $order->id)->get()
+                    ->map(function ($billing) {
+                        $orderIds = explode(',', $billing->id_order); // Convertir lista en array
+                    
+                        // Obtener todas las órdenes de compra con los datos de las requisiciones
+                        $purchaseOrders = PurchaseOrder::whereIn('id', $orderIds)->get();
+    
+                        // Si existen las órdenes, recorre y actualiza su estado
+                        foreach ($purchaseOrders as $purchaseOrder) {
+                            $purchaseOrder->status = 'APROBADA';  // O el estado que quieras poner
+                            $purchaseOrder->save();
+                        }
+                    });
+            }            
         }elseif ($request->input('status') === 'PENDIENTE'){
             $order->authorize = null; // Borra cualquier autorización anterior
         }

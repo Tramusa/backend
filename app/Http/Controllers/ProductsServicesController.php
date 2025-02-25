@@ -57,7 +57,7 @@ class ProductsServicesController extends Controller
             ->when($idProduct, function ($q) use ($idProduct) {
                 $q->orWhere('id', 'like', '%' . $idProduct . '%');
             })
-            ->take(8)
+            ->take(14)
             ->get();
 
         return response()->json($products);

@@ -43,7 +43,7 @@ class PaymentSuppliersController extends Controller
             ->toArray();
     
         if (empty($validBillings)) {
-            return response()->json(['error' => 'No hay facturas válidas con estado en 1.'], 422);
+            return response()->json(['error' => 'No hay facturas válidas con estado en 0.'], 422);
         }
     
         // Actualizar el estado de las facturas a PAGADA
