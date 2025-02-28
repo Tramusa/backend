@@ -128,6 +128,13 @@ class PurchaseOrderController extends Controller
         return $this->generarPDF($order->id);
     }
 
+    public function update(Request $request, $id)
+    { 
+        PurchaseOrder::find($id)->update($request->all());//ACTUALIZAMOS LA INFO
+        
+        return response()->json(['message' => 'actualizado exitosamente.']);
+    }
+
     public function generarPDF($order){
         $pdfContent = $this->PDF($order);
 

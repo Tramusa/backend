@@ -10,7 +10,7 @@ class PurchaseOrder extends Model
     use HasFactory;
 
     protected $fillable = [
-        'id_requisition', 'date_order', 'id_supplier', 'perform', 'status', 'authorize', 'additional', 'total', 'cancel_reason'
+        'id_requisition', 'date_order', 'id_supplier', 'perform', 'status', 'authorize', 'additional', 'total', 'cancel_reason', 'color'
     ];
 
     public function requisition()
