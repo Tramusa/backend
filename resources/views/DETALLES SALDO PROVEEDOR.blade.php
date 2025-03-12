@@ -37,21 +37,23 @@
         <table class="info-table">
             <tr>
                 <th><strong>Proveedor:</strong></td>
-                <td>{{ $supplierInfo['supplier'] }}</td>
+                <td colspan="2">{{ $supplierInfo['supplier'] }}</td>
                 <th><strong>Área:</strong></td>
-                <td>{{ $supplierInfo['area'] }}</td>
+                <td colspan="2">{{ $supplierInfo['area'] }}</td>
             </tr>
             <tr>
                 <th><strong>Crédito:</strong></td>
-                <td>{{ $supplierInfo['credit'] }}</td>
+                <td colspan="2">{{ $supplierInfo['credit'] }}</td>
                 <th><strong>Vigencia del Crédito:</strong></td>
-                <td>{{ $supplierInfo['credit_days'] }} días</td>
+                <td colspan="2">{{ $supplierInfo['credit_days'] }} días</td>
             </tr>
             <tr>
                 <th><strong>Banco:</strong></td>
                 <td>{{ $supplierInfo['bank'] }}</td>
                 <th><strong>Número de Cuenta:</strong></td>
                 <td>{{ $supplierInfo['account'] }}</td>
+                <th><strong>Clabe:</strong></td>
+                <td>{{ $supplierInfo['clabe'] }}</td>
             </tr>
         </table>
 

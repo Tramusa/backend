@@ -18,6 +18,11 @@ class SuppliersController extends Controller
 
     public function store(Request $request)
     {
+        // Validar que el RFC no exista en otro proveedor
+        $request->validate([
+            'rfc' => 'required|unique:suppliers,rfc',
+        ]);
+
         $supplier = new Suppliers($request->all());
         $supplier->save();
 
@@ -36,6 +41,11 @@ class SuppliersController extends Controller
 
     public function update(Request $request, $id)
     {
+        // Validar que el RFC no esté duplicado en otro proveedor (excluyendo el actual)
+        $request->validate([
+            'rfc' => 'required|unique:suppliers,rfc,' . $id,
+        ]);
+        
         // Find the supplier by ID, or return a 404 error if not found
         $supplier = Suppliers::findOrFail($id);
 
