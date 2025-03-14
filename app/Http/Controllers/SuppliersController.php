@@ -20,7 +20,7 @@ class SuppliersController extends Controller
     {
         // Validar que el RFC no exista en otro proveedor
         $request->validate([
-            'rfc' => 'required|unique:suppliers,rfc',
+            'RFC' => 'required|unique:suppliers,RFC',
         ]);
 
         $supplier = new Suppliers($request->all());
@@ -43,7 +43,7 @@ class SuppliersController extends Controller
     {
         // Validar que el RFC no esté duplicado en otro proveedor (excluyendo el actual)
         $request->validate([
-            'rfc' => 'required|unique:suppliers,rfc,' . $id,
+            'RFC' => 'required|unique:suppliers,RFC,' . $id,
         ]);
         
         // Find the supplier by ID, or return a 404 error if not found
