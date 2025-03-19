@@ -8,7 +8,7 @@
         .container { width: 100%; padding: 10px; }
         .header { font-size: 22px; font-weight: bold; color: #103675; }
         .info-table, .details-table { clear: both; width: 100%; border-collapse: collapse; margin-top: 10px; }
-        .info-table td, .details-table th, .details-table td , .info-table th{ border: 1px solid #000; padding: 5px; text-align: left; }
+        .info-table td, .details-table th, .details-table td , .info-table th{ border: 1px solid #000; padding: 3px; text-align: left; }
         .details-table th, .info-table th { background-color: #103675; color: #ffffff; }
         .total { font-size: 24px; font-weight: bold; text-align: right; color: #e74c3c;}
         .column-1 { width: 25%; float: left; text-align: center; }

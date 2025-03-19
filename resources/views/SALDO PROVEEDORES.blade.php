@@ -62,6 +62,7 @@
                     <th>CRÉDITO</th>
                     <th>BANCO</th>
                     <th>N° CUENTA</th>
+                    <th>CLABE</th>
                     <th>
                         TOTAL ADEUDADO <br>
                         <span style="font-size: 18px; color: #fc4444; font-weight: bold;">${{ number_format($totalAdeudado?? 0, 2) }}</span>
@@ -76,6 +77,7 @@
                         <td>{{ $supplier['credit_sale'] ?? '' }}</td>
                         <td>{{ $supplier['banck'] ?? '' }}</td>
                         <td>{{ $supplier['account'] ?? '' }}</td>
+                        <td>{{ $supplier['clabe'] ?? '' }}</td>
                         <td>${{ number_format($supplier['total_payments'] ?? 0, 2) }}</td>
                     </tr>
                 @endforeach
