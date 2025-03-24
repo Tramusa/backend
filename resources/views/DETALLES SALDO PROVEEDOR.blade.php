@@ -32,7 +32,7 @@
         </div>
         <p><strong>Fecha:</strong> {{ $fecha }}</p>
         <!-- Total -->
-        <p class="total"><strong>Total: ${{ number_format($totalAdeudado, 2) }}</strong></p>
+        <p class="total"><strong>Total: ${{ number_format($supplierInfo['totalAdeudado'], 2) }}</strong></p>
         <!-- Supplier Info -->
         <table class="info-table">
             <tr>

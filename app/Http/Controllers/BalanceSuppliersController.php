@@ -62,7 +62,8 @@ class BalanceSuppliersController extends Controller
             return response()->json(['message' => 'No hay órdenes de pago aprobadas'], 200);
         }
     
-        $totalAmount = 0; // Para calcular la suma total de todas las órdenes de compra
+        // Sumar el total de la columna "pago" de las órdenes de pago aprobadas
+        $totalAmount = $approvedPayments->sum('payment');
         $billings = []; // Para almacenar todas las facturas con sus órdenes y requisiciones
     
         foreach ($approvedPayments as $paymentOrder) {
@@ -81,7 +82,6 @@ class BalanceSuppliersController extends Controller
     
                 // Sumar el total de las órdenes de compra asociadas
                 $billingTotal = $purchaseOrders->sum('total');
-                $totalAmount += $billingTotal;
     
                 // Agregar la factura con sus órdenes de compra y requisiciones
                 $billings[] = [
@@ -123,15 +123,12 @@ class BalanceSuppliersController extends Controller
         $logoImagePath = public_path('imgPDF/logo.png');
         $logoImage = $this->getImageBase64($logoImagePath);
     
-        // Calcular el total de todas las órdenes
-        $totalAdeudado = array_sum(array_column($orders, 'total'));
 
         // Preparar los datos para la vista
         $dataPDF = [
             'logoImage' => $logoImage,
             'supplierInfo' => $supplierInfo,
             'orders' => $orders,
-            'totalAdeudado' => $totalAdeudado,
             'fecha' => $fecha
         ];
     
