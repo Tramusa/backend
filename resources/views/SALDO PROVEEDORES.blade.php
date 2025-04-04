@@ -65,8 +65,13 @@
                     <th>CLABE</th>
                     <th>
                         TOTAL ADEUDADO <br>
-                        <span style="font-size: 18px; color: #fc4444; font-weight: bold;">${{ number_format($totalAdeudado?? 0, 2) }}</span>
+                        <span style="font-size: 18px; color: #fc4444; font-weight: bold;">${{ number_format($totalAdeudado ?? 0, 2) }}</span>
                     </th>
+                    <th>
+                        TOTAL A PAGAR <br>
+                        <span style="font-size: 18px; color: #fc4444; font-weight: bold;">${{ number_format($totalApagar ?? 0, 2) }}</span>
+                    </th>
+                    <th>Observaciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -79,6 +84,8 @@
                         <td>{{ $supplier['account'] ?? '' }}</td>
                         <td>{{ $supplier['clabe'] ?? '' }}</td>
                         <td>${{ number_format($supplier['total_payments'] ?? 0, 2) }}</td>
+                        <td>${{ number_format($supplier['payment'] ?? 0, 2) }}</td>
+                        <td>{{ $supplier['comment'] ?? '' }}</td>
                     </tr>
                 @endforeach
             </tbody>

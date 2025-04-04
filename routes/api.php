@@ -18,6 +18,7 @@ use App\Http\Controllers\HistoryTireController;
 use App\Http\Controllers\InspectionsController;
 use App\Http\Controllers\InventoryDetailsController;
 use App\Http\Controllers\InventoryEntriesController;
+use App\Http\Controllers\InventoryOutputController;
 use App\Http\Controllers\MayorAccountController;
 use App\Http\Controllers\MissingDocsController;
 use App\Http\Controllers\OrderController;
@@ -270,3 +271,4 @@ Route::middleware('auth:sanctum')->apiResource('inventory_entries', InventoryEnt
 Route::middleware('auth:sanctum')->apiResource('entry_details', EntryDetailsController::class);
 Route::middleware('auth:sanctum')->get('/invoices/{supplierId}/status/{status}', [PaymentOrderController::class, 'getInvoicesWithAllStatusOrders']);
 Route::middleware('auth:sanctum')->post('/pdf-balance', [BalanceSuppliersController::class, 'balancePDF']);
+Route::middleware('auth:sanctum')->apiResource('inventory_outputs', InventoryOutputController::class);
