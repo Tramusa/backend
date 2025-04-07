@@ -48,7 +48,7 @@
             <tbody>
                 <tr>
                     <td style="color:rgb(13, 180, 4);">${{ number_format($capital ?? 0, 2) }}</td>
-                    <td style="color:rgb(252, 51, 51);">${{ number_format($totalAdeudado ?? 0, 2) }}</td>
+                    <td style="color:rgb(252, 51, 51);">${{ number_format($totalApagar ?? 0, 2) }}</td>
                     <td style="color:rgb(245, 129, 20);">${{ number_format($saldoDisponible ?? 0, 2) }}</td>
                 </tr>
             </tbody>
