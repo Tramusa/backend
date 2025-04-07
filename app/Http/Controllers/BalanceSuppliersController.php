@@ -154,8 +154,9 @@ class BalanceSuppliersController extends Controller
 
     public function balancePDF(Request $request){
         $suppliersInfo = $request->input('suppliersInfo');
-        $totalAdeudado = $request->input('totalAdeudado');
-        $totalApagar = $request->input('totalApagar');
+        // Sumar los total_payments de todos los proveedores
+        $totalAdeudado = collect($suppliersInfo)->sum('total_payments');
+        $totalApagar = $request->input('totalApagar');;
         $capital = $request->input('capital');
         $saldoDisponible = $request->input('saldoDisponible');
 
