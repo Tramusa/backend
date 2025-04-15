@@ -22,6 +22,7 @@ use App\Http\Controllers\InventoryOutputController;
 use App\Http\Controllers\MayorAccountController;
 use App\Http\Controllers\MissingDocsController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\OutputDetailsController;
 use App\Http\Controllers\ParentAccountController;
 use App\Http\Controllers\PaymentOrderController;
 use App\Http\Controllers\PaymentSuppliersController;
@@ -79,6 +80,7 @@ Route::middleware('auth:sanctum')->post('/upload-pdf', [UnitController::class, '
 Route::middleware('auth:sanctum')->post('/docsUnits', [UnitController::class, 'show']);
 Route::middleware('auth:sanctum')->delete('/docsUnits/{id}', [UnitController::class, 'destroyDocs']);
 
+Route::middleware('auth:sanctum')->apiResource('applicants', ApplicantsController::class);
 Route::middleware('auth:sanctum')->apiResource('trips', TripController::class);
 Route::middleware('auth:sanctum')->get('/operators', [TripController::class, 'operatorsAll']);
 Route::middleware('auth:sanctum')->get('/search', [TripController::class, 'search']);
@@ -247,23 +249,27 @@ Route::middleware('auth:sanctum')->apiResource('products-services', ProductsServ
 Route::middleware('auth:sanctum')->get('/products-services-search', [ProductsServicesController::class, 'searchQuery']);
 Route::middleware('auth:sanctum')->apiResource('suppliers', SuppliersController::class);
 Route::middleware('auth:sanctum')->apiResource('suppliers-banck', SupplierBanckController::class);
+//MODULE REQUISITIONS
 Route::middleware('auth:sanctum')->apiResource('requisitions', RequisitionsController::class);
 Route::middleware('auth:sanctum')->apiResource('details-requisitions', DetailsRequisitionsController::class);
 Route::middleware('auth:sanctum')->get('/requisitions-pdf/{requisition}', [RequisitionsController::class, 'generarPDF']);
 Route::middleware('auth:sanctum')->put('/requisitions/{id}/status', [RequisitionsController::class, 'updateStatus']);
+//MODULE ORDER COMPRA
 Route::middleware('auth:sanctum')->get('/suppliers-search', [SuppliersController::class, 'searchQuery']);
 Route::middleware('auth:sanctum')->apiResource('purchase-orders', PurchaseOrderController::class);
 Route::middleware('auth:sanctum')->get('/purchaseOrders-pdf/{purchaseOrder}', [PurchaseOrderController::class, 'generarPDF']);
 Route::middleware('auth:sanctum')->put('/purchase-orders/{id}/status', [PurchaseOrderController::class, 'updateStatus']);
 Route::middleware('auth:sanctum')->post('/update-pdf', [PurchaseOrderController::class, 'updatePdf']);
-Route::middleware('auth:sanctum')->apiResource('payment-orders', PaymentOrderController::class);
+
 Route::middleware('auth:sanctum')->apiResource('test-flash', TestFlashSecurityController::class);
+
+//MODULE PAYMENT ORDERS
+Route::middleware('auth:sanctum')->apiResource('payment-orders', PaymentOrderController::class);
 Route::middleware('auth:sanctum')->get('/payment-pdf/{order}', [PaymentOrderController::class, 'generarPDF']);
 Route::middleware('auth:sanctum')->put('/payment-orders/{id}/status', [PaymentOrderController::class, 'updateStatus']);
 Route::middleware('auth:sanctum')->post('/update-pdf-payment', [PaymentOrderController::class, 'updatePdf']);
 Route::middleware('auth:sanctum')->apiResource('balance-suppliers', BalanceSuppliersController::class);
 Route::middleware('auth:sanctum')->apiResource('payment-billings', PaymentSuppliersController::class);
-Route::middleware('auth:sanctum')->apiResource('applicants', ApplicantsController::class);
 //MODULE INVENTORIES
 Route::middleware('auth:sanctum')->apiResource('warehouses', WarehousesController::class);
 Route::middleware('auth:sanctum')->apiResource('inventory_details', InventoryDetailsController::class);
@@ -272,3 +278,5 @@ Route::middleware('auth:sanctum')->apiResource('entry_details', EntryDetailsCont
 Route::middleware('auth:sanctum')->get('/invoices/{supplierId}/status/{status}', [PaymentOrderController::class, 'getInvoicesWithAllStatusOrders']);
 Route::middleware('auth:sanctum')->post('/pdf-balance', [BalanceSuppliersController::class, 'balancePDF']);
 Route::middleware('auth:sanctum')->apiResource('inventory_outputs', InventoryOutputController::class);
+Route::middleware('auth:sanctum')->apiResource('output_details', OutputDetailsController::class);
+Route::middleware('auth:sanctum')->get('/output-pdf/{order}', [InventoryOutputController::class, 'generarPDF']);

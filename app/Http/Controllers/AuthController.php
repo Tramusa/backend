@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Intervention\Image\Facades\Image;
@@ -272,20 +273,37 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $request->validate([
+        $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
+            'recaptcha_token' => ['required'],
         ]);
 
-        if (Auth::attempt($credentials)) {            
+        // Validar reCAPTCHA
+        $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+            'secret' => env('RECAPTCHA_SECRET_KEY'), // o tu clave secreta directamente
+            'response' => $request->recaptcha_token,
+        ]);
+
+        $result = $response->json();
+
+        logger($result); // <-- Agrega esto
+        logger($request->recaptcha_token); // <-- Agrega esto
+        if (!isset($result['success'])) {
+            return response()->json(['message' => 'Error al verificar reCAPTCHA'], 422);
+        }
+
+        // Continuar con la autenticación
+        if (Auth::attempt($request->only('email', 'password'))) {
             $user = Auth::user();
-            if($user->active == false){
+            if (!$user->active) {
                 return response()->json(['password' => ['Usuario inactivo, contacte a un Administrador']], 401);
             }
             return response()->json([
                 'token' => $request->user()->createToken('auth_token')->plainTextToken
             ]);
         }
+
         throw ValidationException::withMessages([
             'password' => ['Contraseña o correo incorrectos.'],
         ]);
