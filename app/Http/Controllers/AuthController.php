@@ -139,7 +139,7 @@ class AuthController extends Controller
         return response()->json(['message' => 'Usuario actualizado con éxito!'], 201);
     }
 
-    public function register(Request $request)
+    public function register2(Request $request)
     {   
         $type = $request->input('type');
         if ($type == 1) {
@@ -151,7 +151,24 @@ class AuthController extends Controller
                     'alias' => 'string|max:50',
                     'email' => 'string|email|max:255|unique:users',
                     'password' => 'string|confirmed|min:8',
-                ]);    
+                    'recaptcha_token' => ['required'],
+                ]);  
+                
+            // Validar reCAPTCHA
+            $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+                'secret' => '6Lfu1BkrAAAAAJgqo0Zo1zXRGtcQvpObzBoo2jxI',
+                'response' => $request->recaptcha_token,
+            ]);
+
+            $result = $response->json();
+
+            //logger('RECAPTCHA request token: ' . $request->recaptcha_token);
+            //logger('RECAPTCHA response: ' . json_encode($response->json()));
+            
+            if (!isset($result['success']) || $result['success'] !== true) {
+                return response()->json(['message' => 'Error al verificar reCAPTCHA'], 422);
+            }
+
             $data = $request->only([
                     'name', 'a_paterno', 'a_materno', 'alias',
                 ]);
@@ -212,7 +229,23 @@ class AuthController extends Controller
                 'a_materno_contact' => 'string|max:50',
                 'relationship_contact' => 'string|max:20',
                 'cell_contact' => 'string|size:10',
+                'recaptcha_token' => ['required'],
             ]);    
+
+            // Validar reCAPTCHA
+            $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+                'secret' => '6Lfu1BkrAAAAAJgqo0Zo1zXRGtcQvpObzBoo2jxI',
+                'response' => $request->recaptcha_token,
+            ]);
+
+            $result = $response->json();
+
+            //logger('RECAPTCHA request token: ' . $request->recaptcha_token);
+            //logger('RECAPTCHA response: ' . json_encode($response->json()));
+            
+            if (!isset($result['success']) || $result['success'] !== true) {
+                return response()->json(['message' => 'Error al verificar reCAPTCHA'], 422);
+            }
 
             $general = $request->only([
                     'name', 'a_paterno', 'a_materno', 'alias',
@@ -271,6 +304,39 @@ class AuthController extends Controller
         return response()->json(['message' => 'Usuario registrado con exito'], 201);
     }
 
+    public function register(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:50',
+            'a_paterno' => 'required|string|max:50',
+            'a_materno' => 'required|string|max:50',
+            'alias' => 'nullable|string|max:50',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|confirmed|min:8',
+            'recaptcha_token' => 'required',
+        ]);
+
+        // Validar reCAPTCHA
+        if (!$this->verifyRecaptcha($request->recaptcha_token)) {
+            return response()->json(['message' => 'Error al verificar reCAPTCHA'], 422);
+        }
+
+        $type = $request->input('type');
+        $userData = array_map('strtoupper', $request->only(['name', 'a_paterno', 'a_materno', 'alias']));
+        $userData['email'] = $request->email;
+        $userData['password'] = Hash::make($request->password);
+        $userData['rol'] = $type == 1 ? 'Cliente/Externo' : 'Empleado';
+
+        $user = User::create($userData);
+
+        if ($type != 1) {
+            $this->createEmpleadoInfo($request, $user->id);
+        }
+
+        return response()->json(['message' => 'Usuario registrado con éxito'], 201);
+    }
+
+
     public function login(Request $request)
     {
         $request->validate([
@@ -280,17 +346,7 @@ class AuthController extends Controller
         ]);
 
         // Validar reCAPTCHA
-        $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
-            'secret' => '6Lfu1BkrAAAAAJgqo0Zo1zXRGtcQvpObzBoo2jxI',
-            'response' => $request->recaptcha_token,
-        ]);
-
-        $result = $response->json();
-
-        //logger('RECAPTCHA request token: ' . $request->recaptcha_token);
-        //logger('RECAPTCHA response: ' . json_encode($response->json()));
-        
-        if (!isset($result['success']) || $result['success'] !== true) {
+        if (!$this->verifyRecaptcha($request->recaptcha_token)) {
             return response()->json(['message' => 'Error al verificar reCAPTCHA'], 422);
         }
 
@@ -308,6 +364,19 @@ class AuthController extends Controller
         throw ValidationException::withMessages([
             'password' => ['Contraseña o correo incorrectos.'],
         ]);
+    }
+
+    private function verifyRecaptcha($token)
+    {
+        $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+            'secret' => '6Lfu1BkrAAAAAJgqo0Zo1zXRGtcQvpObzBoo2jxI',
+            'response' => $token,
+        ]);
+
+        //logger('RECAPTCHA request token: ' . $token);
+        //logger('RECAPTCHA response: ' . json_encode($response->json()));
+
+        return $response->json()['success'] ?? false;
     }
 
     public function logout(Request $request)
