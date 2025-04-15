@@ -281,15 +281,16 @@ class AuthController extends Controller
 
         // Validar reCAPTCHA
         $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
-            'secret' => env('RECAPTCHA_SECRET_KEY'), // o tu clave secreta directamente
+            'secret' => '6Lfu1BkrAAAAAJgqo0Zo1zXRGtcQvpObzBoo2jxI',
             'response' => $request->recaptcha_token,
         ]);
 
         $result = $response->json();
 
-        logger($result); // <-- Agrega esto
-        logger($request->recaptcha_token); // <-- Agrega esto
-        if (!isset($result['success'])) {
+        //logger('RECAPTCHA request token: ' . $request->recaptcha_token);
+        //logger('RECAPTCHA response: ' . json_encode($response->json()));
+        
+        if (!isset($result['success']) || $result['success'] !== true) {
             return response()->json(['message' => 'Error al verificar reCAPTCHA'], 422);
         }
 
