@@ -369,11 +369,11 @@ class AuthController extends Controller
     private function verifyRecaptcha($token)
     {
         $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
-            'secret' => env('RECAPTCHA_SECRET_KEY'),
+            'secret' => '6Lfu1BkrAAAAAJgqo0Zo1zXRGtcQvpObzBoo2jxI',
             'response' => $token,
         ]);
-        
-        logger(env('RECAPTCHA_SECRET_KEY'));
+
+        //logger(env('RECAPTCHA_SECRET_KEY'));
 
         //logger('RECAPTCHA request token: ' . $token);
         //logger('RECAPTCHA response: ' . json_encode($response->json()));
