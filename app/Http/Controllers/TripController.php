@@ -31,10 +31,89 @@ use Illuminate\Support\Facades\Storage;
 
 class TripController extends Controller
 {
-    public function addUnit(Request $request)
+
+    public function index(Request $request)
     {
-       //VERIFICAR QUE LA UNIDAD NO TENGA INSPECCIONES PENDIENTES
-       $unitClass = [
+        $Hoy = now()->toDateString();
+        $type = $request->query('type');
+        $transportType = $request->query('transportType');
+        $futureDate = '2024-11-01'; // Configurable
+
+        // Determinar la tabla base según transportType
+        $tripsQuery = null;
+        switch ($transportType) {
+            case 'TP': // Transporte Personal
+                $tripsQuery = Trips::with(['originPoint', 'destinationPoint', 'customer']);
+                break;
+
+            case 'TM': // Transporte Mineral
+                //$tripsQuery = TripsTm::with(['originPoint', 'destinationPoint', 'customer']);
+                break;
+
+            default:
+                return response()->json(['error' => 'Logistica no encontrada!...'], 400);
+        }
+
+        // Filtrar según el tipo de estado
+        if ($tripsQuery) {
+            switch ($type) {
+                case 1:
+                    $tripsQuery->where('status', 0);
+                    break;    
+                case 2:
+                    $tripsQuery->where('status', 1)
+                        ->where(function ($query) use ($Hoy) {
+                            $query->where('date', '>', $Hoy)
+                                ->orWhereNull('date');
+                        });
+                    break;    
+                case 3:
+                    $tripsQuery->where('status', 1)
+                        ->where('date', '<=', $Hoy);
+                    break;    
+                case 4: 
+                    // Status 2 y fecha mayor al 01/01/2025
+                    $tripsQuery->where('status', 2)
+                        ->where('end_date', '>', $futureDate);
+                    break;  
+                case 5:
+                    $tripsQuery->where('status', 3);
+                    break;    
+                default:
+                    return response()->json(['error' => 'Invalid type'], 400);
+            }
+    
+            // Ejecutar la consulta
+            $trips = $tripsQuery->get();
+    
+            // Transformar datos adicionales si es necesario
+            foreach ($trips as $trip) {
+                $trip->origin = $trip->originPoint->name ?? null;
+                $trip->destination = $trip->destinationPoint->name ?? null;
+                $trip->logistic = $this->getLogisticName($transportType);
+            }
+    
+            return response()->json($trips);
+        }else{
+            return response()->json(['error' => 'Logistica no encontrada!...'], 400);
+        }        
+    }
+
+    // Método para obtener el nombre logístico según el tipo de transporte
+    private function getLogisticName($transportType)
+    {
+        $logisticNames = [
+            'TP' => 'Transporte Personal (TP)',
+            'TM' => 'Transporte Mineral (TM)',
+        ];
+
+        return $logisticNames[$transportType] ?? 'Desconocido';
+    }
+
+    // Método auxiliar para obtener la clase de unidad
+    private function getUnitClass($type)
+    {
+        $unitTypeToClass = [
             1 => Tractocamiones::class,
             2 => Remolques::class,
             3 => Dollys::class,
@@ -45,8 +124,72 @@ class TripController extends Controller
             8 => Sprinters::class,
             9 => Utilitarios::class,
             10 => Maquinarias::class,
-        ][$request->type_unit];
-        
+        ];
+
+        return $unitTypeToClass[$type] ?? null;
+    }
+
+    public function store(Request $request)
+    {
+        // Validación de datos
+        $validated = $request->validate([
+            'user' => 'required|integer|exists:users,id',
+            'type_unit' => 'nullable|string',
+            'unit' => 'nullable|integer',
+            'trip_order' => 'required|string|unique:trips,trip_order',
+        ]);
+
+        try {   
+            // Inicializa el viaje
+            $tripData = [
+                'user' => $validated['user'],
+                'trip_order' => $validated['trip_order'],
+            ];       
+            
+            // Verificar si hay datos de unidad y tipo
+            if (!empty($validated['type_unit']) && !empty($validated['unit'])) {
+                // Obtener la clase dinámica basada en el tipo de unidad
+                $unitClass = $this->getUnitClass($validated['type_unit']);
+                $unit = $unitClass::findOrFail($validated['unit']); // Encuentra la unidad o lanza error
+
+                // Validar el estado de inspección de la unidad
+                if ($unit->status === 'inspection') {
+                    return response()->json([
+                        'message' => 'La unidad no se encuentra disponible para viaje (Estatus = "Inspección/Revisión").'
+                    ], 422);
+                }
+
+                // Crear el viaje
+                $trip = Trips::create($tripData);
+
+                // Asociar la unidad con el viaje
+                Units_Trips::create([
+                    'trip' => $trip->id,
+                    'type_unit' => $validated['type_unit'],
+                    'unit' => $validated['unit'],
+                ]);
+            }else{
+                // Crear el viaje
+                $trip = Trips::create($tripData);
+            }
+
+            return response()->json([
+                'message' => 'Viaje creado con éxito',
+                'id' => $trip->id,
+            ], 201);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error al crear el viaje',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function addUnit(Request $request)
+    {
+        //VERIFICAR QUE LA UNIDAD NO TENGA INSPECCIONES PENDIENTES
+        $unitClass = $this->getUnitClass($request->type_unit);
         $inspection = $unitClass::find($request->unit);
 
         if ($inspection->status === 'inspection') {  
@@ -59,6 +202,7 @@ class TripController extends Controller
             ->where('unit', $request->unit)
             ->where('trip', $request->trip)
             ->get();
+            
             if (count($unit) > 0) {
                 return response()->json([
                     'message' => 'La unidad ya se encuentra en la lista de unidades dentro del mismo viaje'
@@ -202,41 +346,7 @@ class TripController extends Controller
         return response()->json($users);  
     }
 
-    public function create(Request $request)
-    {      
-        //VERIFICAR QUE LA UNIDAD NO TENGA INSPECCIONES PENDIENTES
-        $unitClass = [
-            1 => Tractocamiones::class,
-            2 => Remolques::class,
-            3 => Dollys::class,
-            4 => Volteos::class,
-            5 => Toneles::class,
-            6 => Tortons::class,
-            7 => Autobuses::class,
-            8 => Sprinters::class,
-            9 => Utilitarios::class,
-            10 => Maquinarias::class,
-        ][$request->type_unit];
-        
-        $inspection = $unitClass::find($request->unit);
-
-        if ($inspection->status === 'inspection') {  
-            return response()->json([
-                'message' => 'La unidad no se encuentra disponible para viaje (Estatus = "Inspeccion")'
-            ], 422);       
-        }else{
-            $trip = new Trips(); 
-                $trip->user = $request->user;                   
-                $trip->save();
-                if($trip){
-                    $data = $request->only(['type_unit', 'unit' ]);
-                    $data['trip'] = $trip->id;
-                    $unit_trip = new Units_Trips($data);
-                    $unit_trip->save();
-            } 
-            return $trip->id;
-        }
-    }
+   
 
     public function show($trip)
     {
@@ -291,128 +401,6 @@ class TripController extends Controller
             $item->ejes = $unit->ejes;
         }
         return response()->json($units);  
-    }
-
-    public function showTrips($type)
-    {
-        $Hoy = date('Y-m-d');
-        switch ($type) {
-            case 1:
-                $trips = DB::table('trips')
-                    ->where('status', 0)
-                    ->get();
-                break;   
-            case 2:
-                $trips = DB::table('trips')
-                    ->where(function ($query) use ($Hoy) {
-                        $query->where('date', '>', $Hoy)
-                            ->orWhereNull('date'); // This includes records where 'date' is null
-                    })
-                    ->where('status', 1)
-                    ->get();
-                foreach ($trips as $item) {
-                    $origin = ModelsPointsInterest::find($item->origin);
-                    $destination = ModelsPointsInterest::find($item->destination);
-                    $item->origin = $origin->name;
-                    $item->destination = $destination->name;
-                }
-                break;
-            case 3:
-                $trips = DB::table('trips')
-                    ->where('date', '<=', $Hoy)
-                    ->where('status', 1)
-                    ->get();
-                foreach ($trips as $item) {
-                    $origin = ModelsPointsInterest::find($item->origin);
-                    $destination = ModelsPointsInterest::find($item->destination);
-                    $item->origin = $origin->name;
-                    $item->destination = $destination->name;
-                    $units = DB::table('units__trips')->where('trip', $item->id)->get();    
-                    $unitTypeToClass = [
-                        1 => Tractocamiones::class,
-                        2 => Remolques::class,
-                        3 => Dollys::class,
-                        4 => Volteos::class,
-                        5 => Toneles::class,
-                        6 => Tortons::class,
-                        7 => Autobuses::class,
-                        8 => Sprinters::class,
-                        9 => Utilitarios::class,
-                        10 => Maquinarias::class,
-                    ];
-                    foreach ($units as $unit) {                      
-                        $unitClass = $unitTypeToClass[$unit->type_unit];
-                        $inspection = $unitClass::find($unit->unit);
-                        if ($inspection->status != 'inspection') {
-                            $unitClass::find($unit->unit)->update(['status' => 'trip']);
-                        }
-                    }
-                }
-                break;
-            case 4:
-                $trips = DB::table('trips')
-                    ->where('status', 2)
-                    ->get();
-                foreach ($trips as $item) {
-                    $origin = ModelsPointsInterest::find($item->origin);
-                    $destination = ModelsPointsInterest::find($item->destination);
-                    $item->origin = $origin->name;
-                    $item->destination = $destination->name;
-                    $units = DB::table('units__trips')->where('trip', $item->id)->get();    
-                    $unitTypeToClass = [
-                        1 => Tractocamiones::class,
-                        2 => Remolques::class,
-                        3 => Dollys::class,
-                        4 => Volteos::class,
-                        5 => Toneles::class,
-                        6 => Tortons::class,
-                        7 => Autobuses::class,
-                        8 => Sprinters::class,
-                        9 => Utilitarios::class,
-                        10 => Maquinarias::class,
-                    ];
-                    foreach ($units as $unit) {                      
-                        $unitClass = $unitTypeToClass[$unit->type_unit];
-                        $inspection = $unitClass::find($unit->unit);
-                        if ($inspection->status != 'inspection') {
-                            $unitClass::find($unit->unit)->update(['status' => 'trip']);
-                        }
-                    }
-                }
-                break;
-            case 5:
-                $trips = DB::table('trips')
-                    ->where('status', 3)
-                    ->get();
-                foreach ($trips as $item) {
-                    $origin = ModelsPointsInterest::find($item->origin);
-                    $destination = ModelsPointsInterest::find($item->destination);
-                    $item->origin = $origin->name;
-                    $item->destination = $destination->name;
-                    $units = DB::table('units__trips')->where('trip', $item->id)->get();    
-                    $unitTypeToClass = [
-                        1 => Tractocamiones::class,
-                        2 => Remolques::class,
-                        3 => Dollys::class,
-                        4 => Volteos::class,
-                        5 => Toneles::class,
-                        6 => Tortons::class,
-                        7 => Autobuses::class,
-                        8 => Sprinters::class,
-                        9 => Utilitarios::class,
-                        10 => Maquinarias::class,
-                    ];
-                    foreach ($units as $unit) {                      
-                        $unitClass = $unitTypeToClass[$unit->type_unit];
-                        $inspection = $unitClass::find($unit->unit);
-                        if ($inspection->status != 'inspection') {
-                            $unitClass::find($unit->unit)->update(['status' => 'trip']);
-                        }
-                    }
-                }
-                break;
-        }        
-        return response()->json($trips);
     }
 
     public function showTrip($id)
@@ -501,7 +489,8 @@ class TripController extends Controller
         Trips::find($trip)->update($request->data);//ACTUALIZAMOS LA INFO
         Trips::find($trip)->update(['status' => $request->status]);//ACTUALIZAMOS EL ESTATUS
         // Si $request->docs no es un array vacío, insertar o actualizar en ChekDocs
-        if (!empty($request->docs)) {
+        //if (!empty($request->docs)) {
+        if (false) {
             $existingEntry = ChekDocs::where('trip', $trip)->first();
             if ($existingEntry) {
                 // Si ya existe una entrada, actualiza los datos
@@ -514,13 +503,12 @@ class TripController extends Controller
                 ChekDocs::create($dataDocs);
             }
         }
-        if ($request->status === 0 OR $request->status === 3) {
-            return response()->json(['message' => 'Viaje actualizado exitosamente.']);
-        }else if ($request->status === 1) {
+        if ($request->status === 1 && $request->print) {
             $pdfContent = $this->PDF($trip);
             Storage::disk('public')->put('trips/Orden N°'. ($trip + 10000) . '.pdf', $pdfContent);
             return response($pdfContent, 200)->header('Content-Type', 'application/pdf');// Devolver el contenido del PDF
         }
+        return response()->json(['message' => 'Viaje actualizado exitosamente.']);
     }
 
     private function PDF($trip)

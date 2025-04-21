@@ -61,7 +61,6 @@ class RequisitionsController extends Controller
         $data['id_user'] = $user->id;
         $data['status'] = 'PENDIENTE';
         
-      
         // Crear la nueva requisición
         $requisition = new Requisitions($data);
         $requisition->save();
@@ -71,12 +70,20 @@ class RequisitionsController extends Controller
             ->where('id_user', $user->id)
             ->update(['id_requisition' => $requisition->id]);
 
-       // Manejar el archivo PDF si está presente
+        // Manejar el archivo PDF si existe
+
         if ($request->hasFile('pdf')) {
-            // Subir el archivo a la carpeta 'public/Comprobantes'
-            $path = $request->file('pdf')->store('Comprobantes', 'public');
-            $requisition->comprobante = $path; // Guardar la ruta del archivo en 'comprobante'
-            $requisition->save(); // Guardar los cambios en la requisición
+            $file = $request->file('pdf');
+            
+            // Generar un nombre único con timestamp y el ID de usuario
+            $filename = 'comprobante_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            
+            // Guardar el archivo con el nuevo nombre
+            $path = $file->storeAs('Comprobantes', $filename, 'public');
+        
+            // Guardar la ruta en la requisición
+            $requisition->comprobante = $path;
+            $requisition->save();
         }
         
         // Generar el PDF y devolverlo

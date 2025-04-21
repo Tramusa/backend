@@ -10,4 +10,10 @@ class Units_Trips extends Model
     use HasFactory;
 
     protected $fillable = [ 'trip', 'type_unit', 'unit' ];
+
+    // Relación con viaje
+    public function trip()
+    {
+        return $this->belongsTo(Trips::class, 'trip');
+    }
 }
