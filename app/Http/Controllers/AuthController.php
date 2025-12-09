@@ -374,7 +374,6 @@ class AuthController extends Controller
         ]);
 
         //logger(env('RECAPTCHA_SECRET_KEY'));
-
         //logger('RECAPTCHA request token: ' . $token);
         //logger('RECAPTCHA response: ' . json_encode($response->json()));
 

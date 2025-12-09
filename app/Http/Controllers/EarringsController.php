@@ -19,21 +19,48 @@ use Illuminate\Support\Facades\DB;
 
 class EarringsController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $earrings = DB::table('earrings')->where('status', 1)->get();
+        $tipo = $request->get('tipo'); // personal, otras, etc.
+
+        $query = DB::table('earrings')->where('status', 1);
+
+        // FILTRO PRINCIPAL SEGÚN TIPO
+        if ($tipo === 'personal') {
+            // solo autobuses (7) y sprinters (8)
+            $query->whereIn('type', [7, 8]);
+        }
+
+        // si después quieres "otras"
+        if ($tipo === 'otras') {
+            $query->whereNotIn('type', [7, 8]);
+        }
+
+        $earrings = $query->get();
+
+        // TABLAS PARA OBTENER no_economic
         $tablas = ['', 'tractocamiones', 'remolques', 'dollys', 'volteos', 'toneles', 'tortons', 'autobuses', 'sprinters', 'utilitarios', 'maquinarias'];
 
         foreach ($earrings as $earring) {
+
             $id_unit = $earring->unit;
-            
-            $unit = DB::table($tablas[$earring->type])->select('no_economic')->where('id', $id_unit)->first();
-            $earring->unit = $unit->no_economic;
-               
-            $earring->type = $tablas[$earring->type];
+            $table = $tablas[$earring->type];
+
+            // Obtener número económico
+            $unit = DB::table($table)
+                ->select('no_economic')
+                ->where('id', $id_unit)
+                ->first();
+
+            $earring->unit = $unit->no_economic ?? 'N/A';
+
+            // Reemplazar type por nombre de tabla
+            $earring->type = $table;
         }
+
         return response()->json($earrings);
     }
+
 
     public function store(Request $request)
     {
