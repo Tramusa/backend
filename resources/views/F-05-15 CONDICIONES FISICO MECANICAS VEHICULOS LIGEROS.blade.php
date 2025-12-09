@@ -182,7 +182,6 @@
           <tr><th>Odometro</th></tr>
           <tr><td class="blueTitle">{{ $data['odometro'] }}</td></tr>
       </table> 
-      <div style="clear: both; blueTitle">{{ $data['¿Se realizó prueba de frenado?'] }}</div>
       <div style="clear: both;"></div><br><br>
       <div class="row">
         <!-- Columna 1 -->

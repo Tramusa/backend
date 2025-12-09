@@ -48,6 +48,7 @@ use App\Http\Controllers\TripController;
 use App\Http\Controllers\UnitController;
 use App\Http\Controllers\WarehousesController;
 use App\Http\Controllers\WorkAreasController;
+use App\Models\Warehouses;
 use Illuminate\Support\Facades\DB;
 
 Route::post('/login', [AuthController::class, 'login']);
@@ -237,7 +238,6 @@ Route::middleware('auth:sanctum')->apiResource('history-tires', HistoryTireContr
 Route::middleware('auth:sanctum')->apiResource('revisions-tires', RevisionsTireController::class);
 Route::middleware('auth:sanctum')->apiResource('renovation-tires', RenovationsTireController::class);
 Route::middleware('auth:sanctum')->apiResource('repair-tires', RepairTireController::class);
-//MODULES (CUENTAS, PORDUCTOS, CATEGORIAS, PROVVEDORES, AREAS)
 Route::middleware('auth:sanctum')->apiResource('work-areas', WorkAreasController::class);
 Route::middleware('auth:sanctum')->apiResource('collaborators', CollaboratorsController::class);
 Route::middleware('auth:sanctum')->apiResource('parents-account', ParentAccountController::class);
