@@ -9,7 +9,7 @@ class Dollys extends Model
 {
     use HasFactory;
 
-    protected $fillable = [ 'no_economic', 'no_seriously', 'ejes', 'brand', 'model', 'user', 'status' ];
+    protected $fillable = [ 'no_economic', 'no_seriously', 'ejes', 'brand', 'model', 'logistic', 'user', 'status' ];
 }
 
 

@@ -29,6 +29,7 @@ return new class extends Migration
             $table->string('rear_bumper_size')->nullable();
             $table->string('authorized_capacity')->nullable();
             $table->integer('ejes');
+            $table->string('logistic')->nullable();
             $table->integer('user');
             $table->string('status')->default('available');
             $table->timestamps();

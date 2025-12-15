@@ -16,57 +16,62 @@ class RevisionsController extends Controller
 {
     public function index(Request $request)
     {
-        $user = $request->user(); // Obtén el usuario autenticado
-        
-        if ($user) {
-            if ($user->rol === 'Administrador') {
-                // Si es Administrador, mostrar todos con status 1
-                $revisions = DB::table('revisions')->where('status', 1)->get();
-            } elseif ($user->rol === 'Coordinador Logistica Concentrado') {
-                // Si es Coordinador de Concentrado, mostrar todos menos los de type 7, 8, 9
-                $revisions = DB::table('revisions')
-                    ->where('status', 1)
-                    ->whereNotIn('type', [7, 8, 9])
-                    ->get();
-            } elseif ($user->rol === 'Coordinador Logistica Personal' || $user->rol === 'Supervisor de Seguridad e Higiene') {
-                // Si es Coordinador, mostrar solo los de type 7, 8, 9
-                $revisions = DB::table('revisions')
-                    ->where('status', 1)
-                    ->whereIn('type', [7, 8, 9])
-                    ->get();
-            } else {
-                // Si no, mostrar solo los de su usuario
-                $revisions = DB::table('revisions')
-                    ->where('status', 1)
-                    ->where('responsible', $user->id)
-                    ->get();
-            }
-        }
-        
-        $tablas = ['', 'tractocamiones', 'remolques', 'dollys', 'volteos', 'toneles', 'tortons', 'autobuses', 'sprinters', 'utilitarios', 'maquinarias'];
+        $tipo = $request->query('tipo'); // personal | cc | utilitario
+        logger($tipo);
 
-        foreach ($revisions as $revision) {
-            $id_unit = $revision->unit;
-            $id_responsible = $revision->responsible;
-            
-            $unit = DB::table($tablas[$revision->type])->select('no_economic')->where('id', $id_unit)->first();
-            
-            if ($unit && $unit->no_economic) {
-                $revision->no_economic = $unit->no_economic;
-            } else {
-                $revision->no_economic = null; // or any default value or handle accordingly
-            }
+        $query = DB::table('revisions')
+            ->join('units_all', function ($join) {
+                $join->on('units_all.unit_id', '=', 'revisions.unit')
+                    ->on('units_all.type', '=', 'revisions.type');
+            })
+            ->join('users', 'users.id', '=', 'revisions.responsible')
+            ->select(
+                'revisions.id',
+                'revisions.type',
+                'revisions.is',
+                'revisions.status',
+                'revisions.created_at',
+                'units_all.no_economic',
+                'units_all.logistic',
+                'units_all.customer',
+                'users.name as responsible'
+            )
+            ->where('revisions.status', 1);
 
-            $responsible = DB::table('users')->select('name')->where('id', $id_responsible)->first();
-            
-            if ($responsible) {
-                $revision->responsible = $responsible->name;
-            } else {
-                $revision->responsible = null; // or any default value or handle accordingly
-            }
+        // 🚚 FILTRO POR LOGÍSTICA
+        if ($tipo === 'personal') {
+            $query->where('units_all.logistic', 'Logistica Personal');
         }
 
-        return response()->json($revisions);
+        if ($tipo === 'cc') {
+            logger('entra aqui tiene que separar CC');
+            $query->where('units_all.logistic', 'Logistica cc');
+        }
+
+        if ($tipo === 'utilitario') {
+            
+            $query->where('units_all.logistic', 'Utilitarios');
+        }
+
+        return response()->json($query->get());
+    }
+
+    public function countByLogistic()
+    {
+        $counts = DB::table('revisions')
+            ->join('units_all', function ($join) {
+                $join->on('units_all.unit_id', '=', 'revisions.unit')
+                    ->on('units_all.type', '=', 'revisions.type');
+            })
+            ->where('revisions.status', 1)
+            ->select(DB::raw(
+                "SUM(CASE WHEN units_all.logistic = 'Logistica Personal' THEN 1 ELSE 0 END) AS personal,
+                SUM(CASE WHEN units_all.logistic = 'Logistica cc' THEN 1 ELSE 0 END) AS cc,
+                SUM(CASE WHEN units_all.logistic = 'Utilitarios' THEN 1 ELSE 0 END) AS utilitario"
+            ))
+            ->first();
+
+        return response()->json($counts);
     }
 
 

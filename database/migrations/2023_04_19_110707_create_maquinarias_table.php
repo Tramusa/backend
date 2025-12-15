@@ -20,6 +20,7 @@ return new class extends Migration
             $table->date('expiration_circulation');
             $table->integer('user');
             $table->integer('ejes');
+            $table->string('logistic')->nullable();
             $table->string('status')->default('available');
             $table->timestamps();
         });

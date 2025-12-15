@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('brand');
             $table->string('model');
             $table->integer('ejes');
+            $table->string('logistic')->nullable();
             $table->integer('user');
             $table->string('status')->default('available');
             $table->timestamps();

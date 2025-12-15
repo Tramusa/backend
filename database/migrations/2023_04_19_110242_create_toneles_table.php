@@ -30,6 +30,7 @@ return new class extends Migration
             $table->date('expiration_volumetric');
             $table->integer('ejes');
             $table->string('volume');
+            $table->string('logistic')->nullable();
             $table->integer('user');
             $table->string('status')->default('available');
             $table->timestamps();

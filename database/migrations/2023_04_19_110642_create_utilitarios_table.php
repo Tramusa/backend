@@ -27,7 +27,8 @@ return new class extends Migration
             $table->string('physical_mechanical');
             $table->date('physical_expiration');
             $table->string('pollutant_emission');
-            $table->date('contaminant_expiration') ;                 
+            $table->date('contaminant_expiration') ;  
+            $table->string('logistic')->nullable();               
             $table->string('front')->nullable();
             $table->string('rear')->nullable();
             $table->string('left')->nullable();

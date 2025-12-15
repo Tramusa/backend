@@ -21,46 +21,36 @@ class EarringsController extends Controller
 {
     public function index(Request $request)
     {
-        $tipo = $request->get('tipo'); // personal, otras, etc.
+        $tipo = $request->get('tipo'); // personal, cc, utilitario
 
-        $query = DB::table('earrings')->where('status', 1);
+        $query = DB::table('earrings')
+            ->join('units_all', function ($join) {
+                $join->on('units_all.unit_id', '=', 'earrings.unit')
+                    ->on('units_all.type', '=', 'earrings.type');
+            })
+            ->where('earrings.status', 1)
+            ->select(
+                'earrings.*',
+                'units_all.no_economic',
+                'units_all.logistic',
+                'units_all.customer'
+            );
 
-        // FILTRO PRINCIPAL SEGÚN TIPO
+        // FILTRO POR LOGÍSTICA
         if ($tipo === 'personal') {
-            // solo autobuses (7) y sprinters (8)
-            $query->whereIn('type', [7, 8]);
+            $query->where('units_all.logistic', 'Logistica Personal');
         }
 
-        // si después quieres "otras"
-        if ($tipo === 'otras') {
-            $query->whereNotIn('type', [7, 8]);
+        if ($tipo === 'cc') {
+            $query->where('units_all.logistic', 'Logistica cc');
         }
 
-        $earrings = $query->get();
-
-        // TABLAS PARA OBTENER no_economic
-        $tablas = ['', 'tractocamiones', 'remolques', 'dollys', 'volteos', 'toneles', 'tortons', 'autobuses', 'sprinters', 'utilitarios', 'maquinarias'];
-
-        foreach ($earrings as $earring) {
-
-            $id_unit = $earring->unit;
-            $table = $tablas[$earring->type];
-
-            // Obtener número económico
-            $unit = DB::table($table)
-                ->select('no_economic')
-                ->where('id', $id_unit)
-                ->first();
-
-            $earring->unit = $unit->no_economic ?? 'N/A';
-
-            // Reemplazar type por nombre de tabla
-            $earring->type = $table;
+        if ($tipo === 'utilitario') {
+            $query->where('units_all.logistic', 'Utilitarios');
         }
 
-        return response()->json($earrings);
+        return response()->json($query->get());
     }
-
 
     public function store(Request $request)
     {

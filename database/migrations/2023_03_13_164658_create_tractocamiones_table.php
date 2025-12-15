@@ -44,6 +44,7 @@ return new class extends Migration
             $table->string('cpl');
             $table->integer('ejes');
             $table->string('carrier');
+            $table->string('logistic')->nullable();
             $table->string('front')->nullable();
             $table->string('rear')->nullable();
             $table->string('left')->nullable();

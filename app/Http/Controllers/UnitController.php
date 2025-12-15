@@ -65,7 +65,7 @@ class UnitController extends Controller
         switch ($request->tipo) {
             case 1:
                 $request->validate(['front' => 'image|max:3000', 'rear' => 'image|max:3000', 'left' => 'image|max:3000', 'right' => 'image|max:3000',]); // 3MB Asegúrate de que se haya cargado una imagen y que sea de un tipo válido.
-                $data = $request->only(['no_economic', 'brand', 'model', 'year', 'no_motor', 'no_seriously', 'motor', 'color', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'state_tenure', 'expiration_tenure', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'cre', 'expiration_cre', 'engine_capacity', 'speeds', 'differential_pitch', 'transmission', 'ecm', 'esn', 'cpl', 'extent_tire', 'tire', 'ejes', 'carrier', 'user']);
+                $data = $request->only(['no_economic', 'brand', 'model', 'year', 'no_motor', 'no_seriously', 'motor', 'color', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'state_tenure', 'expiration_tenure', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'cre', 'expiration_cre', 'engine_capacity', 'speeds', 'differential_pitch', 'transmission', 'ecm', 'esn', 'cpl', 'extent_tire', 'tire', 'ejes', 'carrier', 'logistic', 'user']);
                 
                 $unit = new Tractocamiones($data);                
                 $unit->save();
@@ -117,8 +117,8 @@ class UnitController extends Controller
                 break;
             case 6:
                 $request->validate(['front' => 'image|max:3000', 'rear' => 'image|max:3000', 'left' => 'image|max:3000', 'right' => 'image|max:3000',]); // 3MB Asegúrate de que se haya cargado una imagen y que sea de un tipo válido.
-                $data = $request->only(['no_economic', 'brand', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'state_tenure', 'expiration_tenure', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'engine_capacity', 'speeds', 'differential_pitch', 'transmission', 'ecm', 'esn', 'cpl', 'extent_tire', 'tire', 'ejes', 'no_passengers', 'user']);
-                
+                $data = $request->only(['no_economic', 'brand', 'model', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'state_tenure', 'expiration_tenure', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'engine_capacity', 'speeds', 'differential_pitch', 'transmission', 'ecm', 'esn', 'cpl', 'extent_tire', 'tire', 'ejes', 'no_passengers', 'logistic', 'user']);
+            
                 $unit = new Tortons($data);                
                 $unit->save();
 
@@ -152,8 +152,14 @@ class UnitController extends Controller
                 }
                 break;
             case 7:
-                $request->validate(['front' => 'image|max:3000', 'rear' => 'image|max:3000', 'left' => 'image|max:3000', 'right' => 'image|max:3000',]); // 3MB Asegúrate de que se haya cargado una imagen y que sea de un tipo válido.
-                $data = $request->only(['no_economic', 'brand', 'model', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'ejes', 'no_passengers', 'user']);
+                $request->validate([
+                    'front' => 'nullable|image|max:3000',
+                    'rear'  => 'nullable|image|max:3000',
+                    'left'  => 'nullable|image|max:3000',
+                    'right' => 'nullable|image|max:3000',
+                ]);
+                
+                $data = $request->only(['no_economic', 'brand', 'model', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'ejes', 'no_passengers', 'odometro', 'customer', 'logistic', 'user']);
             
                 $unit = new Autobuses($data);                
                 $unit->save();
@@ -188,8 +194,16 @@ class UnitController extends Controller
                 }                 
                 break;
             case 8:
-                $request->validate(['front' => 'image|max:3000', 'rear' => 'image|max:3000', 'left' => 'image|max:3000', 'right' => 'image|max:3000',]); // 3MB Asegúrate de que se haya cargado una imagen y que sea de un tipo válido.
-                $data = $request->only(['no_economic', 'brand', 'model', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'state_tenure', 'expiration_tenure', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'ejes', 'no_passengers', 'user']);
+
+                logger($request);
+                $request->validate([
+                    'front' => 'nullable|image|max:3000',
+                    'rear'  => 'nullable|image|max:3000',
+                    'left'  => 'nullable|image|max:3000',
+                    'right' => 'nullable|image|max:3000',
+                ]);
+                
+                $data = $request->only(['no_economic', 'brand', 'model', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'state_tenure', 'expiration_tenure', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'ejes', 'no_passengers', 'odometro', 'customer' , 'logistic', 'user']);
             
                 $unit = new Sprinters($data);                
                 $unit->save();
@@ -223,11 +237,10 @@ class UnitController extends Controller
                     $imagen_rectangular->save(public_path(Storage::url($path)));
                 }   
                 break;
-            case 9:
-                Logger($request->all()) ;  
+            case 9: 
 
                 $request->validate(['front' => 'image|max:3000', 'rear' => 'image|max:3000', 'left' => 'image|max:3000', 'right' => 'image|max:3000',]); // 3MB Asegúrate de que se haya cargado una imagen y que sea de un tipo válido.
-                $data = $request->only(['no_economic', 'brand', 'model', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'state_tenure', 'expiration_tenure', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'ejes', 'user']);
+                $data = $request->only(['no_economic', 'brand', 'model', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'state_tenure', 'expiration_tenure', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'ejes', 'logistic', 'user']);
                 
                 $unit = new Utilitarios($data);            
                 $unit->save();
@@ -395,7 +408,7 @@ class UnitController extends Controller
         switch ($type) {
             case 1:
                 $request->validate(['front' => 'image|max:3000', 'rear' => 'image|max:3000', 'left' => 'image|max:3000', 'right' => 'image|max:3000',]); // 3MB Asegúrate de que se haya cargado una imagen y que sea de un tipo válido.
-                $data = $request->only(['no_economic', 'brand', 'model', 'year', 'no_motor', 'no_seriously', 'motor', 'color', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'state_tenure', 'expiration_tenure', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'cre', 'expiration_cre', 'engine_capacity', 'speeds', 'differential_pitch', 'transmission', 'ecm', 'esn', 'cpl', 'extent_tire', 'tire', 'ejes', 'carrier', 'odometro', 'user']);
+                $data = $request->only(['no_economic', 'brand', 'model', 'year', 'no_motor', 'no_seriously', 'motor', 'color', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'state_tenure', 'expiration_tenure', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'cre', 'expiration_cre', 'engine_capacity', 'speeds', 'differential_pitch', 'transmission', 'ecm', 'esn', 'cpl', 'extent_tire', 'tire', 'ejes', 'carrier', 'odometro', 'logistic', 'user']);
                 
                 Tractocamiones::find($request->id)->update($data);
                 // Obtén el registro actual
@@ -454,7 +467,7 @@ class UnitController extends Controller
                 break;
             case 6:   
                 $request->validate(['front' => 'image|max:3000', 'rear' => 'image|max:3000', 'left' => 'image|max:3000', 'right' => 'image|max:3000',]); // 3MB Asegúrate de que se haya cargado una imagen y que sea de un tipo válido.
-                $data = $request->only(['no_economic', 'brand', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'state_tenure', 'expiration_tenure', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'engine_capacity', 'speeds', 'differential_pitch', 'transmission', 'ecm', 'esn', 'cpl', 'extent_tire', 'tire', 'ejes', 'no_passengers', 'user']);
+                $data = $request->only(['no_economic', 'brand', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'state_tenure', 'expiration_tenure', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'engine_capacity', 'speeds', 'differential_pitch', 'transmission', 'ecm', 'esn', 'cpl', 'extent_tire', 'tire', 'ejes', 'no_passengers' , 'logistic', 'user']);
                 
                 Tortons::find($request->id)->update($data);
 
@@ -502,7 +515,7 @@ class UnitController extends Controller
                 break;
             case 7:   
                 $request->validate(['front' => 'image|max:3000', 'rear' => 'image|max:3000', 'left' => 'image|max:3000', 'right' => 'image|max:3000',]); // 3MB Asegúrate de que se haya cargado una imagen y que sea de un tipo válido.
-                $data = $request->only(['no_economic', 'brand', 'model', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'ejes', 'no_passengers', 'odometro', 'user']);
+                $data = $request->only(['no_economic', 'brand', 'model', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'ejes', 'no_passengers', 'odometro' , 'logistic', 'customer', 'user']);
             
                 Autobuses::find($request->id)->update($data); 
 
@@ -550,7 +563,7 @@ class UnitController extends Controller
                 break;
             case 8:
                 $request->validate(['front' => 'image|max:3000', 'rear' => 'image|max:3000', 'left' => 'image|max:3000', 'right' => 'image|max:3000',]); // 3MB Asegúrate de que se haya cargado una imagen y que sea de un tipo válido.
-                $data = $request->only(['no_economic', 'brand', 'model', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'state_tenure', 'expiration_tenure', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'ejes', 'no_passengers', 'odometro', 'user']);
+                $data = $request->only(['no_economic', 'brand', 'model', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'state_tenure', 'expiration_tenure', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'ejes', 'no_passengers', 'odometro' , 'logistic', 'customer', 'user']);
             
                 Sprinters::find($request->id)->update($data); 
 
@@ -598,7 +611,7 @@ class UnitController extends Controller
                 break;
             case 9:  
                 $request->validate(['front' => 'image|max:3000', 'rear' => 'image|max:3000', 'left' => 'image|max:3000', 'right' => 'image|max:3000',]); // 3MB Asegúrate de que se haya cargado una imagen y que sea de un tipo válido.
-                $data = $request->only(['no_economic', 'brand', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'state_tenure', 'expiration_tenure', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'ejes', 'odometro', 'user']);
+                $data = $request->only(['no_economic', 'brand', 'no_seriously', 'no_placas', 'expiration_placas', 'circulation_card', 'expiration_circulation', 'state_tenure', 'expiration_tenure', 'insurance_policy', 'safe_expiration', 'policy_receipt', 'expiration_receipt', 'physical_mechanical', 'physical_expiration', 'pollutant_emission', 'contaminant_expiration', 'ejes', 'odometro', 'logistic', 'user']);
                  
                 Utilitarios::find($request->id)->update($data);
 

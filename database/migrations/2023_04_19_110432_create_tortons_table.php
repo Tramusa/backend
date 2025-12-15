@@ -37,7 +37,8 @@ return new class extends Migration
             $table->string('cpl');
             $table->string('extent_tire');
             $table->string('tire');          
-            $table->integer('ejes');           
+            $table->integer('ejes'); 
+            $table->string('logistic')->nullable();          
             $table->string('front')->nullable();
             $table->string('rear')->nullable();
             $table->string('left')->nullable();

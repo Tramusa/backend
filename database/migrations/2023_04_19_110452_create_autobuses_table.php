@@ -28,6 +28,9 @@ return new class extends Migration
             $table->date('contaminant_expiration'); 
             $table->integer('ejes');
             $table->integer('no_passengers');
+            $table->integer('odometro')->nullable();
+            $table->string('customer')->nullable();
+            $table->string('logistic')->nullable();
             $table->string('front')->nullable();
             $table->string('rear')->nullable();
             $table->string('left')->nullable();

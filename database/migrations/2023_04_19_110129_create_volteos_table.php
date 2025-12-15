@@ -26,6 +26,7 @@ return new class extends Migration
             $table->date('physical_expiration');
             $table->integer('ejes');
             $table->integer('volume');
+            $table->string('logistic')->nullable();
             $table->integer('user');
             $table->string('status')->default('available');
             $table->timestamps();

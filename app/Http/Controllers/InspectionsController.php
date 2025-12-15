@@ -16,27 +16,71 @@ class InspectionsController extends Controller
     
     public function index(Request $request)
     {
-        $user = $request->user(); // Obtén el usuario autenticado
-        
-        if ($user && ($user->rol === 'Administrador' || strpos($user->rol, 'Coordinador') !== false)) {
-            $inspections = DB::table('inspections')->where('status', 1)->get();
-        } else {
-            $inspections = DB::table('inspections')->where('status', 1)->where('responsible', $user->id)->get();
+        $tipo = $request->query('tipo'); // personal | cc | utilitario
+        $tipo = $request->query('tipo');
+
+if (is_array($tipo)) {
+    $tipo = reset($tipo); // toma el primer valor si es array
+}
+
+$tipo = strtolower(trim($tipo)); // limpiar espacios y forzar minúsculas
+logger($tipo);
+        $query = DB::table('inspections')
+            ->join('units_all', function ($join) {
+                $join->on('units_all.unit_id', '=', 'inspections.unit')
+                    ->on('units_all.type', '=', 'inspections.type');
+            })
+            ->join('users', 'users.id', '=', 'inspections.responsible')
+            ->select(
+                'inspections.id',
+                'inspections.type',
+                'inspections.is',
+                'inspections.status',
+                'inspections.created_at',
+                'units_all.no_economic',
+                'units_all.logistic',
+                'units_all.customer',
+                'users.name as responsible'
+            )
+            ->where('inspections.status', 1);
+
+        // 🚚 FILTRO POR LOGÍSTICA
+        if ($tipo === 'personal') {
+            logger('entra aqui tiene que separar personal');
+
+            $query->where('units_all.logistic', 'Logistica Personal');
         }
 
-        $tablas = ['', 'tractocamiones', 'remolques', 'dollys', 'volteos', 'toneles', 'tortons', 'autobuses', 'sprinters', 'utilitarios', 'maquinarias'];
-        foreach ($inspections as $inspection) {
-            $id_unit = $inspection->unit;
-            $id_responsible = $inspection->responsible;
-            $unit = DB::table($tablas[$inspection->type])->select('no_economic')->where('id', $id_unit)->first();
-            if ($unit) {
-                $inspection->unit = $unit->no_economic;
-            }     
-                   
-            $responsible = DB::table('users')->select('name')->where('id', $id_responsible)->first();
-            $inspection->responsible = $responsible->name;
+        if ($tipo === 'cc') {
+            logger('entra aqui tiene que separar cc');
+
+            $query->where('units_all.logistic', 'Logistica cc');
         }
-        return response()->json($inspections);
+
+        if ($tipo === 'utilitario') {
+            logger('entra aqui tiene que separar UTILITARIO');
+            $query->where('units_all.logistic', 'Utilitarios');
+        }
+
+        return response()->json($query->get());
+    }
+
+    public function countByLogistic()
+    {
+        $counts = DB::table('inspections')
+            ->join('units_all', function ($join) {
+                $join->on('units_all.unit_id', '=', 'inspections.unit')
+                    ->on('units_all.type', '=', 'inspections.type');
+            })
+            ->where('inspections.status', 1)
+            ->select(DB::raw(
+                "SUM(CASE WHEN units_all.logistic = 'Logistica Personal' THEN 1 ELSE 0 END) AS personal,
+                SUM(CASE WHEN units_all.logistic = 'Logistica cc' THEN 1 ELSE 0 END) AS cc,
+                SUM(CASE WHEN units_all.logistic = 'Utilitarios' THEN 1 ELSE 0 END) AS utilitario"
+            ))
+            ->first();
+
+        return response()->json($counts);
     }
 
 
