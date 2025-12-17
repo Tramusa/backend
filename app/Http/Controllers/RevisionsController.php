@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Dompdf\Dompdf;
 use Illuminate\Http\Request;
 use Illuminate\Log\Logger;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -16,8 +17,9 @@ class RevisionsController extends Controller
 {
     public function index(Request $request)
     {
-        $tipo = $request->query('tipo'); // personal | cc | utilitario
-        logger($tipo);
+        $tipo = $request->query('tipo');
+        $user = Auth::user();
+        $role = strtolower($user->rol); // normalizamos
 
         $query = DB::table('revisions')
             ->join('units_all', function ($join) {
@@ -38,19 +40,26 @@ class RevisionsController extends Controller
             )
             ->where('revisions.status', 1);
 
-        // 🚚 FILTRO POR LOGÍSTICA
+        // 🚚 LOGÍSTICA
         if ($tipo === 'personal') {
             $query->where('units_all.logistic', 'Logistica Personal');
         }
 
         if ($tipo === 'cc') {
-            logger('entra aqui tiene que separar CC');
             $query->where('units_all.logistic', 'Logistica cc');
         }
 
         if ($tipo === 'utilitario') {
-            
             $query->where('units_all.logistic', 'Utilitarios');
+        }
+
+        // 👷‍♂️ ROL (LIKE / contiene texto)
+        if (
+            str_contains($role, 'operador') ||
+            str_contains($role, 'mecanico')
+        ) {
+            logger('entra porque es mecanico o operador');
+            $query->where('revisions.responsible', $user->id);
         }
 
         return response()->json($query->get());
@@ -58,22 +67,34 @@ class RevisionsController extends Controller
 
     public function countByLogistic()
     {
-        $counts = DB::table('revisions')
+        $user = Auth::user();
+        $role = strtolower($user->rol);
+
+        $query = DB::table('revisions')
             ->join('units_all', function ($join) {
                 $join->on('units_all.unit_id', '=', 'revisions.unit')
                     ->on('units_all.type', '=', 'revisions.type');
             })
-            ->where('revisions.status', 1)
-            ->select(DB::raw(
-                "SUM(CASE WHEN units_all.logistic = 'Logistica Personal' THEN 1 ELSE 0 END) AS personal,
+            ->where('revisions.status', 1);
+
+        // 👷‍♂️ FILTRO POR ROL (LIKE / contiene texto)
+        if (
+            str_contains($role, 'operador') ||
+            str_contains($role, 'mecanico')
+        ) {
+            $query->where('revisions.responsible', $user->id);
+        }
+
+        $counts = $query
+            ->select(DB::raw("
+                SUM(CASE WHEN units_all.logistic = 'Logistica Personal' THEN 1 ELSE 0 END) AS personal,
                 SUM(CASE WHEN units_all.logistic = 'Logistica cc' THEN 1 ELSE 0 END) AS cc,
-                SUM(CASE WHEN units_all.logistic = 'Utilitarios' THEN 1 ELSE 0 END) AS utilitario"
-            ))
+                SUM(CASE WHEN units_all.logistic = 'Utilitarios' THEN 1 ELSE 0 END) AS utilitario
+            "))
             ->first();
 
         return response()->json($counts);
     }
-
 
     public function revisionsReport($id)
     {

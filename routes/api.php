@@ -63,6 +63,8 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::delete('/expirationsUnits/{id}', [ExpirationUnitsController::class, 'destroy']);
     Route::put('/orders/{id}', [OrderController::class, 'cancel']);
     Route::middleware('auth:sanctum')->delete('/unit/{id}', [UnitController::class, 'destroy']);
+    Route::post('/users/{id}/signature', [AuthController::class, 'updateSignature']);
+
 });
 
 Route::middleware('auth:sanctum')->post('/change-password', [ProfileController::class, 'changePassword']);
@@ -97,6 +99,7 @@ Route::middleware('auth:sanctum')->get('/tripsCount', function () {
 
 Route::middleware('auth:sanctum')
     ->get('/revisionCountByLogistic', [RevisionsController::class, 'countByLogistic']);
+
 Route::middleware('auth:sanctum')
     ->get('/inspectionCountByLogistic', [InspectionsController::class, 'countByLogistic']);
 

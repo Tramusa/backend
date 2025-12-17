@@ -133,24 +133,57 @@
         text-align: left;
       }
       
-      table.firmas td {
-        border: 0px solid;
-        padding: 4px;
-        text-align: center;
-      }
 
       table.column-2-1 th{
         border: 1px solid;
         padding: 3px;
       }  
 
+      table.firmas td {
+        width: 33%;
+        text-align: center;
+        vertical-align: top;
+        padding: 8px;
+        border: 2px solid;
+      }
+
+      /* Caja fija para firma (imagen o texto) */
+      .firma-box {
+        height: 85px;          /* ← CLAVE */
+        margin-bottom: 4px;
+      }
+
+      /* Imagen de firma */
+      .firma-img {
+        max-height: 80px;
+        max-width: 200px;
+      }
+
+      /* Texto tipo firma */
       .signature {
-        font-family: 'Courier New', monospace; /* Una fuente cursiva disponible en la mayoría de los sistemas */
+        font-family: 'Courier New', monospace;
         font-style: italic;
         font-weight: bold;
         font-size: 13px;
-        color: #000080; /* Azul marino */
-        letter-spacing: 0.5px; /* Espaciado ligero para emular la caligrafía */
+        color: #000080;
+      }
+
+      /* Línea SIEMPRE en la misma posición */
+      .firma-linea {
+        border-top: 1px solid #000;
+        margin: 4px 28px;
+      }
+
+      /* Nombre */
+      .firma-nombre {
+        font-size: 11px;
+        margin-top: 2px;
+      }
+
+      /* Rol */
+      .firma-rol {
+        font-size: 10px;
+        font-weight: bold;
       }
     </style>
   </head>
@@ -225,26 +258,61 @@
       </div> 
       <div class="row"><br><br><br><br>
         <table class="firmas" style="width: 100%; border: 0px solid;">
-            <tr>
-              <td>
-                <p class="signature">{{ $autorizo->name ?? ' ' }} {{ $autorizo->a_paterno ?? ' ' }} {{ $autorizo->a_materno ?? ' ' }}</p>
-                ___________________________<br>
-                {{ $autorizo->name ?? ' ' }} {{ $autorizo->a_paterno ?? ' ' }}<br>
-                AUTORIZÓ
-              </td>
-              <td>
-                <p class="signature">{{ $realizo->name ?? ' ' }} {{ $realizo->a_paterno ?? ' ' }} {{ $realizo->a_materno ?? ' ' }}</p>
-                ___________________________<br>
-                {{ $realizo->name ?? ' ' }} {{ $realizo->a_paterno ?? ' ' }}<br>
-                REALIZÓ	
-              </td>
-              <td>
-                <p class="signature">{{ $operator->name ?? ' ' }} {{ $operator->a_paterno ?? ' ' }} {{ $operator->a_materno ?? ' ' }}</p>
-                ___________________________<br>
-                {{ $operator->name ?? ' ' }} {{ $operator->a_paterno ?? ' ' }}<br>
-                OPERADOR
-              </td>
-            </tr>
+          <tr>
+            {{-- AUTORIZÓ --}}
+            <td>
+              <div class="firma-box">
+                @if($autorizoFirma)
+                  <img src="{{ $autorizoFirma }}" class="firma-img">
+                @else
+                  <p class="signature">
+                    {{ $autorizo->name ?? '' }} {{ $autorizo->a_paterno ?? '' }} {{ $autorizo->a_materno ?? '' }}
+                  </p>
+                @endif
+              </div>
+              <div class="firma-linea"></div>
+              <div class="firma-nombre">
+                {{ $autorizo->name ?? '' }} {{ $autorizo->a_paterno ?? '' }} {{ $autorizo->a_materno ?? '' }}
+              </div>
+              <div class="firma-rol">AUTORIZÓ</div>
+            </td>
+            {{-- REALIZÓ --}}
+            <td>
+              <div class="firma-box">
+                @if($realizoFirma)
+                  <img src="{{ $realizoFirma }}" class="firma-img">
+                @else
+                  <p class="signature">
+                    {{ $realizo->name ?? '' }} {{ $realizo->a_paterno ?? '' }} {{ $realizo->a_materno ?? '' }}
+                  </p>
+                @endif
+              </div>
+              <div class="firma-linea"></div>
+              <div class="firma-nombre">
+                {{ $realizo->name ?? '' }} {{ $realizo->a_paterno ?? '' }} {{ $realizo->a_materno ?? '' }}
+              </div>
+              <div class="firma-rol">REALIZÓ</div>
+            </td>
+
+            {{-- OPERADOR --}}
+            <td>
+              <div class="firma-box">
+                @if($operatorFirma)
+                  <img src="{{ $operatorFirma }}" class="firma-img">
+                @else
+                  <p class="signature">
+                    {{ $operator->name ?? '' }} {{ $operator->a_paterno ?? '' }} {{ $operator->a_materno ?? '' }}
+                  </p>
+                @endif
+              </div>
+
+              <div class="firma-linea"></div>
+              <div class="firma-nombre">
+                {{ $operator->name ?? '' }} {{ $operator->a_paterno ?? '' }} {{ $operator->a_materno ?? '' }}
+              </div>
+              <div class="firma-rol">OPERADOR</div>
+            </td>
+          </tr>
         </table>
       </div>        
     </main>

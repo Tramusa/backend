@@ -207,6 +207,19 @@ class OrderController extends Controller
         $operator = User::where('id', $orderData->operator)->first();        
         $autorizo = User::where('id', $orderData->authorize)->first();        
         $realizo = User::where('id', $orderData->perform)->first();     
+
+        $autorizoFirma = ($autorizo && $autorizo->signature)
+            ? $this->getImageBase64($autorizo->signature)
+            : null;
+
+        $realizoFirma = ($realizo && $realizo->signature)
+            ? $this->getImageBase64($realizo->signature)
+            : null;
+
+        $operatorFirma = ($operator && $operator->signature)
+            ? $this->getImageBase64($operator->signature)
+            : null;
+
            
         $earringsInfo = DB::table('order_details')
             ->join('earrings', 'order_details.id_earring', '=', 'earrings.id')
@@ -250,6 +263,11 @@ class OrderController extends Controller
             'operator' => $operator,
             'autorizo' => $autorizo,
             'realizo' => $realizo,
+
+            // FIRMAS
+            'autorizoFirma' => $autorizoFirma,
+            'realizoFirma'  => $realizoFirma,
+            'operatorFirma' => $operatorFirma,
         ];
 
         $html = view('F-05-01-R2 ORDEN DE SERVICIO', $data)->render();
@@ -270,11 +288,25 @@ class OrderController extends Controller
         return response($pdfContent, 200)->header('Content-Type', 'application/pdf');// Devolver el contenido del PDF
     }
 
-    private function getImageBase64($imagePath)
+    private function getImageBase64($path)
     {
-        $file = file_get_contents($imagePath);
-        $base64 = base64_encode($file);
-        return 'data:image/png;base64,' . $base64;
+        // 1️⃣ Si viene una ruta absoluta (public_path)
+        if (file_exists($path)) {
+            $file = file_get_contents($path);
+            $extension = pathinfo($path, PATHINFO_EXTENSION);
+
+            return 'data:image/' . $extension . ';base64,' . base64_encode($file);
+        }
+
+        // 2️⃣ Si viene una ruta de Storage (public/...)
+        if (Storage::exists($path)) {
+            $file = Storage::get($path);
+            $extension = pathinfo($path, PATHINFO_EXTENSION);
+
+            return 'data:image/' . $extension . ';base64,' . base64_encode($file);
+        }
+
+        return null;
     }
 
     public function cancel($orderId)

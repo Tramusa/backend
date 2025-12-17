@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Dompdf\Dompdf;
 use Illuminate\Http\Request;
 use Illuminate\Log\Logger;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -17,14 +18,15 @@ class InspectionsController extends Controller
     public function index(Request $request)
     {
         $tipo = $request->query('tipo'); // personal | cc | utilitario
-        $tipo = $request->query('tipo');
 
-if (is_array($tipo)) {
-    $tipo = reset($tipo); // toma el primer valor si es array
-}
+        if (is_array($tipo)) {
+            $tipo = reset($tipo); // toma el primer valor si es array
+        }
 
-$tipo = strtolower(trim($tipo)); // limpiar espacios y forzar minúsculas
-logger($tipo);
+        $tipo = strtolower(trim($tipo)); // limpiar espacios y forzar minúsculas
+        $user = Auth::user();
+        $role = strtolower($user->rol); // normalizamos
+
         $query = DB::table('inspections')
             ->join('units_all', function ($join) {
                 $join->on('units_all.unit_id', '=', 'inspections.unit')
@@ -46,20 +48,24 @@ logger($tipo);
 
         // 🚚 FILTRO POR LOGÍSTICA
         if ($tipo === 'personal') {
-            logger('entra aqui tiene que separar personal');
-
             $query->where('units_all.logistic', 'Logistica Personal');
         }
 
         if ($tipo === 'cc') {
-            logger('entra aqui tiene que separar cc');
-
             $query->where('units_all.logistic', 'Logistica cc');
         }
 
         if ($tipo === 'utilitario') {
-            logger('entra aqui tiene que separar UTILITARIO');
             $query->where('units_all.logistic', 'Utilitarios');
+        }
+
+        // 👷‍♂️ ROL (LIKE / contiene texto)
+        if (
+            str_contains($role, 'operador') ||
+            str_contains($role, 'mecanico')
+        ) {
+            logger('entra porque es mecanico o operador');
+            $query->where('revisions.responsible', $user->id);
         }
 
         return response()->json($query->get());
@@ -67,17 +73,30 @@ logger($tipo);
 
     public function countByLogistic()
     {
-        $counts = DB::table('inspections')
+        $user = Auth::user();
+        $role = strtolower($user->rol);
+
+        $query = DB::table('inspections')
             ->join('units_all', function ($join) {
                 $join->on('units_all.unit_id', '=', 'inspections.unit')
                     ->on('units_all.type', '=', 'inspections.type');
             })
-            ->where('inspections.status', 1)
-            ->select(DB::raw(
-                "SUM(CASE WHEN units_all.logistic = 'Logistica Personal' THEN 1 ELSE 0 END) AS personal,
+            ->where('inspections.status', 1);
+
+        // 👷‍♂️ FILTRO POR ROL (LIKE / contiene texto)
+        if (
+            str_contains($role, 'operador') ||
+            str_contains($role, 'mecanico')
+        ) {
+            $query->where('inspections.responsible', $user->id);
+        }
+
+        $counts = $query
+            ->select(DB::raw("
+                SUM(CASE WHEN units_all.logistic = 'Logistica Personal' THEN 1 ELSE 0 END) AS personal,
                 SUM(CASE WHEN units_all.logistic = 'Logistica cc' THEN 1 ELSE 0 END) AS cc,
-                SUM(CASE WHEN units_all.logistic = 'Utilitarios' THEN 1 ELSE 0 END) AS utilitario"
-            ))
+                SUM(CASE WHEN units_all.logistic = 'Utilitarios' THEN 1 ELSE 0 END) AS utilitario
+            "))
             ->first();
 
         return response()->json($counts);
@@ -115,7 +134,7 @@ logger($tipo);
         return response()->json($inspections);
     }
 
-    public function create(Request $request)
+    public function store(Request $request)
     {
         try {
             // Obtén el tipo y el ID de la unidad de la solicitud

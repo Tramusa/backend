@@ -18,8 +18,16 @@ class AuthController extends Controller
 {
     public function usersAll()
     {
-        $users = User::all(); 
-        return response()->json($users); 
+        $users = User::all();
+
+        // Recorrer cada usuario para agregar la URL de la firma
+        foreach ($users as $user) {
+            $user->signature_url = $user->signature
+                ? asset(Storage::url($user->signature))
+                : null;
+        }
+
+        return response()->json($users);
     }
     
     public function updateStatus(Request $request)
@@ -36,6 +44,29 @@ class AuthController extends Controller
         $user = User::find($id);
         return $user;
     }
+
+    public function updateSignature(Request $request, $id)
+    {
+        $request->validate([
+            'signature' => 'required|image|max:3000'
+        ]);
+
+        $user = User::findOrFail($id);
+
+        if ($user->signature) {
+            Storage::delete($user->signature);
+        }
+
+        $path = $request->file('signature')->store('public/signatures');
+
+        $image = Image::make($request->file('signature'))->resize(220, 110);
+        $image->save(public_path(Storage::url($path)));
+
+        $user->update(['signature' => $path]);
+
+        return response()->json(['message' => 'Firma actualizada']);
+    }
+
 
     public function proceedings($id)
     {
