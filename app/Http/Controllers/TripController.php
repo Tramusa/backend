@@ -339,11 +339,15 @@ class TripController extends Controller
     public function operatorsAll()
     {
         $users = DB::table('users')
-                ->where('rol', 'like', 'Operador%')
-                ->orWhere('rol', 'like', '%Auxiliar%')
-                ->orWhere('rol', 'like', '%Mecanico%')
-                ->get(); 
-        return response()->json($users);  
+            ->where('active', 1)
+            ->where(function ($query) {
+                $query->where('rol', 'like', 'Operador%')
+                    ->orWhere('rol', 'like', '%Auxiliar%')
+                    ->orWhere('rol', 'like', '%Mecanico%');
+            })
+            ->get();
+
+        return response()->json($users);
     }
 
    

@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Earrings;
 use App\Models\ProgramsMttoVehicles;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class GenerateFailsProgramsMtto extends Command
@@ -17,46 +18,35 @@ class GenerateFailsProgramsMtto extends Command
         parent::__construct();
     }
 
+    
     public function handle()
     {
-        //CONSULTAR LAS ACTIVIDADES DE LA PROGRAMACION
-        $Programs = ProgramsMttoVehicles::all(); 
+        $today = Carbon::today();
+        $programs = ProgramsMttoVehicles::all();
 
-        //SEMANA ACTUAL
-        $currentWeek = date('W'); // Assuming you want the current week number
+        foreach ($programs as $program) {
 
-        //RECORRER UNA A UNA LAS ACTIVIDADES
-        foreach ($Programs as $Program) {            
+            $start = Carbon::parse($program->start_date);
 
-            // Obtener la periodicidad de la actividad
-            $periodicity = $Program->periodicity;
+            $next = $start->copy();
 
-            if ($periodicity === 'Anual') {
-                $nextMaintenanceDate = $Program->start; // Return the same start value
-            }else{
-                $periodicitySums = [
-                    'Quincenal' => 2,
-                    'Mensual' => 4,
-                    'Bimestral' => 8,
-                    'Trimestral' => 12,
-                    'Cuatrimestral' => 16,
-                    'Semestral' => 24,
-                ];
+            do {
+                $next = match ($program->periodicity) {
+                    'Semanal'       => $next->addWeek(),
+                    'Quincenal'     => $next->addWeeks(2),
+                    'Mensual'       => $next->addMonth(),
+                    'Bimestral'     => $next->addMonths(2),
+                    'Trimestral'    => $next->addMonths(3),
+                    'Cuatrimestral' => $next->addMonths(4),
+                    'Semestral'     => $next->addMonths(6),
+                    'Anual'         => $next->addYear(),
+                };
+            } while ($next->lessThan($today));
 
-                // Calcular la próxima fecha de mantenimiento según la periodicidad
-                $sum = $periodicitySums[$periodicity] ?? 0;
-                $nextMaintenanceDate = $Program->start + $sum;
-
-                while ($nextMaintenanceDate < $currentWeek) {                
-                    $nextMaintenanceDate += $sum;
-                }
-            }
-            // Comparar si la actividad está en la semana actual y generar falla si es así
-            if ($nextMaintenanceDate == $currentWeek) {
-                $this->generateFailure($Program);
+            if ($next->isSameWeek($today)) {
+                $this->generateFailure($program);
             }
         }
-        $this->info("Fallas de la semana $currentWeek generadas exitosamente.");
     }
 
     // Función para generar la falla para una actividad específica
