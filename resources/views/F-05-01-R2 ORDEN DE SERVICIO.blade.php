@@ -297,13 +297,7 @@
             {{-- OPERADOR --}}
             <td>
               <div class="firma-box">
-                @if($operatorFirma)
-                  <img src="{{ $operatorFirma }}" class="firma-img">
-                @else
-                  <p class="signature">
-                    {{ $operator->name ?? '' }} {{ $operator->a_paterno ?? '' }} {{ $operator->a_materno ?? '' }}
-                  </p>
-                @endif
+               
               </div>
 
               <div class="firma-linea"></div>

@@ -45,27 +45,40 @@ class AuthController extends Controller
         return $user;
     }
 
-    public function updateSignature(Request $request, $id)
+   public function updateSignature(Request $request, $id)
     {
         $request->validate([
-            'signature' => 'required|image|max:3000'
+            'signature' => 'required|image|max:5000', // acepta grande, luego optimizamos
         ]);
 
         $user = User::findOrFail($id);
 
-        if ($user->signature) {
+        // Eliminar firma anterior
+        if ($user->signature && Storage::exists($user->signature)) {
             Storage::delete($user->signature);
         }
 
-        $path = $request->file('signature')->store('public/signatures');
+        // Nombre único
+        $filename = 'signature_' . $user->id . '.jpg';
+        $path = 'public/signatures/' . $filename;
 
-        $image = Image::make($request->file('signature'))->resize(220, 110);
-        $image->save(public_path(Storage::url($path)));
+        // Procesar imagen
+        $image = Image::make($request->file('signature'))
+            ->resize(220, 110, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize(); // evita estirar imágenes pequeñas
+            })
+            ->encode('jpg', 70); // 👈 CALIDAD ESTÁNDAR
 
+        // Guardar optimizada
+        Storage::put($path, (string) $image);
+
+        // Guardar ruta en BD
         $user->update(['signature' => $path]);
 
-        return response()->json(['message' => 'Firma actualizada']);
+        return response()->json(['message' => 'Firma actualizada correctamente']);
     }
+
 
 
     public function proceedings($id)

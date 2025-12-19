@@ -215,11 +215,6 @@ class OrderController extends Controller
         $realizoFirma = ($realizo && $realizo->signature)
             ? $this->getImageBase64($realizo->signature)
             : null;
-
-        $operatorFirma = ($operator && $operator->signature)
-            ? $this->getImageBase64($operator->signature)
-            : null;
-
            
         $earringsInfo = DB::table('order_details')
             ->join('earrings', 'order_details.id_earring', '=', 'earrings.id')
@@ -267,7 +262,6 @@ class OrderController extends Controller
             // FIRMAS
             'autorizoFirma' => $autorizoFirma,
             'realizoFirma'  => $realizoFirma,
-            'operatorFirma' => $operatorFirma,
         ];
 
         $html = view('F-05-01-R2 ORDEN DE SERVICIO', $data)->render();
