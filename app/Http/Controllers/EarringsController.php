@@ -28,7 +28,7 @@ class EarringsController extends Controller
                 $join->on('units_all.unit_id', '=', 'earrings.unit')
                     ->on('units_all.type', '=', 'earrings.type');
             })
-            ->where('earrings.status', 1)
+            ->whereIn('earrings.status', [1, 2]) // Pendientes y en proceso
             ->select(
                 'earrings.*',
                 'units_all.no_economic',

@@ -33,7 +33,7 @@ class OrderController extends Controller
             $orderDetail->save();
             $earring = Earrings::find($earringId);
             if ($earring) {            
-                $earring->status = 0;// Update the status of the earring to '0'
+                $earring->status = 2; // En proceso
                 $earring->save();
             }
         }
@@ -191,6 +191,12 @@ class OrderController extends Controller
             $order->operator = $request->input('data.form.operator');
             $order->date_attended = now();
             $order->perform = Auth::id();
+            // 🔥 FINALIZAR FALLAS
+            $earringsIds = OrderDetail::where('id_order', $order->id)
+                ->pluck('id_earring');
+
+            Earrings::whereIn('id', $earringsIds)
+                ->update(['status' => 0]); // Finalizadas
         }
 
         try {
