@@ -73,53 +73,101 @@ class OrderController extends Controller
         return response()->json($orders);
     }
 
-    public function bitacora()
-    {
-        $orders = DB::table('orders')
-        ->join('users', 'orders.operator', '=', 'users.id')
-        ->where('orders.status', 4)
-        ->select('orders.*', 'users.name', 'users.a_paterno', 'users.a_materno')
-        ->get();
+    public function bitacora(Request $request)
+    {   /*
+        |--------------------------------------------------------------------------
+        | QUERY BASE
+        |--------------------------------------------------------------------------
+        */
+        $query = DB::table('orders')
+            ->join('users', 'orders.operator', '=', 'users.id')
+            ->leftJoin('order_details', 'orders.id', '=', 'order_details.id_order')
+            ->leftJoin('earrings', 'order_details.id_earring', '=', 'earrings.id')
+            ->leftJoin('revisions', 'earrings.fm', '=', 'revisions.id')
+            ->leftJoin('units_all as ua', function ($join) {
+                $join->on('ua.unit_id', '=', 'earrings.unit')
+                    ->on('ua.type', '=', 'earrings.type');
+            })
+            ->where('orders.status', 4)
+            ->selectRaw("
+                orders.id,
+                orders.date_attended,
+                orders.date_in,
+                MAX(orders.repair) AS repair,
+                users.name,
+                users.a_paterno,
+                users.a_materno,
+                MAX(earrings.type_mtto) AS type_mtto,
+                MAX(revisions.odometro) AS odometro,
+                MAX(ua.no_economic) AS unidad,
+                SUM(orders.total_mano) AS total_mano,
+                SUM(orders.total_parts) AS total_parts,
+                GROUP_CONCAT(DISTINCT earrings.description SEPARATOR ', ') AS fallas
+            ")
+            ->groupBy(
+                'orders.id',
+                'orders.date_attended',
+                'orders.date_in',
+                'users.name',
+                'users.a_paterno',
+                'users.a_materno'
+            );
 
-        if ($orders->isEmpty()) {
-            return response()->json(['message' => 'Órdenes no encontradas'], 404);
-        } else {
-            $tablas = ['', 'tractocamiones', 'remolques', 'dollys', 'volteos', 'toneles', 'tortons', 'autobuses', 'sprinters', 'utilitarios', 'maquinarias'];
-                    
-            foreach ($orders as $order) {
-                $fallas = DB::table('order_details')
-                    ->join('earrings', 'order_details.id_earring', '=', 'earrings.id')
-                    ->where('order_details.id_order', $order->id)
-                    ->select('earrings.description') // Selecciona solo la descripción de la falla
-                    ->pluck('description'); // Pluck se utiliza para obtener una lista de valores
-        
-                $order->fallas = $fallas;
 
-                $firstEarring = DB::table('order_details')
-                ->join('earrings', 'order_details.id_earring', '=', 'earrings.id')
-                ->where('order_details.id_order', $order->id)
-                ->select('earrings.type', 'earrings.unit', 'earrings.type_mtto', 'earrings.fm' )
-                ->first();
+        /*
+        |--------------------------------------------------------------------------
+        | FILTROS POR COLUMNA
+        |--------------------------------------------------------------------------
+        */
 
-                if ($firstEarring) {                    
-                    if (isset($firstEarring->type) && isset($firstEarring->unit)) {
-                        $id_unit = $firstEarring->unit;
-                        $unit = DB::table($tablas[$firstEarring->type])->select('no_economic')->where('id', $id_unit)->first();
-                        $order->unit_info = $unit;
-                    }
-
-                    $order->type_mtto = $firstEarring->type_mtto;
-
-                    if ($firstEarring->fm  != 0) {
-                        $revisions = Revisions::where(['id' => $firstEarring->fm])->first();
-                        if ($revisions) {
-                            $order->odometro = ($revisions->odometro)? $revisions->odometro:'N/A';
-                        }
-                    }
-                }
-            }
-            return response()->json($orders);
+        // N°
+        if ($request->filled('id')) {
+            $query->where('orders.id', 'like', "%{$request->id}%");
         }
+
+        // Fecha Finalizado
+        if ($request->filled('date')) {
+            $query->where('orders.date_attended', 'like', "%{$request->date}%");
+        }
+
+        // Unidad
+        if ($request->filled('unit')) {
+            $query->where('ua.no_economic', 'like', "%{$request->unit}%");
+        }
+
+        // Operador
+        if ($request->filled('operator')) {
+            $query->whereRaw(
+                "LOWER(CONCAT(users.name,' ',users.a_paterno,' ',users.a_materno)) LIKE ?",
+                ['%' . strtolower($request->operator) . '%']
+            );
+        }
+
+        // Tipo Mtto
+        if ($request->filled('type')) {
+            $query->where('earrings.type_mtto', 'like', "%{$request->type}%");
+        }
+
+        // Falla
+        if ($request->filled('falla')) {
+            $query->having('fallas', 'like', "%{$request->falla}%");
+        }
+
+        // Descripción / Repair
+        if ($request->filled('descripcion')) {
+            $query->where('orders.repair', 'like', '%' . $request->descripcion . '%');
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | PAGINACIÓN
+        |--------------------------------------------------------------------------
+        */
+        $orders = $query
+            ->orderBy('orders.date_attended', 'desc')
+            ->paginate(30);
+
+        return response()->json($orders);
     }
 
     public function showOrder($id)
@@ -141,6 +189,7 @@ class OrderController extends Controller
         // Return the order with operator_name
         return response()->json($order);
     }
+
     public function orderEarrings($id)
     {
         $earringsInfo = DB::table('order_details')
@@ -280,7 +329,8 @@ class OrderController extends Controller
         return $dompdf->output();                     
     }
 
-    public function generarPDF($order){
+    public function generarPDF($order)
+    {
         $pdfContent = $this->PDF($order);
 
         Storage::disk('public')->put('orders/Orden N°'. ($order) . '.pdf', $pdfContent);
@@ -410,9 +460,19 @@ class OrderController extends Controller
                      $dateAttended = Carbon::parse($order->date_attended);
                      $dateIn = Carbon::parse($order->date_in);
                      $order->time = $dateAttended->diffInMinutes($dateIn);
+                     
+                     // 👇 AÑADE ESTO
+                     $order->week = $dateAttended->weekOfYear;
                 }
 
-                $html = view('pdf.orders', compact('orders'))->render();
+                $logoImagePath = public_path('imgPDF/logo.png');
+                $logoImage = $this->getImageBase64($logoImagePath);// Convertir las imágenes a base64
+ 
+
+                $html = view('pdf.orders', [
+                    'orders' => $orders,
+                    'logoImage' => $logoImage
+                ])->render();
 
                 $dompdf = new \Dompdf\Dompdf();
                 $dompdf->loadHtml($html);
