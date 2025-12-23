@@ -121,22 +121,18 @@ class OrderController extends Controller
         | FILTROS POR COLUMNA
         |--------------------------------------------------------------------------
         */
-
         // N°
         if ($request->filled('id')) {
             $query->where('orders.id', 'like', "%{$request->id}%");
         }
-
         // Fecha Finalizado
         if ($request->filled('date')) {
             $query->where('orders.date_attended', 'like', "%{$request->date}%");
         }
-
         // Unidad
         if ($request->filled('unit')) {
             $query->where('ua.no_economic', 'like', "%{$request->unit}%");
         }
-
         // Operador
         if ($request->filled('operator')) {
             $query->whereRaw(
@@ -144,17 +140,14 @@ class OrderController extends Controller
                 ['%' . strtolower($request->operator) . '%']
             );
         }
-
         // Tipo Mtto
         if ($request->filled('type')) {
             $query->where('earrings.type_mtto', 'like', "%{$request->type}%");
         }
-
         // Falla
         if ($request->filled('falla')) {
             $query->having('fallas', 'like', "%{$request->falla}%");
         }
-
         // Descripción / Repair
         if ($request->filled('descripcion')) {
             $query->where('orders.repair', 'like', '%' . $request->descripcion . '%');
@@ -167,7 +160,7 @@ class OrderController extends Controller
         */
         $orders = $query
             ->orderBy('orders.date_attended', 'desc')
-            ->paginate(30);
+            ->paginate(40);
 
         return response()->json($orders);
     }
