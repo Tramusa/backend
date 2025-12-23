@@ -94,11 +94,13 @@ class OrderController extends Controller
                 orders.date_attended,
                 orders.date_in,
                 MAX(orders.repair) AS repair,
+                MAX(
+                    COALESCE(NULLIF(orders.odometro, ''), revisions.odometro)
+                ) AS odometro,
                 users.name,
                 users.a_paterno,
                 users.a_materno,
                 MAX(earrings.type_mtto) AS type_mtto,
-                MAX(revisions.odometro) AS odometro,
                 MAX(ua.no_economic) AS unidad,
                 SUM(orders.total_mano) AS total_mano,
                 SUM(orders.total_parts) AS total_parts,
@@ -221,40 +223,112 @@ class OrderController extends Controller
         if (!$order) {
             return response()->json(['message' => 'Orden no encontrada'], 404);
         }
-       
-        $order->status = $request->input('data.status'); // Actualizar el estado de la orden
 
-        // Verificar el status y actualizar campos correspondientes
-        if ($order->status == 0) {
-            $order->fill($request->input('data.form')); // Rellenar con datos del formulario
-            $order->status = 3; // Cambiar status a 3
-        } else if ($order->status == 2) {
-            $order->authorize = Auth::id(); // ID del usuario logueado
-        } else if ($order->status == 3) {
-            $order->date_in = now(); // Fecha y hora actual
-        } else if ($order->status == 4){
-            $order->repair = $request->input('data.form.repair');
-            $order->spare_parts = $request->input('data.form.spare_parts');
-            $order->total_parts = $request->input('data.form.total_parts');
-            $order->total_mano = $request->input('data.form.total_mano');
-            $order->operator = $request->input('data.form.operator');
+        $order->status = $request->input('data.status');
+        $status = $order->status;
+
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDACIÓN Y ACTUALIZACIÓN DE ODÓMETRO (SOLO STATUS 0 Y 4)
+        |--------------------------------------------------------------------------
+        */
+        if (in_array($status, [0, 4])) {
+
+            $odometro = $request->input('data.form.odometro');
+
+            // En status 0 solo validar si mandan un valor > 0
+            if (
+                ($status == 4 && $odometro !== null && $odometro !== '') ||
+                ($status == 0 && is_numeric($odometro) && $odometro > 0)
+            ) {
+
+                $detail = OrderDetail::where('id_order', $order->id)->first();
+                if (!$detail) {
+                    return response()->json(['message' => 'No se encontró el detalle de la orden'], 422);
+                }
+
+                $earring = Earrings::find($detail->id_earring);
+                if (!$earring) {
+                    return response()->json(['message' => 'No se encontró la unidad'], 422);
+                }
+
+                $tablas = [
+                    1 => 'tractocamiones',
+                    2 => 'remolques',
+                    3 => 'dollys',
+                    4 => 'volteos',
+                    5 => 'toneles',
+                    6 => 'tortons',
+                    7 => 'autobuses',
+                    8 => 'sprinters',
+                    9 => 'utilitarios',
+                    10 => 'maquinarias'
+                ];
+
+                $tabla = $tablas[$earring->type] ?? null;
+                if (!$tabla) {
+                    return response()->json(['message' => 'Tipo de unidad inválido'], 422);
+                }
+
+                $currentOdometer = DB::table($tabla)
+                    ->where('id', $earring->unit)
+                    ->value('odometro');
+
+                if ($odometro < $currentOdometer) {
+                    return response()->json([
+                        'message' => 'El odómetro no puede ser menor al actual de la unidad'
+                    ], 422);
+                }
+
+                // Actualizar unidad
+                DB::table($tabla)
+                    ->where('id', $earring->unit)
+                    ->update(['odometro' => $odometro]);
+            }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | LÓGICA DE STATUS
+        |--------------------------------------------------------------------------
+        */
+        if ($status == 0) {
+
+            $order->fill($request->input('data.form'));
+            $order->status = 3;
+
+        } else if ($status == 2) {
+
+            $order->authorize = Auth::id();
+
+        } else if ($status == 3) {
+
+            $order->date_in = now();
+
+        } else if ($status == 4) {
+
+            $order->fill($request->input('data.form'));
             $order->date_attended = now();
             $order->perform = Auth::id();
+
             // 🔥 FINALIZAR FALLAS
             $earringsIds = OrderDetail::where('id_order', $order->id)
                 ->pluck('id_earring');
 
             Earrings::whereIn('id', $earringsIds)
-                ->update(['status' => 0]); // Finalizadas
+                ->update(['status' => 0]);
         }
 
         try {
             $order->save();
             return response()->json(['message' => 'Orden actualizada correctamente']);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Error al actualizar la orden: ' . $e->getMessage()], 500);
+            return response()->json([
+                'message' => 'Error al actualizar la orden: ' . $e->getMessage()
+            ], 500);
         }
     }
+
 
     private function PDF($order)
     {
@@ -281,7 +355,8 @@ class OrderController extends Controller
             $firstEarring = $earringsInfo->first();
             $id_unit = $firstEarring->unit; // Extract unit
             $type = $firstEarring->type; // Extract type
-            $fm = $firstEarring->fm; // Extract type
+            $fm = $firstEarring->fm; // Extract nummber fisico mecanica
+            $type_mtto = strtoupper(trim($firstEarring->type_mtto)); // Extract type_mtto
 
             $fallas = '';
             $numError = 1;
@@ -309,6 +384,7 @@ class OrderController extends Controller
             'orderData' => $orderData,
             'unit' => $unit,
             'fm' => $fm,
+            'type_mtto' => $type_mtto,
             'fallas' => $fallas,
             'operator' => $operator,
             'autorizo' => $autorizo,

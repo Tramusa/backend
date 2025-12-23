@@ -211,8 +211,8 @@
                 <th>FOLIO DE REVISIÓN DE <br> CONDICIONES FÍSICO-MECÁNICAS</th>
             </tr>
             <tr>
-                <td></td>
-                <td>{{ $fm }}</td>
+                <td>{{ $orderData->requisitions ?? 'N/A' }}</td>
+                <td>{{ $fm ?? 'N/A'}}</td>
             </tr>
         </table>
       </div>  
@@ -227,8 +227,11 @@
             <tr>
                 <td>MODELO: <br>{{ $unit->model ?? $unit->year }}</td>
                 <td>N° MOTOR:<br>{{ $unit->no_motor ?? 'N/A' }}</td>
-                <td>TIPO DE MANTENIMIENTO:<br> PREVENTIVO          CORRECTIVO </td>
-                <td>KILOMETRAJE: <br>{{ $unit->odometro ?? ' ' }}</td>
+                <td>TIPO DE MANTENIMIENTO:<br> {{ $type_mtto ?? 'PREVENTIVO/CORRECTIVO'}}</td>
+                <td>
+                  KILOMETRAJE:<br>
+                  {{ (!empty($orderData->odometro)) ? $orderData->odometro : $unit->odometro }}
+                </td>
             </tr>
             <tr>
                 <td colspan="2">FECHA Y HORA DE ENTRADA: <br>{{ $orderData->date_in }}</td>
