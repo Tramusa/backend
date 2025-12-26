@@ -80,7 +80,6 @@ class AuthController extends Controller
     }
 
 
-
     public function proceedings($id)
     {
         $user = User::find($id);
@@ -169,8 +168,9 @@ class AuthController extends Controller
             $path = $request->file('avatar')->store('public/avatars');        
             $user->avatar = $path;
             $user->save();
-            $imagen_cuadrada = Image::make($request->file('avatar'))->resize(250);
-            $imagen_cuadrada->save(public_path(Storage::url($path)));
+            Image::make($request->file('avatar'))
+                ->fit(200, 200) // 🔥 mejor que resize
+                ->save(public_path(Storage::url($path)));
         }      
 
         return response()->json(['message' => 'Perfil actualizado con éxito!'], 201);
