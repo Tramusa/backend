@@ -74,7 +74,8 @@ class OrderController extends Controller
     }
 
     public function bitacora(Request $request)
-    {   /*
+    {
+        /*
         |--------------------------------------------------------------------------
         | QUERY BASE
         |--------------------------------------------------------------------------
@@ -322,7 +323,6 @@ class OrderController extends Controller
         }
     }
 
-
     private function PDF($order)
     {
         $orderData = Orders::find($order);//PRIMERO SACAMOS LA INFO DE LA ORDEN
@@ -377,6 +377,7 @@ class OrderController extends Controller
             'orderData' => $orderData,
             'unit' => $unit,
             'fm' => $fm,
+            'type_unit' => $type,
             'type_mtto' => $type_mtto,
             'fallas' => $fallas,
             'operator' => $operator,

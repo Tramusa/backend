@@ -217,6 +217,9 @@
         </table>
       </div>  
       <div class="row">
+        @php
+            $tiposSinOdometro = [3, 4, 5]; // dolly, volteo, tonel
+        @endphp
         <table style="width: 100%; border: 2px solid;">
             <tr>
                 <td>MARCA: <br>{{ $unit->brand ?? 'N/A' }}</td>
@@ -230,7 +233,11 @@
                 <td>TIPO DE MANTENIMIENTO:<br> {{ $type_mtto ?? 'PREVENTIVO/CORRECTIVO'}}</td>
                 <td>
                   KILOMETRAJE:<br>
-                  {{ (!empty($orderData->odometro)) ? $orderData->odometro : $unit->odometro }}
+                  @if (!in_array($type_unit, $tiposSinOdometro))
+                      {{ $orderData->odometro ?? $unit->odometro }}
+                  @else
+                      N/A
+                  @endif
                 </td>
             </tr>
             <tr>
