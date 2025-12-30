@@ -75,16 +75,10 @@ class OrderController extends Controller
 
     public function bitacora(Request $request)
     {
-        /*
-        |--------------------------------------------------------------------------
-        | QUERY BASE
-        |--------------------------------------------------------------------------
-        */
         $query = DB::table('orders')
             ->join('users', 'orders.operator', '=', 'users.id')
             ->leftJoin('order_details', 'orders.id', '=', 'order_details.id_order')
             ->leftJoin('earrings', 'order_details.id_earring', '=', 'earrings.id')
-            ->leftJoin('revisions', 'earrings.fm', '=', 'revisions.id')
             ->leftJoin('units_all as ua', function ($join) {
                 $join->on('ua.unit_id', '=', 'earrings.unit')
                     ->on('ua.type', '=', 'earrings.type');
@@ -95,9 +89,7 @@ class OrderController extends Controller
                 orders.date_attended,
                 orders.date_in,
                 MAX(orders.repair) AS repair,
-                MAX(
-                    COALESCE(NULLIF(orders.odometro, ''), revisions.odometro)
-                ) AS odometro,
+                MAX(orders.odometro) AS odometro,
                 users.name,
                 users.a_paterno,
                 users.a_materno,
@@ -116,54 +108,40 @@ class OrderController extends Controller
                 'users.a_materno'
             );
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | FILTROS POR COLUMNA
-        |--------------------------------------------------------------------------
-        */
-        // N°
         if ($request->filled('id')) {
             $query->where('orders.id', 'like', "%{$request->id}%");
         }
-        // Fecha Finalizado
+
         if ($request->filled('date')) {
             $query->where('orders.date_attended', 'like', "%{$request->date}%");
         }
-        // Unidad
+
         if ($request->filled('unit')) {
             $query->where('ua.no_economic', 'like', "%{$request->unit}%");
         }
-        // Operador
+
         if ($request->filled('operator')) {
             $query->whereRaw(
                 "LOWER(CONCAT(users.name,' ',users.a_paterno,' ',users.a_materno)) LIKE ?",
                 ['%' . strtolower($request->operator) . '%']
             );
         }
-        // Tipo Mtto
+
         if ($request->filled('type')) {
             $query->where('earrings.type_mtto', 'like', "%{$request->type}%");
         }
-        // Falla
+
         if ($request->filled('falla')) {
-            $query->having('fallas', 'like', "%{$request->falla}%");
+            $query->where('earrings.description', 'like', "%{$request->falla}%");
         }
-        // Descripción / Repair
+
         if ($request->filled('descripcion')) {
-            $query->where('orders.repair', 'like', '%' . $request->descripcion . '%');
+            $query->where('orders.repair', 'like', "%{$request->descripcion}%");
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | PAGINACIÓN
-        |--------------------------------------------------------------------------
-        */
-        $orders = $query
-            ->orderBy('orders.date_attended', 'desc')
-            ->paginate(40);
-
-        return response()->json($orders);
+        return response()->json(
+            $query->orderBy('orders.date_attended', 'desc')->paginate(40)
+        );
     }
 
     public function showOrder($id)
