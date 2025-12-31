@@ -189,15 +189,15 @@ class OrderController extends Controller
         }   
     }
 
-    public function update(Request $request, $id)
+   public function update(Request $request, $id)
     {
         $order = Orders::find($id);
         if (!$order) {
             return response()->json(['message' => 'Orden no encontrada'], 404);
         }
 
-        $order->status = $request->input('data.status');
-        $status = $order->status;
+        $status = (int) $request->input('data.status');
+        $order->status = $status;
 
         /*
         |--------------------------------------------------------------------------
@@ -208,10 +208,12 @@ class OrderController extends Controller
 
             $odometro = $request->input('data.form.odometro');
 
-            // En status 0 solo validar si mandan un valor > 0
+            // Convertir SIEMPRE a entero para evitar redondeos
+            $odometro = is_numeric($odometro) ? (int) $odometro : null;
+
             if (
-                ($status == 4 && $odometro !== null && $odometro !== '') ||
-                ($status == 0 && is_numeric($odometro) && $odometro > 0)
+                ($status == 4 && $odometro !== null) ||
+                ($status == 0 && $odometro !== null && $odometro > 0)
             ) {
 
                 $detail = OrderDetail::where('id_order', $order->id)->first();
@@ -242,7 +244,7 @@ class OrderController extends Controller
                     return response()->json(['message' => 'Tipo de unidad inválido'], 422);
                 }
 
-                $currentOdometer = DB::table($tabla)
+                $currentOdometer = (int) DB::table($tabla)
                     ->where('id', $earring->unit)
                     ->value('odometro');
 
@@ -252,10 +254,13 @@ class OrderController extends Controller
                     ], 422);
                 }
 
-                // Actualizar unidad
+                // ✅ Actualizar UNIDAD
                 DB::table($tabla)
                     ->where('id', $earring->unit)
                     ->update(['odometro' => $odometro]);
+
+                // ✅ Actualizar ORDEN (ESTO FALTABA)
+                $order->odometro = $odometro;
             }
         }
 
@@ -269,21 +274,21 @@ class OrderController extends Controller
             $order->fill($request->input('data.form'));
             $order->status = 3;
 
-        } else if ($status == 2) {
+        } elseif ($status == 2) {
 
             $order->authorize = Auth::id();
 
-        } else if ($status == 3) {
+        } elseif ($status == 3) {
 
             $order->date_in = now();
 
-        } else if ($status == 4) {
+        } elseif ($status == 4) {
 
             $order->fill($request->input('data.form'));
             $order->date_attended = now();
             $order->perform = Auth::id();
 
-            // 🔥 FINALIZAR FALLAS
+            // FINALIZAR FALLAS
             $earringsIds = OrderDetail::where('id_order', $order->id)
                 ->pluck('id_earring');
 

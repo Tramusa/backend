@@ -667,42 +667,33 @@ class UnitController extends Controller
 
     public function destroy(Request $request, $id)
     {
-        $type = $request->input('type');    
+        $type = $request->input('type');
+        $status = $request->input('status'); // 'disable' o 'available'
+
+        $unit = null;
+
         switch ($type) {
-            case 1:
-                Tractocamiones::find($id)->delete();
-                break;
-            case 2:
-                Remolques::find($id)->delete();
-                break;
-            case 3:
-                Dollys::find($id)->delete();
-                break;
-            case 4:
-                Volteos::find($id)->delete();
-                break;
-            case 5:
-                Toneles::find($id)->delete();
-                break;
-            case 6:
-                Tortons::find($id)->delete();
-                break;
-            case 7:
-                Autobuses::find($id)->delete();
-                break;
-            case 8:
-                Sprinters::find($id)->delete();
-                break;
-            case 9:
-                Utilitarios::find($id)->delete();
-                break;
-            case 10:
-                Maquinarias::find($id)->delete();
-                break;
+            case 1: $unit = Tractocamiones::find($id); break;
+            case 2: $unit = Remolques::find($id); break;
+            case 3: $unit = Dollys::find($id); break;
+            case 4: $unit = Volteos::find($id); break;
+            case 5: $unit = Toneles::find($id); break;
+            case 6: $unit = Tortons::find($id); break;
+            case 7: $unit = Autobuses::find($id); break;
+            case 8: $unit = Sprinters::find($id); break;
+            case 9: $unit = Utilitarios::find($id); break;
+            case 10: $unit = Maquinarias::find($id); break;
             default:
                 return response()->json(['message' => 'Tipo de unidad no válido'], 400);
-        }    
-        return response()->json(['message' => 'Unidad eliminada']);
+        }
+
+        if ($unit) {
+            $unit->status = $status;
+            $unit->save();
+            return response()->json(['message' => "Unidad {$status} correctamente."]);
+        }
+
+        return response()->json(['message' => 'Unidad no encontrada'], 404);
     }
 
     public function destroyDocs($id)
