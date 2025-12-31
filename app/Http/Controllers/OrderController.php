@@ -140,7 +140,7 @@ class OrderController extends Controller
         }
 
         return response()->json(
-            $query->orderBy('orders.date_attended', 'desc')->paginate(40)
+            $query->orderBy('orders.date_attended', 'desc')->paginate(50)
         );
     }
 
