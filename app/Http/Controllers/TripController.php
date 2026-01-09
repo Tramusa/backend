@@ -345,13 +345,12 @@ class TripController extends Controller
                     ->orWhere('rol', 'like', '%Auxiliar%')
                     ->orWhere('rol', 'like', '%Mecanico%');
             })
+            ->orderBy('name', 'asc')
             ->get();
 
         return response()->json($users);
     }
-
-   
-
+    
     public function show($trip)
     {
         $units = DB::table('units__trips')->where('trip', $trip)->get(); 
