@@ -1,275 +1,244 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
+<html lang="es">
+<head>
     <meta charset="utf-8">
-    <title>PROGRAMA DE MANTENIMIENTO A VEHICULOS</title>
+    <title>PROGRAMA DE MANTENIMIENTO A VEHÍCULOS</title>
+
     <style>
-      body {
-          font-family: "Arial Narrow", Arial, sans-serif;
-          font-size: 10px;
-          color: #000;
-          margin: 0;
-          padding: 0;
-      }
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 9px;
+            margin: 0;
+        }
 
-      /* ===== HEADER ===== */
-      .header-table {
-          width: 100%;
-          border-collapse: collapse;
-          margin-bottom: 8px;
-      }
+        table {
+            width: 100%;
+            border: 1px solid #000;
+            border-collapse: collapse;
+        }
 
-      .header-table td {
-          border: 1px solid #000;
-          padding: 6px;
-          vertical-align: middle;
-      }
+        th, td {
+            border: 1px solid #000;
+            padding: 3px;
+            text-align: center;
+        }
 
-      .logoImg {
-          width: 100%;
-          max-height: 55px;
-      }
+        .header-table td {
+            border: 1px solid #000;
+        }
 
-      .company {
-          font-size: 14px;
-          font-weight: bold;
-          color: #0073B5;
-          text-align: center;
-      }
+        .logo {
+            max-height: 55px;
+        }
 
-      .title {
-          font-size: 12px;
-          font-weight: bold;
-          text-align: center;
-          margin: 3px 0;
-      }
+        .company {
+            font-size: 14px;
+            font-weight: bold;
+            color: #1E4E79;
+            text-align: center;
+        }
 
-      .subtitle {
-          font-size: 9px;
-          background: #F4B083;
-          text-align: center;
-          padding: 4px;
-          font-weight: bold;
-      }
+        .title {
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+        }
 
-      /* ===== FECHA ===== */
-      .info-table {
-          width: 35%;
-          float: right;
-          border-collapse: collapse;
-          margin-bottom: 6px;
-      }
+        .subtitle {
+            font-size: 9px;
+            background: #F4B083;
+            text-align: center;
+            padding: 4px;
+            font-weight: bold;
+        }
 
-      .info-table th,
-      .info-table td {
-          border: 1px solid #000;
-          padding: 4px;
-          text-align: center;
-          font-size: 9px;
-      }
+        .menu {
+            background: #1E4E79;
+            color: white;
+            font-weight: bold;
+        }
 
-      /* ===== TABLA PRINCIPAL ===== */
-      table {
-          width: 100%;
-          border-collapse: collapse;
-      }
+        .unit-header th {
+            background: #54afffff;
+            color: #000;
+            font-size: 10px;
+            text-align: center;
+            padding-left: 6px;
+        }
 
-      th, td {
-          border: 1px solid #000;
-          padding: 3px;
-          text-align: center;
-          vertical-align: middle;
-          font-size: 9px;
-          page-break-inside: avoid;
-      }
+        .activity {
+            text-align: left;
+            background: #cfcfcfff;
+        }
 
-      thead th {
-          background: #1E4E79;
-          color: #FFF;
-          font-weight: bold;
-          font-size: 9px;
-      }
+        .month-orange {
+            background: #f8a268;
+        }
 
-      /* Meses */
-      .month-header th {
-          background: #1E4E79;
-          color: #FFF;
-          font-size: 9px;
-      }
+        .month-white {
+            background: #ffffff;
+        }
 
-      /* Unidad */
-      .unit-header th {
-          background: #1E4E79;
-          color: #FFF;
-          font-weight: bold;
-          text-align: center;
-          padding-left: 6px;
-          font-size: 10px;
-      }
+        .current-week {
+            background: #E66A00 !important;
+            color: white;
+            font-weight: bold;
+            border: 2px solid #000;
+        }
 
-      /* Actividad */
-      .activity {
-          text-align: left;
-          padding-left: 4px;
-      }
+        .info-table {
+            width: 35%;
+            float: right;
+            margin-bottom: 8px;
+        }
 
-      .menu {
-        background: #1E4E79;
-        color: #FFF;
-      }
+        .x-cell {
+            background-color: #77c970ff;
+            color: #000;
+            font-weight: bold;
+        }
 
-      /* Colores meses */
-      .month-gray {
-          background: #F2F2F2;
-      }
+        /* Fila inactiva completa */
+        .inactive-row {
+            background-color: #fee2e2; /* rojo claro */
+        }
 
-      .month-white {
-          background: #FFFFFF;
-      }
+        .inactive-row td {
+            color: #b91c1c; /* texto rojo */
+            font-weight: bold;
+            text-align: left;
+        }
 
-      
+        /* Etiqueta "INACTIVA" dentro de la celda de actividad */
+        .inactive-label {
+            font-size: 8px;
+            font-weight: 600;
+            background-color: #fecaca; /* rojo más claro */
+            color: #b91c1c;
+            padding: 1px 4px;
+            border-radius: 3px;
+            margin-left: 5px;
+        }
 
-      /* Separador visual */
-      .spacer {
-          height: 6px;
-      }
+    </style>
+</head>
 
-      .page-break {
-          page-break-before: always;
-      }
+<body>
+    <!-- HEADER -->
+    <table class="header-table">
+        <tr>
+            <td width="20%" align="center">
+                @if($logoImage)
+                    <img class="logo" src="{{ $logoImage }}">
+                @endif
+            </td>
+            <td width="80%">
+                <div class="company">TRAMUSA CARRIER S.A. DE C.V.</div>
+                <div class="title">PROGRAMA DE MANTENIMIENTO A VEHÍCULOS</div>
+                <div class="subtitle">
+                    ÁREA: MANTENIMIENTO | PR-05-01-R1 | PERIODICIDAD: ANUAL
+                </div>
+            </td>
+        </tr>
+    </table>
 
-      .month-gray {
-        background: #f8a268ff;
-      }
-      /* Semana actual */
-      .current-week {
-          background: #E66A00 !important; /* naranja más fuerte */
-          color: #fff;
-          font-weight: bold;
-          border: 2px solid #000;
-      }
+    <!-- FECHA -->
+    <table class="info-table">
+        <tr>
+            <th class="menu">Fecha</th>
+            <th class="menu">Semana</th>
+        </tr>
+        <tr>
+            <td>{{ $fecha }}</td>
+            <td>{{ $currentWeek }}</td>
+        </tr>
+    </table>
 
-      .month-white { background: #FFFFFF; }
-  </style>
+    <div style="clear: both;"></div>
 
-  </head>
-  <body>
-    <header>
-      <table class="header-table">
-          <tr>
-              <td width="20%" align="center">
-                  <img class="logoImg" src="{{ $logoImage }}">
-              </td>
-              <td width="80%">
-                  <div class="company">TRAMUSA CARRIER S.A. DE C.V.</div>
-                  <div class="title">PROGRAMA DE MANTENIMIENTO A VEHÍCULOS</div>
-                  <div class="subtitle">
-                      ÁREA: MANTENIMIENTO | PR-05-01-R1 |
-                      PERIODICIDAD: ANUAL | RESGUARDO: ELECTRÓNICO |
-                      REVISIÓN: FEBRERO 2023
-                  </div>
-              </td>
-          </tr>
-      </table>
-  </header>
+    @php
+        $months = [
+            ['name'=>'ENE','weeks'=>4,'class'=>'month-white'],
+            ['name'=>'FEB','weeks'=>4,'class'=>'month-orange'],
+            ['name'=>'MAR','weeks'=>5,'class'=>'month-white'],
+            ['name'=>'ABR','weeks'=>4,'class'=>'month-orange'],
+            ['name'=>'MAY','weeks'=>5,'class'=>'month-white'],
+            ['name'=>'JUN','weeks'=>4,'class'=>'month-orange'],
+            ['name'=>'JUL','weeks'=>5,'class'=>'month-white'],
+            ['name'=>'AGO','weeks'=>4,'class'=>'month-orange'],
+            ['name'=>'SEP','weeks'=>4,'class'=>'month-white'],
+            ['name'=>'OCT','weeks'=>4,'class'=>'month-orange'],
+            ['name'=>'NOV','weeks'=>4,'class'=>'month-white'],
+            ['name'=>'DIC','weeks'=>5,'class'=>'month-orange'],
+        ];
 
-    <main>
-      <!-- FECHA / SEMANA -->
-      <table class="info-table">
-          <tr>
-              <th class="menu">Fecha</th>
-              <th class="menu">Semana</th>
-          </tr>
-          <tr>
-              <td>{{ $fecha }}</td>
-              <td>{{ $currentWeek }}</td>
-          </tr>
-      </table>
+        $weekClasses = [];
+        $week = 1;
 
-      <div style="clear:both;"></div>
+        foreach ($months as $month) {
+            for ($i = 0; $i < $month['weeks']; $i++) {
+                $weekClasses[$week] = $month['class'];
+                $week++;
+            }
+        }
+    @endphp
 
-      @php
-          /* Mapeo MES → SEMANAS → COLOR */
-          $months = [
-              ['name'=>'ENE','weeks'=>4,'class'=>'month-gray'],
-              ['name'=>'FEB','weeks'=>4,'class'=>'month-white'],
-              ['name'=>'MAR','weeks'=>5,'class'=>'month-gray'],
-              ['name'=>'ABR','weeks'=>4,'class'=>'month-white'],
-              ['name'=>'MAY','weeks'=>4,'class'=>'month-gray'],
-              ['name'=>'JUN','weeks'=>5,'class'=>'month-white'],
-              ['name'=>'JUL','weeks'=>4,'class'=>'month-gray'],
-              ['name'=>'AGO','weeks'=>5,'class'=>'month-white'],
-              ['name'=>'SEP','weeks'=>4,'class'=>'month-gray'],
-              ['name'=>'OCT','weeks'=>5,'class'=>'month-white'],
-              ['name'=>'NOV','weeks'=>4,'class'=>'month-gray'],
-              ['name'=>'DIC','weeks'=>4,'class'=>'month-white'],
-          ];
+    <table>
+        <!-- MESES -->
+        <tr class="menu">
+            <th rowspan="2" class="menu">ACTIVIDAD</th>
+            @foreach($months as $month)
+                <th colspan="{{ $month['weeks'] }}">{{ $month['name'] }}</th>
+            @endforeach
+        </tr>
 
-          $weekClasses = [];
-          $week = 1;
-
-          foreach ($months as $month) {
-              for ($i = 0; $i < $month['weeks']; $i++) {
-                  $weekClasses[$week] = $month['class'];
-                  $week++;
-              }
-          }
-      @endphp
-
-      <!-- TABLA PRINCIPAL -->
-      <table>
-        </thead>
-          <!-- MESES -->
-          <tr class="month-header">
-              <th colspan="4"></th>
-              @foreach($months as $month)
-                  <th colspan="{{ $month['weeks'] }}">{{ $month['name'] }}</th>
-              @endforeach
-          </tr>
-
-          <!-- ENCABEZADO SEMANAS (SIN CEBRA) -->
-          <tr>
-              <th class="menu">Unidad</th>
-              <th class="menu">Actividad</th>
-              <th class="menu">Inicio</th>
-              <th class="menu">Periodo</th>
-              @for($i = 1; $i <= 52; $i++)
+        <!-- SEMANAS -->
+        <tr>
+            @for($i = 1; $i <= 52; $i++)
                 <th class="{{ ($i == $currentWeek ? 'current-week ' : '') . ($weekClasses[$i] ?? '') }}">
                     {{ $i }}
                 </th>
-              @endfor
-          </tr>
-        </thead>
-        <tbody>
-          @php $prevUnit = null; @endphp
+            @endfor
+        </tr>
 
-          @foreach($Activitys as $activity)
+        @php $prevUnit = null; @endphp
 
-              @if($prevUnit !== $activity['no_economic'])
-                  <tr class="unit-header">
-                      <th colspan="56">Unidad: {{ $activity['no_economic'] }}</th>
-                  </tr>
-              @endif
+        @foreach($activities as $activity)
 
-              <!-- FILA DE ACTIVIDAD (AQUÍ SÍ VA LA CEBRA POR MES) -->
-              <tr>
-                  <td>{{ $activity['no_economic'] }}</td>
-                  <td class="activity">{{ $activity['activity'] }}</td>
-                  <td>{{ $activity['start'] }}</td>
-                  <td>{{ $activity['periodicity'] }}</td>
+            @if($prevUnit !== $activity['no_economic'])
+                <tr class="unit-header">
+                    <th colspan="53">Unidad: {{ $activity['no_economic'] }}</th>
+                </tr>
+            @endif
 
-                  @for($i = 1; $i <= 52; $i++)
-                      <td class="{{ $weekClasses[$i] }}">
-                          {{ in_array($i, $activity['dates']) ? 'X' : '' }}
-                      </td>
-                  @endfor
-              </tr>
+            <!-- Fila de actividad -->
+            <tr class="{{ $activity['active'] === 0 ? 'inactive-row' : '' }}">
+                <!-- Celda de actividad -->
+                <td class="{{ $activity['active'] === 0 ? '' : 'activity' }}">
+                    {{ $activity['activity'] }}
+                    @if($activity['active'] === 0)
+                        <span class="inactive-label">INACTIVA</span>
+                    @endif
+                </td>
 
-              @php $prevUnit = $activity['no_economic']; @endphp
+                <!-- Celdas de semanas -->
+                @for($i = 1; $i <= 52; $i++)
+                    <td class="
+                        {{ $weekClasses[$i] }} 
+                        @if($activity['active'] === 0) inactive-row @elseif(in_array($i, $activity['weeks'])) x-cell @endif
+                    ">
+                        {{-- Solo muestra X si está activa --}}
+                        @if($activity['active'] !== 0 && in_array($i, $activity['weeks']))
+                            X
+                        @endif
+                    </td>
+                @endfor
+            </tr>
 
-          @endforeach
-        </tbody>
-      </table>
-    </main>
-  </body>
+            @php $prevUnit = $activity['no_economic']; @endphp
+
+        @endforeach
+    </table>
+
+</body>
 </html>

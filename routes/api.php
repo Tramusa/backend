@@ -31,6 +31,7 @@ use App\Http\Controllers\PointsInterest;
 use App\Http\Controllers\ProductsServicesController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProgramsController;
+use App\Http\Controllers\ProgramsMttoVehicleScheduleController;
 use App\Http\Controllers\ProgramsMttoVehiclesController;
 use App\Http\Controllers\PurchaseOrderController;
 use App\Http\Controllers\RenovationsTireController;
@@ -198,8 +199,6 @@ Route::middleware('auth:sanctum')->apiResource('docs-pdfs', DocsPDFsController::
 Route::middleware('auth:sanctum')->post('/docs-pdfs/{id}', [DocsPDFsController::class, 'update']);
 
 Route::middleware('auth:sanctum')->apiResource('missing-docs', MissingDocsController::class);
-Route::middleware('auth:sanctum')->apiResource('programs-mtto', ProgramsMttoVehiclesController::class);
-Route::middleware('auth:sanctum')->post('/pdf-mtto', [ProgramsMttoVehiclesController::class, 'generarPDF']);
 Route::middleware('auth:sanctum')->apiResource('tires', TiresController::class);
 Route::middleware('auth:sanctum')->apiResource('ctrl-tires', CtrlTiresController::class);
 Route::middleware('auth:sanctum')->apiResource('history-tires', HistoryTireController::class);
@@ -249,3 +248,8 @@ Route::middleware('auth:sanctum')->post('/pdf-balance', [BalanceSuppliersControl
 Route::middleware('auth:sanctum')->apiResource('inventory_outputs', InventoryOutputController::class);
 Route::middleware('auth:sanctum')->apiResource('output_details', OutputDetailsController::class);
 Route::middleware('auth:sanctum')->get('/output-pdf/{order}', [InventoryOutputController::class, 'generarPDF']);
+
+Route::middleware('auth:sanctum')->apiResource('/programs-mtto/schedule', ProgramsMttoVehicleScheduleController::class);
+Route::middleware('auth:sanctum')->apiResource('programs-mtto', ProgramsMttoVehiclesController::class);
+Route::middleware('auth:sanctum')->post('/pdf-mtto', [ProgramsMttoVehiclesController::class, 'generarPDF']);
+Route::middleware('auth:sanctum')->post('/excel-mtto', [ProgramsMttoVehiclesController::class, 'generarEXCEL']);

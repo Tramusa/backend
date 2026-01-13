@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Earrings;
 use App\Models\OrderDetail;
 use App\Models\Orders;
+use App\Models\ProgramsMttoVehicleSchedule;
 use App\Models\Revisions;
 use App\Models\User;
 use Carbon\Carbon;
@@ -189,7 +190,7 @@ class OrderController extends Controller
         }   
     }
 
-   public function update(Request $request, $id)
+    public function update(Request $request, $id)
     {
         $order = Orders::find($id);
         if (!$order) {
@@ -199,11 +200,7 @@ class OrderController extends Controller
         $status = (int) $request->input('data.status');
         $order->status = $status;
 
-        /*
-        |--------------------------------------------------------------------------
-        | VALIDACIÓN Y ACTUALIZACIÓN DE ODÓMETRO (SOLO STATUS 0 Y 4)
-        |--------------------------------------------------------------------------
-        */
+        /* VALIDACIÓN Y ACTUALIZACIÓN DE ODÓMETRO (SOLO STATUS 0 Y 4) */
         if (in_array($status, [0, 4])) {
 
             $odometro = $request->input('data.form.odometro');
@@ -226,18 +223,7 @@ class OrderController extends Controller
                     return response()->json(['message' => 'No se encontró la unidad'], 422);
                 }
 
-                $tablas = [
-                    1 => 'tractocamiones',
-                    2 => 'remolques',
-                    3 => 'dollys',
-                    4 => 'volteos',
-                    5 => 'toneles',
-                    6 => 'tortons',
-                    7 => 'autobuses',
-                    8 => 'sprinters',
-                    9 => 'utilitarios',
-                    10 => 'maquinarias'
-                ];
+                $tablas = [1 => 'tractocamiones', 2 => 'remolques', 3 => 'dollys', 4 => 'volteos', 5 => 'toneles', 6 => 'tortons', 7 => 'autobuses', 8 => 'sprinters', 9 => 'utilitarios', 10 => 'maquinarias'];
 
                 $tabla = $tablas[$earring->type] ?? null;
                 if (!$tabla) {
@@ -264,11 +250,7 @@ class OrderController extends Controller
             }
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | LÓGICA DE STATUS
-        |--------------------------------------------------------------------------
-        */
+        /*  LÓGICA DE STATUS  */
         if ($status == 0) {
 
             $order->fill($request->input('data.form'));
@@ -292,8 +274,37 @@ class OrderController extends Controller
             $earringsIds = OrderDetail::where('id_order', $order->id)
                 ->pluck('id_earring');
 
+            $earrings = Earrings::whereIn('id', $earringsIds)->get();
+
             Earrings::whereIn('id', $earringsIds)
                 ->update(['status' => 0]);
+
+            // FECHA REAL DE FINALIZACIÓN
+            $doneDate = Carbon::now();
+            $doneWeek = $doneDate->isoWeek();
+            $doneYear = $doneDate->isoWeekYear();
+
+            // OBTENER SCHEDULES
+            $scheduleIds = $earrings
+                ->pluck('schedule_id')
+                ->filter()
+                ->unique();
+
+            $schedules = ProgramsMttoVehicleSchedule::whereIn('id', $scheduleIds)->get();
+
+            foreach ($schedules as $schedule) {
+                // COMPARAR SEMANA PROGRAMADA VS REAL
+                if (
+                    (int) $schedule->week === (int) $doneWeek &&
+                    (int) $schedule->year === (int) $doneYear
+                ) {
+                    $schedule->status = 'done';
+                } else {
+                    $schedule->status = 'late';
+                }
+                $schedule->executed_at = $doneDate;
+                $schedule->save();
+            }
         }
 
         try {

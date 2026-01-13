@@ -2,71 +2,82 @@
 
 namespace App\Console\Commands;
 
+use Illuminate\Console\Command;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use App\Models\Earrings;
 use App\Models\ProgramsMttoVehicles;
-use Carbon\Carbon;
-use Illuminate\Console\Command;
+use App\Models\ProgramsMttoVehicleSchedule;
 
 class GenerateFailsProgramsMtto extends Command
 {
     protected $signature = 'generate:failsPrograms';
+    protected $description = 'Genera fallas preventivas según cronograma semanal';
 
-    protected $description = 'Genera las fallas del programa de mantenimiento de vehiculos';
-
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    
     public function handle()
     {
+        $this->info('⏳ Generando fallas preventivas por cronograma...');
+
         $today = Carbon::today();
-        $programs = ProgramsMttoVehicles::all();
+        $currentWeek = $today->isoWeek();
+        $currentYear = $today->isoWeekYear();
 
-        foreach ($programs as $program) {
+        $this->info("📅 Semana {$currentWeek} | Año {$currentYear}");
 
-            $start = Carbon::parse($program->start_date);
+        // 1️⃣ Buscar cronogramas que coincidan con la semana actual
+        $schedules = ProgramsMttoVehicleSchedule::where('year', $currentYear)
+            ->where('week', $currentWeek)
+            ->with('program')
+            ->get();
 
-            $next = $start->copy();
+        foreach ($schedules as $schedule) {
 
-            do {
-                $next = match ($program->periodicity) {
-                    'Semanal'       => $next->addWeek(),
-                    'Quincenal'     => $next->addWeeks(2),
-                    'Mensual'       => $next->addMonth(),
-                    'Bimestral'     => $next->addMonths(2),
-                    'Trimestral'    => $next->addMonths(3),
-                    'Cuatrimestral' => $next->addMonths(4),
-                    'Semestral'     => $next->addMonths(6),
-                    'Anual'         => $next->addYear(),
-                };
-            } while ($next->lessThan($today));
+            $program = $schedule->program;
 
-            if ($next->isSameWeek($today)) {
-                $this->generateFailure($program);
+            if (!$program) {
+                continue;
             }
-        }
-    }
 
-    // Función para generar la falla para una actividad específica
-    private function generateFailure($Program)
-    {      
-        // Verificar si la descripción ya existe en las FALLAS registrados
-        $existingEarring = Earrings::where('description', 'like', '%' . $Program['activity'] . '%')
-                            ->where('status', 1)
-                            ->where('type', $Program['type'])
-                            ->where('unit', $Program['unit'])
-                            ->first();
+            // 2️⃣ Validar actividad activa
+            if ($program->active != 1) {
+                continue;
+            }
 
-        if (!$existingEarring) {//SI NO EXISTE
-            $data = [
-                'unit' => $Program['unit'],
-                'type' => $Program['type'],
-                'description' => $Program['activity'],
-                'type_mtto' => 'Preventivo',
-            ];
-            Earrings::create($data);//CREAMOS LA FALLA
+            //3️⃣ Validar unidad activa
+            $unitStatus = DB::table('units_all')
+                ->where('unit_id', $program->unit)
+                ->where('type', $program->type)
+                ->value('status');
+
+            if ($unitStatus === 'disable') {
+                continue;
+            }
+
+            //4️⃣ Evitar duplicados
+            $exists = Earrings::where('unit', $program->unit)
+                ->where('type', $program->type)
+                ->where('description', $program->activity)
+                ->where('status', 1)
+                ->exists();
+
+            if ($exists) {
+                continue;
+            }
+
+            //5️⃣ Crear falla preventiva
+            Earrings::create([
+                'unit'        => $program->unit,
+                'type'        => $program->type,
+                'description' => $program->activity,
+                'type_mtto'   => 'Preventivo',
+                'status'      => 1,
+                'schedule_id' => $schedule->id,
+            ]);
+
+            $this->info("✅ Falla creada → {$program->unit} | {$program->activity}");
         }
+
+        $this->info('🏁 Proceso finalizado');
+        return Command::SUCCESS;
     }
 }
