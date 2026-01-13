@@ -14,6 +14,7 @@ return new class extends Migration
             $table->integer('unit');
             $table->integer('status')->default(1);
             $table->string('description');
+            $table->string('schedule_id');
             $table->timestamps();
         });
     }
