@@ -156,15 +156,34 @@ class RevisionsController extends Controller
             // Determina la tabla correspondiente según el tipo de unidad
             $tablas = ['', 'tractocamiones', 'remolques', 'dollys', 'volteos', 'toneles', 'tortons', 'autobuses', 'sprinters', 'utilitarios', 'maquinarias'];
             
-            DB::table($tablas[$type])->where('id', $unitId)->update(['status' => 'inspection']);
+            // 🔹 Obtener la unidad (para saber su logística)
+            $unit = DB::table($tablas[$type])
+                ->where('id', $unitId)
+                ->first();
+
+            if (!$unit) {
+                return response()->json(['message' => 'Unidad no encontrada'], 404);
+            }
+
+            // 🔹 Cambiar estatus de la unidad
+            DB::table($tablas[$type])
+                ->where('id', $unitId)
+                ->update(['status' => 'inspection']);
             
             // Guarda la revision
             $program = new Revisions($request->all());
             $program->save();
 
-            return response()->json(['message' => 'Revision generada exitosamente.']);
+            return response()->json([
+                'message'  => 'Revision generada exitosamente.',
+                'logistic' => $unit->logistic // 👈 CLAVE
+            ]);
+
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Error al generar la revision.'], 500);
+            return response()->json([
+                'message' => 'Error al generar la revision',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
@@ -273,7 +292,10 @@ class RevisionsController extends Controller
         //AQUI SE DEBE GENERAR EL PDF
         $pdfContent = $this->PDF_FM($data);
         Storage::disk('public')->put('Revisions/'.$request->input('Document').'- Folio N°'. $id . '.pdf', $pdfContent);
-        return response()->json(['message' => 'Revision terminada existosamente.']);
+        return response()->json([
+            'message'  => 'Revision terminada exitosamente.',
+            'logistic' => $unit->logistic // 👈 CLAVE
+        ]);
     }
 
     public function show($id)

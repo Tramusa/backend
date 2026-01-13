@@ -125,6 +125,7 @@ Route::middleware('auth:sanctum')->get('/responsible', function () {
     $users = DB::table('users')
         ->where('active', 1)
         ->where('rol', '!=', '')
+        ->orderBy('name', 'asc') // ordenar por nombre
         ->get();
     return response()->json($users);
 });
