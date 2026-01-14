@@ -120,6 +120,11 @@
             margin-left: 5px;
         }
 
+        .current-week-body {
+            background: #E66A00;
+            color: white;
+            font-weight: bold;
+        }
     </style>
 </head>
 
@@ -224,8 +229,15 @@
                 <!-- Celdas de semanas -->
                 @for($i = 1; $i <= 52; $i++)
                     <td class="
-                        {{ $weekClasses[$i] }} 
-                        @if($activity['active'] === 0) inactive-row @elseif(in_array($i, $activity['weeks'])) x-cell @endif
+                        @if($activity['active'] === 0)
+                            inactive-row
+                        @elseif(in_array($i, $activity['weeks']))
+                            x-cell
+                        @elseif($i == $currentWeek)
+                            current-week-body
+                        @else
+                            {{ $weekClasses[$i] }}
+                        @endif
                     ">
                         {{-- Solo muestra X si está activa --}}
                         @if($activity['active'] !== 0 && in_array($i, $activity['weeks']))

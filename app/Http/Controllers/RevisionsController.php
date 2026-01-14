@@ -376,7 +376,7 @@ class RevisionsController extends Controller
             }
         }
 
-         // Update the status of the revision
+        // Update the status of the revision
         $end_date = Carbon::now();
         $revision = Revisions::find($id);
         if ($revision) {
