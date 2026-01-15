@@ -15,6 +15,7 @@ use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 
 class ProgramsMttoVehiclesController extends Controller
 {
@@ -172,16 +173,14 @@ class ProgramsMttoVehiclesController extends Controller
     public function generarEXCEL(Request $request)
     {
         $rows = collect($request->activities)->map(function ($act) {
-            // Creamos la fila: actividad + 52 semanas + active + unidad + no_economic
+
             $row = [$act['activity']];
 
             for ($i = 1; $i <= 52; $i++) {
                 $row[] = in_array($i, $act['weeks']) ? 'X' : '';
             }
 
-            $row[] = $act['active']; // bandera lógica
-
-            // añadimos unidad y no_economic para agrupar después
+            $row[] = $act['active'];
             $row[] = $act['unidad'] ?? '';
             $row[] = $act['no_economic'] ?? '';
 
@@ -204,30 +203,103 @@ class ProgramsMttoVehiclesController extends Controller
 
                         $sheet = $event->sheet->getDelegate();
 
-                        /* ================= ENCABEZADO ================= */
-                        $sheet->mergeCells('A2:A3');
-                        $sheet->setCellValue('A2', 'Actividad');
-                        $sheet->getStyle('A2')->applyFromArray([
-                            'font' => ['bold' => true, 'color' => ['argb' => 'FFFFFFFF']],
-                            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER,],
-                            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FF1F4E78']]
+                        /* ==========  HEADER SUPERIOR (IGUAL AL PDF) ============= */
+                        $sheet->getRowDimension(1)->setRowHeight(50);
+                        $sheet->getRowDimension(2)->setRowHeight(20);
+                        $sheet->getRowDimension(3)->setRowHeight(15);
+
+                        /* ---------- LOGO (SOLO COLUMNA A, 3 FILAS) ---------- */
+                        $sheet->mergeCells('A1:A3');
+
+                        $drawing = new Drawing();
+                        $drawing->setName('Logo');
+                        $drawing->setPath(public_path('imgPDF/logo.png'));
+                        $drawing->setHeight(95);
+                        $drawing->setCoordinates('A1');
+                        $drawing->setOffsetX(5);
+                        $drawing->setOffsetY(5);
+                        $drawing->setWorksheet($sheet);
+
+                        $sheet->getStyle('A1:A3')->getAlignment()
+                            ->setHorizontal(Alignment::HORIZONTAL_CENTER)
+                            ->setVertical(Alignment::VERTICAL_CENTER);
+
+                        /* ---------- EMPRESA ---------- */
+                        $sheet->mergeCells('B1:BA1');
+                        $sheet->setCellValue('B1', 'TRAMUSA CARRIER S.A. DE C.V.');
+                        $sheet->getStyle('B1')->applyFromArray([
+                            'font' => [
+                                'bold' => true,
+                                'size' => 14,
+                                'color' => ['argb' => 'FF1E4E79']
+                            ],
+                            'alignment' => [
+                                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                                'vertical' => Alignment::VERTICAL_CENTER
+                            ],
                         ]);
 
-                        $months = ['ENE' => 4, 'FEB' => 4, 'MAR' => 5, 'ABR' => 4, 'MAY' => 4, 'JUN' => 5,
-                                'JUL' => 4, 'AGO' => 4, 'SEP' => 5, 'OCT' => 4, 'NOV' => 4, 'DIC' => 5];
+                        /* ---------- TÍTULO ---------- */
+                        $sheet->mergeCells('B2:BA2');
+                        $sheet->setCellValue('B2', 'PROGRAMA DE MANTENIMIENTO A VEHÍCULOS');
+                        $sheet->getStyle('B2')->applyFromArray([
+                            'font' => ['bold' => true, 'size' => 12],
+                            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
+                        ]);
+
+                        /* ---------- SUBTÍTULO ---------- */
+                        $sheet->mergeCells('B3:BA3');
+                        $sheet->setCellValue('B3', 'ÁREA: MANTENIMIENTO | PR-05-01-R1 | PERIODICIDAD: ANUAL');
+                        $sheet->getStyle('B3')->applyFromArray([
+                            'font' => ['bold' => true, 'size' => 10],
+                            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
+                            'fill' => [
+                                'fillType' => Fill::FILL_SOLID,
+                                'startColor' => ['argb' => 'FFF4B083']
+                            ],
+                        ]);
+
+                        /* ---------- BORDES DEL HEADER ---------- */
+                        $sheet->getStyle('A1:BA3')->getBorders()->getAllBorders()
+                            ->setBorderStyle(Border::BORDER_THIN);
+
+                        /* ======= ENCABEZADO MESES / SEMANAS ========== */
+
+                        $sheet->mergeCells('A5:A6');
+                        $sheet->setCellValue('A5', 'Actividad');
+                        $sheet->getStyle('A5')->applyFromArray([
+                            'font' => ['bold' => true, 'color' => ['argb' => 'FFFFFFFF']],
+                            'alignment' => [
+                                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                                'vertical' => Alignment::VERTICAL_CENTER
+                            ],
+                            'fill' => [
+                                'fillType' => Fill::FILL_SOLID,
+                                'startColor' => ['argb' => 'FF1F4E78']
+                            ],
+                        ]);
+
+                        $months = [
+                            'ENE' => 4, 'FEB' => 4, 'MAR' => 5, 'ABR' => 4,
+                            'MAY' => 4, 'JUN' => 5, 'JUL' => 4, 'AGO' => 4,
+                            'SEP' => 5, 'OCT' => 4, 'NOV' => 4, 'DIC' => 5
+                        ];
 
                         $col = 2;
                         foreach ($months as $month => $weeks) {
                             $start = Coordinate::stringFromColumnIndex($col);
                             $end   = Coordinate::stringFromColumnIndex($col + $weeks - 1);
 
-                            $sheet->mergeCells("{$start}2:{$end}2");
-                            $sheet->setCellValue("{$start}2", $month);
+                            $sheet->mergeCells("{$start}5:{$end}5");
+                            $sheet->setCellValue("{$start}5", $month);
 
-                            $sheet->getStyle("{$start}2")->applyFromArray([
+                            $sheet->getStyle("{$start}5")->applyFromArray([
                                 'font' => ['bold' => true, 'color' => ['argb' => 'FFFFFFFF']],
-                                'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER,'vertical' => Alignment::VERTICAL_CENTER,],
-                                'fill' => ['fillType' => Fill::FILL_SOLID,'startColor' => ['argb' => 'FF1F4E78']],
+                                'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
+                                'fill' => [
+                                    'fillType' => Fill::FILL_SOLID,
+                                    'startColor' => ['argb' => 'FF1F4E78']
+                                ],
                             ]);
 
                             $col += $weeks;
@@ -235,63 +307,83 @@ class ProgramsMttoVehiclesController extends Controller
 
                         for ($i = 1; $i <= 52; $i++) {
                             $col = Coordinate::stringFromColumnIndex($i + 1);
-                            $sheet->setCellValue("{$col}3", $i);
-                            $sheet->getStyle("{$col}3")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                            $sheet->setCellValue("{$col}6", $i);
+                            $sheet->getStyle("{$col}6")->getAlignment()
+                                ->setHorizontal(Alignment::HORIZONTAL_CENTER);
                         }
 
-                        /* ================= DATOS POR UNIDAD ================= */
-                        $startRow = 4;
+                        /* ========= DATOS POR UNIDAD ============== */
 
-                        // Agrupar por unidad y no_economic
-                        $grouped = collect($this->rows)->groupBy(function($row) {
+                        $startRow = 7;
+
+                        $grouped = collect($this->rows)->groupBy(function ($row) {
                             return ($row[54] ?? '') . '|' . ($row[55] ?? '');
                         });
 
                         foreach ($grouped as $key => $activities) {
-                            [$unidad, $no_economic] = explode('|', $key);
 
+                            [$unidad, $eco] = explode('|', $key);
                             $lastCol = Coordinate::stringFromColumnIndex(53);
 
-                            // Encabezado dinámico de unidad
                             $sheet->mergeCells("A{$startRow}:{$lastCol}{$startRow}");
-                            $sheet->setCellValue("A{$startRow}", "Unidad: {$unidad} – {$no_economic}");
+                            $sheet->setCellValue("A{$startRow}", "Unidad: {$eco}");
                             $sheet->getStyle("A{$startRow}")->applyFromArray([
                                 'font' => ['bold' => true, 'size' => 13],
                                 'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
-                                'fill' => ['fillType' => Fill::FILL_SOLID,'startColor' => ['argb' => 'FF5FBAFC']],
+                                'fill' => [
+                                    'fillType' => Fill::FILL_SOLID,
+                                    'startColor' => ['argb' => 'FF5FBAFC']
+                                ],
                             ]);
 
                             $startRow++;
 
-                            // Insertamos actividades de esta unidad
-                            foreach ($activities as $index => $row) {
-                                $dataRow = array_slice($row, 0, 54); // actividad + 52 semanas + active
+                            foreach ($activities as $row) {
+
+                                $dataRow = array_slice($row, 0, 54);
                                 $sheet->fromArray([$dataRow], null, "A{$startRow}", false);
 
-                                // resaltar inactiva
                                 $isActive = $row[53] ?? true;
-                                if (!$isActive) {
-                                    $currentValue = $sheet->getCell("A{$startRow}")->getValue();
-                                    $sheet->setCellValue("A{$startRow}", $currentValue . ' (INACTIVA)');
 
-                                    $sheet->getStyle("A{$startRow}:{$lastCol}{$startRow}")->applyFromArray([
-                                        'font' => ['bold' => true, 'color' => ['argb' => 'FF8B0000']],
-                                        'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FFFCC6BB']]
-                                    ]);
+                                if (!$isActive) {
+                                    $sheet->setCellValue(
+                                        "A{$startRow}",
+                                        $sheet->getCell("A{$startRow}")->getValue() . ' (INACTIVA)'
+                                    );
+
+                                    $sheet->getStyle("A{$startRow}:{$lastCol}{$startRow}")
+                                        ->applyFromArray([
+                                            'font' => ['bold' => true, 'color' => ['argb' => 'FF8B0000']],
+                                            'fill' => [
+                                                'fillType' => Fill::FILL_SOLID,
+                                                'startColor' => ['argb' => 'FFFCC6BB']
+                                            ]
+                                        ]);
                                 }
 
-                                // resaltar X
                                 for ($c = 2; $c <= 53; $c++) {
                                     $col = Coordinate::stringFromColumnIndex($c);
                                     if ($sheet->getCell("{$col}{$startRow}")->getValue() === 'X') {
                                         $sheet->getStyle("{$col}{$startRow}")->applyFromArray([
                                             'font' => ['bold' => true],
-                                            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER,    'vertical' => Alignment::VERTICAL_CENTER],
-                                            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FFFF9800']],
-                                            'borders' => ['outline' => ['borderStyle' => Border::BORDER_MEDIUM, 'color' => ['argb' => 'FFBF360C']]]
+                                            'alignment' => [
+                                                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                                                'vertical' => Alignment::VERTICAL_CENTER
+                                            ],
+                                            'fill' => [
+                                                'fillType' => Fill::FILL_SOLID,
+                                                'startColor' => ['argb' => 'FFFF9800']
+                                            ],
+                                            'borders' => [
+                                                'outline' => [
+                                                    'borderStyle' => Border::BORDER_MEDIUM,
+                                                    'color' => ['argb' => 'FFBF360C']
+                                                ]
+                                            ]
                                         ]);
                                     }
                                 }
+
                                 $startRow++;
                             }
                         }
@@ -299,7 +391,8 @@ class ProgramsMttoVehiclesController extends Controller
                         /* ================= BORDES GENERALES ================= */
                         $lastRow = $sheet->getHighestRow();
                         $lastCol = Coordinate::stringFromColumnIndex(53);
-                        $sheet->getStyle("A2:{$lastCol}{$lastRow}")
+
+                        $sheet->getStyle("A5:{$lastCol}{$lastRow}")
                             ->getBorders()->getAllBorders()
                             ->setBorderStyle(Border::BORDER_THIN);
                     }
@@ -317,6 +410,7 @@ class ProgramsMttoVehiclesController extends Controller
 
         }, 'Programa_Mantenimiento.xlsx');
     }
+
 
     private function getImageBase64($imagePath)
     {

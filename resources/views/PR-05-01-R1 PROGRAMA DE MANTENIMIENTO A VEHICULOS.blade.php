@@ -251,6 +251,5 @@
 
         @endforeach
     </table>
-
 </body>
 </html>
