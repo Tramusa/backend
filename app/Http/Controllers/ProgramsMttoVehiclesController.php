@@ -27,7 +27,7 @@ class ProgramsMttoVehiclesController extends Controller
                     ->whereColumn('u.type', 'programs_mtto_vehicles.type');
             })
             ->with(['schedules' => function ($q) {
-                $q->select('program_mtto_vehicle_id', 'week'); // 🔥 SOLO SEMANA
+                $q->select('program_mtto_vehicle_id', 'week', 'status');
             }])
             ->orderBy('programs_mtto_vehicles.type')
             ->orderBy('u.no_economic')
@@ -52,7 +52,12 @@ class ProgramsMttoVehiclesController extends Controller
                 'id' => $program->id,
                 'name' => $program->activity,
                 'active' => $program->active,
-                'weeks' => $program->schedules->pluck('week')->values(), // 🔥 SOLO SEMANAS
+                'weeks' => $program->schedules->map(function ($s) {
+                                return [
+                                    'week' => $s->week,
+                                    'status' => $s->status, // done | late | pending
+                                ];
+                            })->values(),
             ];
         }
 
@@ -67,7 +72,7 @@ class ProgramsMttoVehiclesController extends Controller
                     ->whereColumn('u.type', 'programs_mtto_vehicles.type');
             })
             ->with(['schedules' => function ($q) {
-                $q->select('program_mtto_vehicle_id', 'week');
+                $q->select('program_mtto_vehicle_id', 'week', 'status');
             }])
             ->where('programs_mtto_vehicles.id', $id)
             ->firstOrFail();
@@ -81,7 +86,12 @@ class ProgramsMttoVehiclesController extends Controller
                     'id' => $program->id,
                     'name' => $program->activity,
                     'active' => $program->active,
-                    'weeks' => $program->schedules->pluck('week')->values(), // ✅ CLAVE
+                    'weeks' => $program->schedules->map(function ($s) {
+                                    return [
+                                        'week' => $s->week,
+                                        'status' => $s->status, // done | late | pending
+                                    ];
+                                })->values(),
                 ]
             ]
         ]);
@@ -176,9 +186,24 @@ class ProgramsMttoVehiclesController extends Controller
 
             $row = [$act['activity']];
 
+            $weeks = collect($act['weeks']);
+            $weeksByNumber = $weeks->keyBy('week');
+
             for ($i = 1; $i <= 52; $i++) {
-                $row[] = in_array($i, $act['weeks']) ? 'X' : '';
+
+                if ($weeksByNumber->has($i)) {
+
+                    $status = $weeksByNumber[$i]['status'];
+
+                    $row[] = ($status === 'done' || $status === 'late')
+                        ? 'FF22C55E'   // verde
+                        : 'FFFF9800';  // naranja
+
+                } else {
+                    $row[] = '';
+                }
             }
+
 
             $row[] = $act['active'];
             $row[] = $act['unidad'] ?? '';
@@ -340,7 +365,7 @@ class ProgramsMttoVehiclesController extends Controller
 
                             foreach ($activities as $row) {
 
-                                $dataRow = array_slice($row, 0, 54);
+                                $dataRow = array_slice($row, 0, 56);
                                 $sheet->fromArray([$dataRow], null, "A{$startRow}", false);
 
                                 $isActive = $row[53] ?? true;
@@ -362,22 +387,33 @@ class ProgramsMttoVehiclesController extends Controller
                                 }
 
                                 for ($c = 2; $c <= 53; $c++) {
-                                    $col = Coordinate::stringFromColumnIndex($c);
-                                    if ($sheet->getCell("{$col}{$startRow}")->getValue() === 'X') {
-                                        $sheet->getStyle("{$col}{$startRow}")->applyFromArray([
-                                            'font' => ['bold' => true],
+
+                                    $col  = Coordinate::stringFromColumnIndex($c);
+                                    $cell = "{$col}{$startRow}";
+                                    $color = $sheet->getCell($cell)->getValue();
+
+                                    if ($color) {
+
+                                        // Cambiamos el texto del color por X
+                                        $sheet->setCellValue($cell, 'X');
+
+                                        $sheet->getStyle($cell)->applyFromArray([
+                                            'font' => [
+                                                'bold' => true,
+                                                'color' => ['argb' => 'FF000000']
+                                            ],
                                             'alignment' => [
                                                 'horizontal' => Alignment::HORIZONTAL_CENTER,
                                                 'vertical' => Alignment::VERTICAL_CENTER
                                             ],
                                             'fill' => [
                                                 'fillType' => Fill::FILL_SOLID,
-                                                'startColor' => ['argb' => 'FFFF9800']
+                                                'startColor' => ['argb' => $color] // 👈 usa el color real
                                             ],
                                             'borders' => [
                                                 'outline' => [
                                                     'borderStyle' => Border::BORDER_MEDIUM,
-                                                    'color' => ['argb' => 'FFBF360C']
+                                                    'color' => ['argb' => 'FF000000']
                                                 ]
                                             ]
                                         ]);
@@ -410,7 +446,6 @@ class ProgramsMttoVehiclesController extends Controller
 
         }, 'Programa_Mantenimiento.xlsx');
     }
-
 
     private function getImageBase64($imagePath)
     {

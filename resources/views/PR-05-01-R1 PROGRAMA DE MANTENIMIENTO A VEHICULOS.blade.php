@@ -71,8 +71,8 @@
             background: #cfcfcfff;
         }
 
-        .month-orange {
-            background: #f8a268;
+        .month-grey {
+            background: #9e9d9c;
         }
 
         .month-white {
@@ -125,6 +125,18 @@
             color: white;
             font-weight: bold;
         }
+        .x-cell-done {
+            background-color: #1bad51; /* verde */
+            color: #000;
+            font-weight: bold;
+        }
+
+        .x-cell-pending {
+            background-color: #f97316; /* naranja */
+            color: #000;
+            font-weight: bold;
+        }
+
     </style>
 </head>
 
@@ -164,17 +176,17 @@
     @php
         $months = [
             ['name'=>'ENE','weeks'=>4,'class'=>'month-white'],
-            ['name'=>'FEB','weeks'=>4,'class'=>'month-orange'],
+            ['name'=>'FEB','weeks'=>4,'class'=>'month-grey'],
             ['name'=>'MAR','weeks'=>5,'class'=>'month-white'],
-            ['name'=>'ABR','weeks'=>4,'class'=>'month-orange'],
+            ['name'=>'ABR','weeks'=>4,'class'=>'month-grey'],
             ['name'=>'MAY','weeks'=>5,'class'=>'month-white'],
-            ['name'=>'JUN','weeks'=>4,'class'=>'month-orange'],
+            ['name'=>'JUN','weeks'=>4,'class'=>'month-grey'],
             ['name'=>'JUL','weeks'=>5,'class'=>'month-white'],
-            ['name'=>'AGO','weeks'=>4,'class'=>'month-orange'],
+            ['name'=>'AGO','weeks'=>4,'class'=>'month-grey'],
             ['name'=>'SEP','weeks'=>4,'class'=>'month-white'],
-            ['name'=>'OCT','weeks'=>4,'class'=>'month-orange'],
+            ['name'=>'OCT','weeks'=>4,'class'=>'month-grey'],
             ['name'=>'NOV','weeks'=>4,'class'=>'month-white'],
-            ['name'=>'DIC','weeks'=>5,'class'=>'month-orange'],
+            ['name'=>'DIC','weeks'=>5,'class'=>'month-grey'],
         ];
 
         $weekClasses = [];
@@ -227,20 +239,29 @@
                 </td>
 
                 <!-- Celdas de semanas -->
+                @php
+                    $weeksNumbers = collect($activity['weeks'])->pluck('week')->toArray();
+                    $weeksStatus  = collect($activity['weeks'])->keyBy('week');
+                @endphp
+
                 @for($i = 1; $i <= 52; $i++)
+                    @php
+                        $exists = in_array($i, $weeksNumbers);
+                        $status = $weeksStatus[$i]['status'] ?? null;
+                    @endphp
+
                     <td class="
                         @if($activity['active'] === 0)
                             inactive-row
-                        @elseif(in_array($i, $activity['weeks']))
-                            x-cell
+                        @elseif($exists)
+                            {{ ($status === 'done' || $status === 'late') ? 'x-cell-done' : 'x-cell-pending' }}
                         @elseif($i == $currentWeek)
                             current-week-body
                         @else
                             {{ $weekClasses[$i] }}
                         @endif
                     ">
-                        {{-- Solo muestra X si está activa --}}
-                        @if($activity['active'] !== 0 && in_array($i, $activity['weeks']))
+                        @if($activity['active'] !== 0 && $exists)
                             X
                         @endif
                     </td>

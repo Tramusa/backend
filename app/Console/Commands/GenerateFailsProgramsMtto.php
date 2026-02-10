@@ -6,7 +6,6 @@ use Illuminate\Console\Command;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Models\Earrings;
-use App\Models\ProgramsMttoVehicles;
 use App\Models\ProgramsMttoVehicleSchedule;
 
 class GenerateFailsProgramsMtto extends Command
@@ -54,10 +53,12 @@ class GenerateFailsProgramsMtto extends Command
             }
 
             //4️⃣ Evitar duplicados
+            $description = trim(mb_strtolower($program->activity));
+
             $exists = Earrings::where('unit', $program->unit)
                 ->where('type', $program->type)
-                ->where('description', $program->activity)
-                ->where('status', 1)
+                ->where('schedule_id', $schedule->id)
+                ->whereRaw('LOWER(TRIM(description)) = ?', [$description])
                 ->exists();
 
             if ($exists) {

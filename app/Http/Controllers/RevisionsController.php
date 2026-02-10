@@ -171,18 +171,19 @@ class RevisionsController extends Controller
                 ->update(['status' => 'inspection']);
             
             // Guarda la revision
-            $program = new Revisions($request->all());
-            $program->save();
+            $revision = new Revisions($request->all());
+            $revision->save();
 
             return response()->json([
                 'message'  => 'Revision generada exitosamente.',
-                'logistic' => $unit->logistic // 👈 CLAVE
+                'logistic' => $unit->logistic, // 👈 CLAVE
+                'revision_id' => $revision->id,
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Error al generar la revision',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage()                
             ], 500);
         }
     }
