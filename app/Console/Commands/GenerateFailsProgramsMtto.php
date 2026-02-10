@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Models\Earrings;
+use App\Models\ProgramsMttoVehicles;
 use App\Models\ProgramsMttoVehicleSchedule;
 
 class GenerateFailsProgramsMtto extends Command
