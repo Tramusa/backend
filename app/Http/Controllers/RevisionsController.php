@@ -193,7 +193,8 @@ class RevisionsController extends Controller
         $infoRevision = $request->revision;
         $dataVerificar = $request->except(['revision', 'Document']); // Excluir 'revision' del array $data
         $tablas = ['', 'tractocamiones', 'remolques', 'dollys', 'volteos', 'toneles', 'tortons', 'autobuses', 'sprinters', 'utilitarios', 'maquinarias'];
-        
+        $id = $request->revision['id'];
+
         $updateData = ['status' => 'available'];
         if ($request->filled('odometro')) {
              // Recuperar el valor actual del odómetro
@@ -293,9 +294,11 @@ class RevisionsController extends Controller
         //AQUI SE DEBE GENERAR EL PDF
         $pdfContent = $this->PDF_FM($data);
         Storage::disk('public')->put('Revisions/'.$request->input('Document').'- Folio N°'. $id . '.pdf', $pdfContent);
+        $fecha = Carbon::now()->format('d/m/Y');
+
         return response()->json([
-            'message'  => 'Revision terminada exitosamente.',
-            'logistic' => $unit->logistic // 👈 CLAVE
+            'message'  => "Revisión finalizada con Folio: {$id} y Fecha: {$fecha}.",
+            'logistic' => $unit->logistic
         ]);
     }
 
