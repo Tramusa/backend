@@ -19,6 +19,7 @@ use App\Http\Controllers\InspectionsController;
 use App\Http\Controllers\InventoryDetailsController;
 use App\Http\Controllers\InventoryEntriesController;
 use App\Http\Controllers\InventoryOutputController;
+use App\Http\Controllers\KpisController;
 use App\Http\Controllers\MayorAccountController;
 use App\Http\Controllers\MissingDocsController;
 use App\Http\Controllers\OrderController;
@@ -254,3 +255,6 @@ Route::middleware('auth:sanctum')->apiResource('/programs-mtto/schedule', Progra
 Route::middleware('auth:sanctum')->apiResource('programs-mtto', ProgramsMttoVehiclesController::class);
 Route::middleware('auth:sanctum')->post('/pdf-mtto', [ProgramsMttoVehiclesController::class, 'generarPDF']);
 Route::middleware('auth:sanctum')->post('/excel-mtto', [ProgramsMttoVehiclesController::class, 'generarEXCEL']);
+
+Route::middleware('auth:sanctum')->get('/kpi-1', [KpisController::class, 'kpi1']);
+Route::middleware('auth:sanctum')->get('/kpi-3', [KpisController::class, 'kpi3']);
