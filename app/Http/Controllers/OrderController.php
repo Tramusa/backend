@@ -20,25 +20,81 @@ class OrderController extends Controller
 {
     public function store(Request $request)
     {
-        $order = new Orders();// Create a new order
-        $order->date = now();
-        $order->save();
-        
-        $orderId = $order->id;// Get the order ID
-        
-        $selectedEarrings = $request->input('selectedEarrings'); // This should be an array of earring IDs
-        foreach ($selectedEarrings as $earringId) {
-            $orderDetail = new OrderDetail();
-            $orderDetail->id_order = $orderId;
-            $orderDetail->id_earring = $earringId;
-            $orderDetail->save();
-            $earring = Earrings::find($earringId);
-            if ($earring) {            
-                $earring->status = 2; // En proceso
-                $earring->save();
-            }
+        $selectedEarrings = $request->input('selectedEarrings');
+
+        if (!$selectedEarrings || count($selectedEarrings) === 0) {
+            return response()->json([
+                'message' => 'No se seleccionaron fallas'
+            ], 400);
         }
-        return response()->json(['message' => 'Order creada correctamente', 'order_id' => $orderId]);
+
+        $earrings = Earrings::whereIn('id', $selectedEarrings)->get(); // 🔎 Traer las fallas seleccionadas
+
+        if ($earrings->count() !== count($selectedEarrings)) {
+            return response()->json([
+                'message' => 'Una o más fallas no existen'
+            ], 404);
+        }
+
+        // 🔒 Tomar unidad, type y type_mtto base (de la primera falla)
+        $baseUnit = $earrings->first()->unit;
+        $baseType = $earrings->first()->type;
+        $baseMtto = $earrings->first()->type_mtto;
+
+        // 🔎 Verificar que TODAS tengan mismo unit, type y type_mtto
+        $invalidMix = $earrings->contains(function ($earring) use ($baseUnit, $baseType, $baseMtto) {
+            return $earring->unit !== $baseUnit
+                || $earring->type !== $baseType
+                || $earring->type_mtto !== $baseMtto;
+        });
+
+        if ($invalidMix) {
+            return response()->json([
+                'message' => 'No se pueden mezclar fallas de diferentes unidades o mantenimientos en una misma orden'
+            ], 409);
+        }
+
+        // 🔒 Validar que ninguna esté en proceso
+        if ($earrings->where('status', 2)->count() > 0) {
+            return response()->json([
+                'message' => 'Una o más fallas ya están en proceso'
+            ], 409);
+        }
+
+        // ========================= CREAR ORDEN =======================
+        DB::beginTransaction();
+
+        try {
+
+            $order = Orders::create([
+                'date' => now()
+            ]);
+
+            foreach ($earrings as $earring) {
+
+                OrderDetail::create([
+                    'id_order' => $order->id,
+                    'id_earring' => $earring->id
+                ]);
+
+                $earring->update(['status' => 2]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Orden creada correctamente',
+                'order_id' => $order->id
+            ]);
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'message' => 'Error al crear la orden'
+            ], 500);
+        }
     }
 
     public function show($type)

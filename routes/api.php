@@ -258,3 +258,4 @@ Route::middleware('auth:sanctum')->post('/excel-mtto', [ProgramsMttoVehiclesCont
 
 Route::middleware('auth:sanctum')->get('/kpi-1', [KpisController::class, 'kpi1']);
 Route::middleware('auth:sanctum')->get('/kpi-3', [KpisController::class, 'kpi3']);
+Route::middleware('auth:sanctum')->post('/retrabajos', [KpisController::class, 'store']);

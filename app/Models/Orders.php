@@ -10,4 +10,9 @@ class Orders extends Model
     use HasFactory;
 
     protected $fillable = ['date', 'date_attended', 'status', 'date_in', 'repair', 'requisitions', 'odometro', 'spare_parts', 'total_parts', 'total_mano', 'authorize', 'perform', 'operator'];
+  
+    public function details()
+    {
+        return $this->hasMany(OrderDetail::class, 'id_order');
+    }
 }
