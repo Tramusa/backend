@@ -175,8 +175,8 @@
 
     @php
         $months = [
-            ['name'=>'ENE','weeks'=>4,'class'=>'month-white'],
-            ['name'=>'FEB','weeks'=>5,'class'=>'month-grey'],
+            ['name'=>'ENE','weeks'=>5,'class'=>'month-white'],
+            ['name'=>'FEB','weeks'=>4,'class'=>'month-grey'],
             ['name'=>'MAR','weeks'=>4,'class'=>'month-white'],
             ['name'=>'ABR','weeks'=>4,'class'=>'month-grey'],
             ['name'=>'MAY','weeks'=>5,'class'=>'month-white'],
