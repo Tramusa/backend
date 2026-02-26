@@ -14,6 +14,7 @@ use App\Http\Controllers\DocsPDFsController;
 use App\Http\Controllers\EarringsController;
 use App\Http\Controllers\EntryDetailsController;
 use App\Http\Controllers\ExpirationUnitsController;
+use App\Http\Controllers\FatigueRatingController;
 use App\Http\Controllers\HistoryTireController;
 use App\Http\Controllers\InspectionsController;
 use App\Http\Controllers\InventoryDetailsController;
@@ -257,5 +258,8 @@ Route::middleware('auth:sanctum')->post('/pdf-mtto', [ProgramsMttoVehiclesContro
 Route::middleware('auth:sanctum')->post('/excel-mtto', [ProgramsMttoVehiclesController::class, 'generarEXCEL']);
 
 Route::middleware('auth:sanctum')->get('/kpi-1', [KpisController::class, 'kpi1']);
+Route::middleware('auth:sanctum')->get('/kpi-2', [KpisController::class, 'kpi2']);
 Route::middleware('auth:sanctum')->get('/kpi-3', [KpisController::class, 'kpi3']);
 Route::middleware('auth:sanctum')->post('/retrabajos', [KpisController::class, 'store']);
+
+Route::middleware('auth:sanctum')->apiResource('/fatigue-ratings', FatigueRatingController::class);
