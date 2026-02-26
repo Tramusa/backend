@@ -23,7 +23,7 @@ class KpisController extends Controller
         */
 
         $months = [
-            'ENE' => 4, 'FEB' => 4, 'MAR' => 5, 'ABR' => 4,
+            'ENE' => 4, 'FEB' => 5, 'MAR' => 4, 'ABR' => 4,
             'MAY' => 4, 'JUN' => 5, 'JUL' => 4, 'AGO' => 4,
             'SEP' => 5, 'OCT' => 4, 'NOV' => 4, 'DIC' => 5
         ];
@@ -215,7 +215,7 @@ class KpisController extends Controller
             'kpi1' => $resultado
         ]);
     }
-    
+
     public function kpi2(Request $request)
     {
         $year = $request->year ?? Carbon::now()->year;
