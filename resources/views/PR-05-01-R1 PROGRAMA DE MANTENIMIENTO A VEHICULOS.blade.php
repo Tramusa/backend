@@ -80,8 +80,8 @@
         }
 
         .current-week {
-            background: #E66A00 !important;
-            color: white;
+            background: #f0d800 !important;
+            color: black;
             font-weight: bold;
             border: 2px solid #000;
         }
@@ -121,7 +121,7 @@
         }
 
         .current-week-body {
-            background: #E66A00;
+            background: #f0d800;
             color: white;
             font-weight: bold;
         }
