@@ -13,12 +13,49 @@ class KpisController extends Controller
     {
         $year = $request->year ?? Carbon::now()->year;
 
-        // Estados que cuentan como realizados
+        // Estados válidos como realizados
         $estatusRealizados = ['done', 'late'];
 
         /*
         |--------------------------------------------------------------------------
-        | 1️⃣ Consulta base + agregar MES a cada registro
+        | 📅 Relación MES → SEMANAS OPERATIVAS
+        |--------------------------------------------------------------------------
+        */
+
+        $months = [
+            'ENE' => 4, 'FEB' => 4, 'MAR' => 5, 'ABR' => 4,
+            'MAY' => 4, 'JUN' => 5, 'JUL' => 4, 'AGO' => 4,
+            'SEP' => 5, 'OCT' => 4, 'NOV' => 4, 'DIC' => 5
+        ];
+
+        /*
+        |--------------------------------------------------------------------------
+        | 🔥 Función Semana → Mes
+        |--------------------------------------------------------------------------
+        */
+
+        $obtenerMesPorSemana = function ($week) use ($months) {
+
+            $acumulado = 0;
+            $numeroMes = 1;
+
+            foreach ($months as $mes => $semanas) {
+
+                $acumulado += $semanas;
+
+                if ($week <= $acumulado) {
+                    return $numeroMes;
+                }
+
+                $numeroMes++;
+            }
+
+            return 12;
+        };
+
+        /*
+        |--------------------------------------------------------------------------
+        | 1️⃣ Consulta base
         |--------------------------------------------------------------------------
         */
 
@@ -26,7 +63,7 @@ class KpisController extends Controller
             ->join('programs_mtto_vehicles as v', 'v.id', '=', 's.program_mtto_vehicle_id')
             ->join('units_all as u', function ($join) {
                 $join->on('u.unit_id', '=', 'v.unit')
-                     ->on('u.type', '=', 'v.type');
+                    ->on('u.type', '=', 'v.type');
             })
             ->where('s.year', $year)
             ->select(
@@ -36,18 +73,17 @@ class KpisController extends Controller
                 'u.type'
             )
             ->get()
-            ->map(function ($item) {
-                $fecha = Carbon::createFromDate($item->year, 1, 1)
-                    ->addWeeks($item->week - 1);
+            ->map(function ($item) use ($obtenerMesPorSemana) {
 
-                $item->mes = $fecha->month;              // 🔥 número de mes
-                $item->mes_nombre = $fecha->format('F'); // opcional
+                // ✅ MES basado en SEMANA
+                $item->mes = $obtenerMesPorSemana($item->week);
+
                 return $item;
             });
 
         /*
         |--------------------------------------------------------------------------
-        | 2️⃣ Inicializar estructura por logística
+        | 2️⃣ Separar por logística
         |--------------------------------------------------------------------------
         */
 
@@ -95,7 +131,12 @@ class KpisController extends Controller
                 ? round(($totalRealizadas / $totalProgramadas) * 100, 2)
                 : 0;
 
-            // ===== MESES (GENERAL POR LOGÍSTICA) =====
+            /*
+            |--------------------------------------------------------------------------
+            | KPI POR MES
+            |--------------------------------------------------------------------------
+            */
+
             $meses = collect(range(1, 12))->map(function ($mes) use ($items, $estatusRealizados) {
 
                 $itemsMes = $items->where('mes', $mes);
@@ -113,7 +154,12 @@ class KpisController extends Controller
                 ];
             });
 
-            // ===== UNIDADES =====
+            /*
+            |--------------------------------------------------------------------------
+            | KPI POR UNIDAD
+            |--------------------------------------------------------------------------
+            */
+
             $unidades = $items
                 ->groupBy('no_economic')
                 ->map(function ($unidadItems) use ($estatusRealizados) {
@@ -124,7 +170,6 @@ class KpisController extends Controller
                         ->whereIn('status', $estatusRealizados)
                         ->count();
 
-                    // 🔥 KPI POR MES DENTRO DE LA UNIDAD
                     $mesesUnidad = collect(range(1, 12))->map(function ($mes) use ($unidadItems, $estatusRealizados) {
 
                         $itemsMes = $unidadItems->where('mes', $mes);
@@ -169,6 +214,242 @@ class KpisController extends Controller
         return response()->json([
             'kpi1' => $resultado
         ]);
+    }
+    
+    public function kpi2(Request $request)
+    {
+        $year = $request->year ?? Carbon::now()->year;
+
+        /*
+        |--------------------------------------------------------------------------
+        | 1️⃣ ÓRDENES TERMINADAS (SIN DUPLICAR HORAS)
+        |--------------------------------------------------------------------------
+        */
+
+        $ordenes = DB::table('orders as o')
+            ->join('order_details as od', 'od.id_order', '=', 'o.id')
+            ->join('earrings as e', 'e.id', '=', 'od.id_earring')
+            ->join('units_all as u', function ($join) {
+                $join->on('u.unit_id', '=', 'e.unit')
+                    ->on('u.type', '=', 'e.type');
+            })
+            ->whereYear('o.date', $year)
+            ->where('o.status', 4)
+            ->select(
+                DB::raw('MONTH(o.date) as mes'),
+                'o.id as order_id',
+                'u.unit_id',
+                'u.no_economic',
+                'u.logistic',
+                'u.type',
+                DB::raw("
+                    GREATEST(
+                        TIMESTAMPDIFF(HOUR, o.date_in, o.date_attended),
+                        0
+                    ) as horas_mtto
+                ")
+            )
+            ->groupBy(
+                'o.id',
+                'mes',
+                'u.unit_id',
+                'u.no_economic',
+                'u.logistic',
+                'u.type',
+                'o.date_in',
+                'o.date_attended'
+            )
+            ->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | 2️⃣ AGRUPAR POR LOGÍSTICA
+        |--------------------------------------------------------------------------
+        */
+
+        $logisticas = [
+            'personal' => collect(),
+            'cc' => collect(),
+            'utilitarios' => collect(),
+        ];
+
+        foreach ($ordenes as $orden) {
+
+            $logistica = strtolower($orden->logistic);
+
+            if (str_contains($logistica, 'personal'))
+                $logisticas['personal']->push($orden);
+
+            if (str_contains($logistica, 'cc'))
+                $logisticas['cc']->push($orden);
+
+            if (str_contains($logistica, 'utilitario'))
+                $logisticas['utilitarios']->push($orden);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | 3️⃣ KPI2
+        |--------------------------------------------------------------------------
+        */
+
+        $resultado = [];
+
+        foreach ($logisticas as $nombre => $items) {
+
+            $unidades = $items
+                ->groupBy('unit_id')
+                ->map(function ($unidadItems) {
+
+                    $first = $unidadItems->first();
+                    $logistic = strtolower($first->logistic);
+
+                    $horasProgramadasMes =
+                        (str_contains($logistic,'personal') ||
+                        str_contains($logistic,'utilitario'))
+                            ? 97
+                            : 100;
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | 🔹 MESES POR UNIDAD
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $mesesUnidad = collect(range(1,12))->map(
+                        function ($mes) use ($unidadItems,$horasProgramadasMes){
+
+                        $itemsMes = $unidadItems->where('mes',$mes);
+
+                        $horasMtto = $itemsMes->sum('horas_mtto');
+
+                        // ✅ YA PERMITIMOS NEGATIVOS
+                        $horasDisponibles =
+                            $horasProgramadasMes - $horasMtto;
+
+                        $percent =
+                            $horasProgramadasMes > 0
+                            ? round(
+                                ($horasDisponibles /
+                                $horasProgramadasMes) * 100,2)
+                            : 0;
+
+                        return [
+                            'mes'=>$mes,
+                            'horas_programadas'=>$horasProgramadasMes,
+                            'horas_mtto'=>$horasMtto,
+                            'horas_espera'=>0,
+                            'horas_disponibles'=>$horasDisponibles,
+                            'percent'=>$percent
+                        ];
+                    });
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | 🔹 TOTAL ANUAL UNIDAD
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $horasProgramadasAnual =
+                        $horasProgramadasMes * 12;
+
+                    $horasMttoAnual =
+                        $unidadItems->sum('horas_mtto');
+
+                    $horasDisponiblesAnual =
+                        $horasProgramadasAnual - $horasMttoAnual;
+
+                    $percentAnual =
+                        $horasProgramadasAnual > 0
+                        ? round(
+                            ($horasDisponiblesAnual /
+                            $horasProgramadasAnual)*100,2)
+                        : 0;
+
+                    return [
+                        'unit_id'=>$first->unit_id,
+                        'no_economico'=>$first->no_economic,
+                        'type'=>$first->type,
+                        'horas_programadas'=>$horasProgramadasAnual,
+                        'horas_mtto'=>$horasMttoAnual,
+                        'horas_espera'=>0,
+                        'horas_disponibles'=>$horasDisponiblesAnual,
+                        'percent'=>$percentAnual,
+                        'meses'=>$mesesUnidad
+                    ];
+                })
+                ->values();
+
+            /*
+            |--------------------------------------------------------------------------
+            | 🔹 GENERAL ANUAL
+            |--------------------------------------------------------------------------
+            */
+
+            $totalProgramadas =
+                $unidades->sum('horas_programadas');
+
+            $totalMtto =
+                $unidades->sum('horas_mtto');
+
+            $totalDisponibles =
+                $totalProgramadas - $totalMtto;
+
+            $kpiGeneral =
+                $totalProgramadas>0
+                ? round(
+                    ($totalDisponibles/$totalProgramadas)*100,2)
+                : 0;
+
+            /*
+            |--------------------------------------------------------------------------
+            | 🔹 GENERAL POR MES (MATEMÁTICAMENTE CORRECTO)
+            |--------------------------------------------------------------------------
+            */
+
+            $meses = collect(range(1,12))->map(
+                function($mes) use($unidades){
+
+                $prog=0;
+                $mtto=0;
+
+                foreach($unidades as $u){
+
+                    $m=$u['meses']->firstWhere('mes',$mes);
+
+                    $prog += $m['horas_programadas'];
+                    $mtto += $m['horas_mtto'];
+                }
+
+                $disp = $prog - $mtto;
+
+                $percent =
+                    $prog>0
+                    ? round(($disp/$prog)*100,2)
+                    : 0;
+
+                return [
+                    'mes'=>$mes,
+                    'horas_programadas'=>$prog,
+                    'horas_mtto'=>$mtto,
+                    'horas_disponibles'=>$disp,
+                    'percent'=>$percent
+                ];
+            });
+
+            $resultado[$nombre]=[
+                'general'=>[
+                    'horas_programadas'=>$totalProgramadas,
+                    'horas_mtto'=>$totalMtto,
+                    'horas_disponibles'=>$totalDisponibles,
+                    'kpi2'=>$kpiGeneral
+                ],
+                'meses'=>$meses,
+                'unidades'=>$unidades
+            ];
+        }
+
+        return response()->json(['kpi2'=>$resultado]);
     }
 
     public function kpi3(Request $request)
