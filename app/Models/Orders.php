@@ -15,4 +15,9 @@ class Orders extends Model
     {
         return $this->hasMany(OrderDetail::class, 'id_order');
     }
+    
+    public function waitingHours()
+    {
+        return $this->hasMany(WaitingHour::class, 'order_id');
+    }
 }

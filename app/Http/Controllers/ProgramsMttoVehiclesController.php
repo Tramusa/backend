@@ -171,10 +171,10 @@ class ProgramsMttoVehiclesController extends Controller
         $pdfContent = $dompdf->output();   
     
         // Generar un nombre único para el archivo PDF
-        $filename = 'Programa_Mantenimiento_' . now()->format('Ymd_His') . '.pdf';
+        //$filename = 'Programa_Mantenimiento_' . now()->format('Ymd_His') . '.pdf';
     
         // Guardar el PDF en el almacenamiento
-        Storage::disk('public')->put('pdfs/' . $filename, $pdfContent);
+        //Storage::disk('public')->put('pdfs/' . $filename, $pdfContent);
     
         // Devolver el contenido del PDF
         return response($pdfContent, 200)->header('Content-Type', 'application/pdf');
