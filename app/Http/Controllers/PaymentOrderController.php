@@ -111,17 +111,15 @@ class PaymentOrderController extends Controller
         // Verificar si ya existe esta orden de pago
         $existingPayment = PaymentOrder::where([
             'supplier' => $validated['supplier'],
+            'status' => 'PENDIENTE',
             'total' => $validated['total'],
-            'payment_form' => $validated['payment_form'],
             'date' => $validated['date'],
-            'reference' => $validated['reference'],
             'payment' => $validated['payment'],
-            'banck' => $validated['banck'],
-            'status' => 'PENDIENTE', 
+             
         ])->first();
         
         if ($existingPayment) {
-            return response()->json(['error' => 'Esta orden de pago ya ha sido registrada.'], 410);
+            return response()->json(['error' => 'Esta orden de pago ya ha sido registrada (datos repetidos).'], 410);
         }
 
         // ✅ Actualizar el estado de las órdenes a "PAGADA"
