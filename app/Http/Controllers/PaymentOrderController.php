@@ -114,6 +114,7 @@ class PaymentOrderController extends Controller
             'total' => $validated['total'],
             'payment_form' => $validated['payment_form'],
             'date' => $validated['date'],
+            'reference' => $validated['reference'],
             'payment' => $validated['payment'],
             'banck' => $validated['banck'],
             'status' => 'PENDIENTE', 
