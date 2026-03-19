@@ -14,7 +14,7 @@ class ProgramsMttoVehicleSchedule extends Model
     protected $fillable = [
         'program_mtto_vehicle_id', 'year', 'week', 'status', 'executed_at', 'rescheduled_to_week', 'observation',
     ];
-
+  
     public function program()
     {
         return $this->belongsTo(ProgramsMttoVehicles::class, 'program_mtto_vehicle_id', 'id');

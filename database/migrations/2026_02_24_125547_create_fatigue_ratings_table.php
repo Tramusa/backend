@@ -4,13 +4,15 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
+
     public function up(): void
     {
         Schema::create('fatigue_ratings', function (Blueprint $table) {
+
             $table->id();
 
             $table->unsignedBigInteger('operator_id');
-            $table->unsignedBigInteger('performed_by'); // quien realizó la evaluación
+            $table->unsignedBigInteger('performed_by');
 
             $table->tinyInteger('question_1');
             $table->tinyInteger('question_2');
@@ -20,13 +22,16 @@ return new class extends Migration {
             $table->tinyInteger('question_6');
             $table->tinyInteger('question_7');
 
-            $table->integer('total_points');
-            $table->string('level'); // bajo, medio, alto
+            $table->tinyInteger('total'); 
+            $table->string('risk'); // bajo, medio, alto
+
+            $table->text('actions')->nullable();
 
             $table->timestamps();
 
             $table->foreign('operator_id')->references('id')->on('users');
             $table->foreign('performed_by')->references('id')->on('users');
+
         });
     }
 
@@ -34,4 +39,5 @@ return new class extends Migration {
     {
         Schema::dropIfExists('fatigue_ratings');
     }
+
 };

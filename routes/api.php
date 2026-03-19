@@ -268,3 +268,4 @@ Route::middleware('auth:sanctum')->post('/horas-espera',[KpisController::class,'
 Route::middleware('auth:sanctum')->get('/horas-espera',[KpisController::class,'getWaitingHours']);
 Route::middleware('auth:sanctum')->delete('/horas-espera/{id}',[KpisController::class,'deleteWaitingHours']);
 Route::middleware('auth:sanctum')->post('/kpi-2/pdf',[KpisController::class,'generarPDFDisponibilidad']);
+Route::middleware('auth:sanctum')->get('/fatigue-ratings/{id}/pdf', [FatigueRatingController::class,'pdf']);
