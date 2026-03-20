@@ -80,12 +80,17 @@ class FatigueRatingController extends Controller
 
         $fatigue = FatigueRating::with('operator','performedBy')
             ->findOrFail($id);
+        $evaluator = $fatigue->performedBy;
+
+        $realizoFirma = ($evaluator && $evaluator->signature)
+            ? $this->getImageBase64($evaluator->signature)
+            : null;
 
         $logoImagePath = public_path('imgPDF/logo.png');
-        $logo = $this->getImageBase64($logoImagePath);
+        $logo = $this->getImageBase64($logoImagePath);          
+        
 
         $data = [
-
             'fatigue' => $fatigue,
 
             'operator' => $fatigue->operator,
@@ -107,7 +112,10 @@ class FatigueRatingController extends Controller
             'date' => $fatigue->created_at->format('d/m/Y'),
             'time' => $fatigue->created_at->format('h:i a'),
 
-            'logo' => $logo
+            'logo' => $logo,
+
+            'evaluator' => $fatigue->performedBy,
+            'realizoFirma' => $realizoFirma,
         ];
 
         $pdf = Pdf::loadView('pdf.fatigue-checklist',$data)

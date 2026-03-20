@@ -586,5 +586,33 @@
             </td>
         </tr>
     </table>
+
+    <!-- FIRMA -->                    
+    <br><br><br><br><br><br>
+    <table style="width:100%; border:none;">
+        <tr>
+            <td class="center" style="border:none;">
+
+                <!-- IMAGEN DE FIRMA (SI EXISTE) -->
+                @if($realizoFirma)
+                    <img src="{{ $realizoFirma }}" style="height:80px;"><br>
+                @else
+                    <br><br> <br><br>
+                @endif
+
+                <!-- LINEA -->
+                <div style="width:300px; margin:0 auto; border-top:1px solid #000;"></div>
+
+                <!-- NOMBRE -->
+                <div style="margin-top:5px;">
+                    <b>REALIZÓ:</b>
+                    {{ strtoupper($evaluator->name ?? '') }}
+                    {{ strtoupper($evaluator->a_paterno ?? '') }}
+                    {{ strtoupper($evaluator->a_materno ?? '') }}
+                </div>
+
+            </td>
+        </tr>
+    </table>
 </body>
 </html>
