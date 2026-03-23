@@ -79,10 +79,12 @@ class PurchaseOrderController extends Controller
             'id_supplier' => $orderData['id_supplier'],
             'total' => $orderData['total'],
             'perform' => $orderData['perform'],
-        ])->first();
+        ])
+        ->where('status', '<>', 'CANCELADA') // <-- ignorar órdenes canceladas
+        ->first();
 
         if ($existingPurchaseOrder) {
-            return response()->json(['error' => 'Esta orden de comnpra ya ha sido registrada.'], 409);
+            return response()->json(['error' => 'Orden de COMPRA ya ha sido registrada (datos repetidos).'], 409);
         }
 
         // Actualizar precios de los productos

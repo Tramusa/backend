@@ -119,7 +119,7 @@ class PaymentOrderController extends Controller
         ])->first();
         
         if ($existingPayment) {
-            return response()->json(['error' => 'Orden de pago ya ha sido registrada (datos repetidos).'], 410);
+            return response()->json(['error' => 'Orden de pago ya ha sido registrada (datos repetidos).'], 409);
         }
 
         // ✅ Actualizar el estado de las órdenes a "PAGADA"
