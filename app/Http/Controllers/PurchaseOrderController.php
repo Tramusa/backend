@@ -78,7 +78,6 @@ class PurchaseOrderController extends Controller
             'date_order' => $orderData['date_order'],
             'id_supplier' => $orderData['id_supplier'],
             'total' => $orderData['total'],
-            'perform' => $orderData['perform'],
         ])
         ->where('status', '<>', 'CANCELADA') // <-- ignorar órdenes canceladas
         ->first();
