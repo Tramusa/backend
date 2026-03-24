@@ -71,8 +71,8 @@ class PurchaseOrderController extends Controller
         $orderData['perform'] = $user->id;
         // Extraer la información de facturación
         $billingData = $request->input('Billing');
-        // Validar si la orden de compra ya existe antes de crearla
-        
+
+        // Validar si la orden de compra ya existe antes de crearla        
         $existingPurchaseOrder = PurchaseOrder::where([
             'id_requisition' => $orderData['id_requisition'],
             'date_order' => $orderData['date_order'],

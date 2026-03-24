@@ -236,25 +236,30 @@ class PaymentOrderController extends Controller
         $order->status = $request->input('status');
         $order->authorize = $request->input('status') === 'APROBADA' ? $user->id : null;
 
-         // Si el estado es CANCELADA, actualiza también el estado de las órdenes de compra
+        // Si el estado es CANCELADA, actualiza también el estado de las órdenes de compra
         if ($request->input('status') === 'CANCELADA') {
             $order->authorize = null; // Borra cualquier autorización anterior
+
             if ($order) {
-                // Cargar las facturas que tienen asignado este PaymentOrder (billing_data.id_paymentOrder = PaymentOrder.id)
-                BillingData::where('id_paymentOrder', $order->id)->get()
-                    ->map(function ($billing) {
-                        $orderIds = explode(',', $billing->id_order); // Convertir lista en array
-                    
-                        // Obtener todas las órdenes de compra con los datos de las requisiciones
-                        $purchaseOrders = PurchaseOrder::whereIn('id', $orderIds)->get();
-    
-                        // Si existen las órdenes, recorre y actualiza su estado
-                        foreach ($purchaseOrders as $purchaseOrder) {
-                            $purchaseOrder->status = 'APROBADA';  // O el estado que quieras poner
-                            $purchaseOrder->save();
-                        }
-                    });
-            }            
+                // Obtener las facturas relacionadas
+                $billings = BillingData::where('id_paymentOrder', $order->id)->get();
+
+                $billings->map(function ($billing) {
+                    $orderIds = explode(',', $billing->id_order);
+
+                    // Actualizar órdenes de compra
+                    $purchaseOrders = PurchaseOrder::whereIn('id', $orderIds)->get();
+
+                    foreach ($purchaseOrders as $purchaseOrder) {
+                        $purchaseOrder->status = 'APROBADA';
+                        $purchaseOrder->save();
+                    }
+
+                    // 🔴 Aquí desasignas la factura de la orden de pago
+                    $billing->id_paymentOrder = null;
+                    $billing->save();
+                });
+            }
         }elseif ($request->input('status') === 'PENDIENTE'){
             $order->authorize = null; // Borra cualquier autorización anterior
         }
