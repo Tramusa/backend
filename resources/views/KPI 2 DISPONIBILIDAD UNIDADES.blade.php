@@ -241,6 +241,118 @@ td {
           @endforeach
       </tbody>
   </table>
+  <br><br>  <br><br>  <br><br>
+<br><br>
+
+<h3 style="text-align:center; margin-bottom:10px;">
+    CUMPLIMIENTO MENSUAL (Meta 87%)
+</h3>
+
+<div style="width:100%; text-align:center;">
+
+    <!-- CONTENEDOR DE GRÁFICA -->
+    <div style="
+        width:100%;
+        height:200px;
+        position:relative;
+        border:1px solid #ccc;
+        overflow:hidden;
+        background:#f5f5f5;
+    ">
+
+        <!-- 🔴 LÍNEA META -->
+        <div style="
+            position:absolute;
+            top:22%;
+            left:0;
+            width:100%;
+            border-top:2px solid red;
+            z-index:10;
+        ">
+            <span style="
+                position:absolute;
+                right:5px;
+                top:-8px;
+                font-size:10px;
+                color:red;
+                background:#f5f5f5;
+                padding:0 2px;
+            ">
+                Meta 87%
+            </span>
+        </div>
+
+        @foreach ($months as $m)
+
+            @php
+                $percent = $m['percent'] ?? 0;
+                $height = min($percent, 100);
+
+                $color = '#28a745';
+                if ($percent < 82) $color = '#dc3545';
+                elseif ($percent < 87) $color = '#ffc107';
+            @endphp
+
+            <div style="
+                display:inline-block;
+                width:6%;
+                height:100%;
+                margin:0 4px;
+                position:relative;
+                vertical-align:bottom;
+            ">
+
+                <!-- BARRA -->
+                <div style="
+                    position:absolute;
+                    bottom:0;
+                    width:100%;
+                    height:{{ $height }}%;
+                    background:{{ $color }};
+                    color:#fff;
+                    font-size:10px;
+                    text-align:center;
+                    z-index:5;
+                ">
+                    <span style="position:absolute; top:6px; left:0; right:0; font-weight:bold;">
+                        {{ number_format($percent,0) }}%
+                    </span>
+                </div>
+
+            </div>
+
+        @endforeach
+
+    </div>
+
+    <!-- TEXTOS ABAJO -->
+    <div style="margin-top:8px;">
+
+        @foreach ($months as $m)
+            <div style="
+                display:inline-block;
+                width:6%;
+                margin:0 4px;
+                text-align:center;
+                font-size:11px;
+            ">
+
+                <!-- MES -->
+                <div style="font-weight:bold;">
+                    {{ strtoupper($m['mes']) }}
+                </div>
+
+                <!-- VALORES -->
+                <div style="font-size:9px; color:#555;">
+                    {{ $m['horas_disponibles'] ?? 0 }}/{{ $m['horas_programadas'] ?? 0 }}
+                </div>
+
+            </div>
+        @endforeach
+
+    </div>
+
+</div>
 
 </main>
 

@@ -787,6 +787,7 @@ class KpisController extends Controller
         $units = $request->input('units');
         $month = $request->input('month');
         $logistic = $request->input('logistic');
+        $months = $request->input('months');
 
         if (!$units || empty($units)) {
             return response()->json(['message' => 'No se proporcionaron unidades'], 400);
@@ -810,6 +811,7 @@ class KpisController extends Controller
             'logoImage' => $logoImage,
             'units'     => $units,
             'month'     => $month,
+            'months'    => $months, // 👈 NUEVO
             'logistic'  => $logistic,
             'fecha'     => $fecha,
         ];
