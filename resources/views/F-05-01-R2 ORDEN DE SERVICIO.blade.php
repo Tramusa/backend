@@ -249,10 +249,10 @@
       <div class="row">
         <table style="width: 100%; border: 2px solid;">
             <tr>
-                <td colspan="2">RESUMEN DE LA FALLA: <br><br>{!! $fallas !!}<br><br></td>
+                <td colspan="2">RESUMEN DE LA FALLA: <br>{!! $fallas !!}<br></td>
             </tr>
             <tr>
-                <td colspan="2">RESUMEN DE LA REPARACIÓN: <br><br><pre>{{ $orderData->repair }}</pre><br><br></td>
+                <td colspan="2">RESUMEN DE LA REPARACIÓN: <br><pre>{{ $orderData->repair }}</pre><br></td>
             </tr>
             <tr>
                 <td colspan="2">REFACCIONES EMPLEADAS: <br><br><pre>{{ $orderData->spare_parts }}</pre><br><br></td>
@@ -262,7 +262,7 @@
                 <td>TOTAL EFECTIVO DE MANO DE OBRA: <br>${{ number_format($orderData->total_mano, 2) }}</td>
             </tr>
             <tr>
-                <td colspan="2">TOTAL EFECTIVO DEL SERVICIO: <br><br>${{ number_format($orderData->total_mano + $orderData->total_parts, 2) }}<br></td>
+                <td colspan="2">TOTAL EFECTIVO DEL SERVICIO: <br>${{ number_format($orderData->total_mano + $orderData->total_parts, 2) }}<br></td>
             </tr>
         </table>
       </div> 
