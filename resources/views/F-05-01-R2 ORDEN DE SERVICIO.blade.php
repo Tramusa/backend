@@ -171,7 +171,7 @@
       /* Línea SIEMPRE en la misma posición */
       .firma-linea {
         border-top: 1px solid #000;
-        margin: 4px 28px;
+        margin: 4px 25px;
       }
 
       /* Nombre */
@@ -184,6 +184,31 @@
       .firma-rol {
         font-size: 10px;
         font-weight: bold;
+      }
+
+      .firmas-footer {
+        position: absolute;
+        bottom: 80px;
+        left: 0;
+        width: 100%;
+      }
+      
+      .total-cell {        
+        padding: 4px 8px;
+      }
+
+      .total-label {
+        text-align: left;
+        display: block;        /* Permite saltos de línea y margen */
+        margin-bottom: 1px;    /* Espacio debajo del label */
+      }
+
+      .total-value {
+        font-weight: bold;
+        text-align: right;
+        display: block;        /* Mantiene valor a la derecha */
+        margin-left: 5px;      /* Opcional, separa un poco del borde */
+        margin-bottom: 4px;    /* Espacio si hay salto de línea debajo */
       }
     </style>
   </head>
@@ -247,28 +272,52 @@
         </table>
       </div>        
       <div class="row">
+        @php
+          // ===== FALLAS
+          $cantidadFallas = substr_count($fallas, '<li>') ?: substr_count($fallas, '<br>');
+          $brFallas = $cantidadFallas > 5 ? '<br>' : '<br><br>';
+
+          // ===== REPARACIÓN
+          $repArray = array_filter(explode("\n", trim($orderData->repair)));
+          $brReparacion = count($repArray) > 5 ? '<br>' : '<br><br>';
+
+          // ===== REFACCIONES
+          $refArray = array_filter(explode("\n", trim($orderData->spare_parts)));
+          $brRefacciones = count($refArray) > 5 ? '<br>' : '<br><br>';
+        @endphp
         <table style="width: 100%; border: 2px solid;">
             <tr>
-                <td colspan="2">RESUMEN DE LA FALLA: <br>{!! $fallas !!}<br></td>
+                <td colspan="2">RESUMEN DE LA FALLA: {!! $brFallas !!}<pre>{!! $fallas !!}</pre>{!! $brFallas !!}</td>
             </tr>
             <tr>
-                <td colspan="2">RESUMEN DE LA REPARACIÓN: <br><pre>{{ $orderData->repair }}</pre><br></td>
+                <td colspan="2">RESUMEN DE LA REPARACIÓN: {!! $brReparacion !!}<pre>{{ $orderData->repair }}</pre>{!! $brReparacion !!}</td>
             </tr>
             <tr>
-                <td colspan="2">REFACCIONES EMPLEADAS: <br><br><pre>{{ $orderData->spare_parts }}</pre><br><br></td>
+                <td colspan="2">REFACCIONES EMPLEADAS: {!! $brRefacciones !!}<pre>{{ $orderData->spare_parts }}</pre>{!! $brRefacciones !!}</td>
             </tr>
-            <tr>
-                <td>TOTAL EFECTIVO DE REFACCIONES: <br>${{ number_format($orderData->total_parts, 2) }}</td>
-                <td>TOTAL EFECTIVO DE MANO DE OBRA: <br>${{ number_format($orderData->total_mano, 2) }}</td>
-            </tr>
-            <tr>
-                <td colspan="2">TOTAL EFECTIVO DEL SERVICIO: <br>${{ number_format($orderData->total_mano + $orderData->total_parts, 2) }}<br></td>
-            </tr>
+            <tr class="total-cell">
+              <td>
+                  <span class="total-label">TOTAL EFECTIVO DE REFACCIONES:</span>
+                  <span class="total-value">$ {{ number_format($orderData->total_parts, 2) }}</span>
+              </td>
+              <td>
+                  <span class="total-label">TOTAL EFECTIVO DE MANO DE OBRA:</span>
+                  <span class="total-value">$ {{ number_format($orderData->total_mano, 2) }}</span>
+              </td>
+          </tr>
+
+          <tr class="total-cell">
+              <td colspan="2">
+                  <span class="total-label">TOTAL EFECTIVO DEL SERVICIO:</span>
+                  <span class="total-value">$ {{ number_format($orderData->total_mano + $orderData->total_parts, 2) }}</span>
+              </td>
+          </tr>
         </table>
       </div> 
-      <div class="row"><br><br><br><br>
+      <div class="firmas-footer">
         <table class="firmas" style="width: 100%; border: 0px solid;">
           <tr>
+
             {{-- AUTORIZÓ --}}
             <td>
               <div class="firma-box">
@@ -280,12 +329,14 @@
                   </p>
                 @endif
               </div>
+
               <div class="firma-linea"></div>
               <div class="firma-nombre">
                 {{ $autorizo->name ?? '' }} {{ $autorizo->a_paterno ?? '' }} {{ $autorizo->a_materno ?? '' }}
               </div>
               <div class="firma-rol">AUTORIZÓ</div>
             </td>
+
             {{-- REALIZÓ --}}
             <td>
               <div class="firma-box">
@@ -297,6 +348,7 @@
                   </p>
                 @endif
               </div>
+
               <div class="firma-linea"></div>
               <div class="firma-nombre">
                 {{ $realizo->name ?? '' }} {{ $realizo->a_paterno ?? '' }} {{ $realizo->a_materno ?? '' }}
@@ -306,9 +358,7 @@
 
             {{-- OPERADOR --}}
             <td>
-              <div class="firma-box">
-               
-              </div>
+              <div class="firma-box"></div>
 
               <div class="firma-linea"></div>
               <div class="firma-nombre">
@@ -316,9 +366,10 @@
               </div>
               <div class="firma-rol">OPERADOR</div>
             </td>
+
           </tr>
         </table>
-      </div>        
+      </div>      
     </main>
   </body>
 </html>
