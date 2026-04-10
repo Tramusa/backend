@@ -155,8 +155,8 @@
 
       /* Imagen de firma */
       .firma-img {
-        max-height: 70px;
-        max-width: 190px;
+        max-height: 65px;
+        max-width: 180px;
       }
 
       /* Texto tipo firma */
@@ -188,7 +188,7 @@
 
       .firmas-footer {
         position: absolute;
-        bottom: 115px;
+        bottom: 120px;
         left: 0;
         width: 100%;
       }
