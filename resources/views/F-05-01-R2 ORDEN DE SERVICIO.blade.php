@@ -22,7 +22,7 @@
       }
 
       .column-2 {
-        width: 79%;
+        width: 78%;
         float: left;
         border: 2.5px solid #D1D1D1;
       }
@@ -170,7 +170,7 @@
       /* Línea SIEMPRE en la misma posición */
       .firma-linea {
         border-top: 1px solid #000;
-        margin: 3px 25px;
+        margin: 2px 25px;
       }
 
       /* Nombre */
