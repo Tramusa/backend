@@ -35,6 +35,7 @@
       .row{
         display: table;
         width: 100%;
+        clear: both;
       }
 
       .column-2-1 {
