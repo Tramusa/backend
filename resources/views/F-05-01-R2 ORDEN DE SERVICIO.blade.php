@@ -22,7 +22,7 @@
       }
 
       .column-2 {
-        width: 78%;
+        width: 79%;
         float: left;
         border: 2.5px solid #D1D1D1;
       }
@@ -154,7 +154,7 @@
 
       /* Imagen de firma */
       .firma-img {
-        max-height: 72px;
+        max-height: 70px;
         max-width: 190px;
       }
 
@@ -170,7 +170,7 @@
       /* Línea SIEMPRE en la misma posición */
       .firma-linea {
         border-top: 1px solid #000;
-        margin: 2px 25px;
+        margin: 1px 25px;
       }
 
       /* Nombre */
@@ -187,7 +187,7 @@
 
       .firmas-footer {
         position: absolute;
-        bottom: 110px;
+        bottom: 115px;
         left: 0;
         width: 100%;
       }
