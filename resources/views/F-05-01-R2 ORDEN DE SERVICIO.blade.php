@@ -150,13 +150,13 @@
       /* Caja fija para firma (imagen o texto) */
       .firma-box {
         height: 85px;          /* ← CLAVE */
-        margin-bottom: 4px;
+        margin-bottom: 3px;
       }
 
       /* Imagen de firma */
       .firma-img {
-        max-height: 80px;
-        max-width: 200px;
+        max-height: 75px;
+        max-width: 190px;
       }
 
       /* Texto tipo firma */
@@ -164,14 +164,14 @@
         font-family: 'Courier New', monospace;
         font-style: italic;
         font-weight: bold;
-        font-size: 13px;
+        font-size: 12px;
         color: #000080;
       }
 
       /* Línea SIEMPRE en la misma posición */
       .firma-linea {
         border-top: 1px solid #000;
-        margin: 4px 25px;
+        margin: 3px 25px;
       }
 
       /* Nombre */
@@ -188,7 +188,7 @@
 
       .firmas-footer {
         position: absolute;
-        bottom: 100px;
+        bottom: 105px;
         left: 0;
         width: 100%;
       }
