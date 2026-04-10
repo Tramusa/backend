@@ -188,7 +188,7 @@
 
       .firmas-footer {
         position: absolute;
-        bottom: 90px;
+        bottom: 100px;
         left: 0;
         width: 100%;
       }
