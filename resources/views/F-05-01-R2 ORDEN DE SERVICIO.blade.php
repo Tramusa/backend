@@ -143,14 +143,14 @@
         width: 33%;
         text-align: center;
         vertical-align: top;
-        padding: 8px;
+        padding: 6px;
         border: 2px solid;
       }
 
       /* Caja fija para firma (imagen o texto) */
       .firma-box {
-        height: 85px;          /* ← CLAVE */
-        margin-bottom: 3px;
+        height: 78px;          /* ← CLAVE */
+        margin-bottom: 2px;
       }
 
       /* Imagen de firma */
