@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<title>DISPONIBILIDAD DE UNIDADES</title>
+<title>KPI2-DISPONIBILIDAD DE UNIDADES</title>
 
 <style>
 body {
@@ -251,33 +251,11 @@ td {
 <div style="width:100%; text-align:center;">
 
     <!-- CONTENEDOR DE GRÁFICA -->
-    <div style="
-        width:100%;
-        height:200px;
-        position:relative;
-        border:1px solid #ccc;
-        overflow:hidden;
-        background:#f5f5f5;
-    ">
+    <div style=" width:100%; height:200px; position:relative; border:1px solid #ccc; overflow:hidden; background:#f5f5f5;">
 
         <!-- 🔴 LÍNEA META -->
-        <div style="
-            position:absolute;
-            top:22%;
-            left:0;
-            width:100%;
-            border-top:2px solid red;
-            z-index:10;
-        ">
-            <span style="
-                position:absolute;
-                right:5px;
-                top:-8px;
-                font-size:10px;
-                color:red;
-                background:#f5f5f5;
-                padding:0 2px;
-            ">
+        <div style=" position:absolute; top:22%; left:0; width:100%; border-top:2px solid red; z-index:10;">
+            <span style=" position:absolute; right:5px; top:-8px; font-size:10px; color:red; background:#f5f5f5; padding:0 2px; ">
                 Meta 87%
             </span>
         </div>
@@ -293,28 +271,11 @@ td {
                 elseif ($percent < 87) $color = '#ffc107';
             @endphp
 
-            <div style="
-                display:inline-block;
-                width:6%;
-                height:100%;
-                margin:0 4px;
-                position:relative;
-                vertical-align:bottom;
-            ">
+            <div style=" display:inline-block; width:6%; height:100%; margin:0 4px; position:relative; vertical-align:bottom;">
 
                 <!-- BARRA -->
-                <div style="
-                    position:absolute;
-                    bottom:0;
-                    width:100%;
-                    height:{{ $height }}%;
-                    background:{{ $color }};
-                    color:#fff;
-                    font-size:10px;
-                    text-align:center;
-                    z-index:5;
-                ">
-                    <span style="position:absolute; top:6px; left:0; right:0; font-weight:bold;">
+                <div style=" position:absolute; bottom:0; width:100%; height:{{ $height }}%; background:{{ $color }}; color:#fff; font-size:10px; text-align:center; z-index:5;">
+                    <span style="position:absolute; top:40%; left:0; right:0; font-weight:bold;">
                         {{ number_format($percent,0) }}%
                     </span>
                 </div>
@@ -329,13 +290,7 @@ td {
     <div style="margin-top:8px;">
 
         @foreach ($months as $m)
-            <div style="
-                display:inline-block;
-                width:6%;
-                margin:0 4px;
-                text-align:center;
-                font-size:11px;
-            ">
+            <div style=" display:inline-block; width:6%; margin:0 4px; text-align:center; font-size:11px;">
 
                 <!-- MES -->
                 <div style="font-weight:bold;">

@@ -830,11 +830,98 @@ class KpisController extends Controller
             ->header('Content-Type', 'application/pdf');
     }
 
-    private function getImageBase64($imagePath)
+    public function generarPDFKPI1(Request $request)
     {
-        $file = file_get_contents($imagePath);
-        $base64 = base64_encode($file);
-        return 'data:image/png;base64,' . $base64;
+        $units = $request->input('units');
+        $months = $request->input('months');
+        $month = $request->input('month');
+        $logistic = $request->input('logistic');
+
+        if (!$units || empty($units)) {
+            return response()->json(['message' => 'Sin datos'], 400);
+        }
+
+        // 🔹 ORDENAR
+        $units = collect($units)
+            ->sortBy('no_economico')
+            ->values()
+            ->all();
+
+        $fecha = Carbon::now()->locale('es')
+            ->isoFormat('dddd, D [de] MMMM [de] YYYY');
+
+        // 🔹 Logo en base64
+        $logoImagePath = public_path('imgPDF/logo.png');
+        $logoImage = $this->getImageBase64($logoImagePath);
+
+
+        $html = view('KPI 1 CUMPLIMIENTO PROGRAMA MTTO PREV', [
+            'units' => $units,
+            'months' => $months, // 👈 CLAVE
+            'month' => $month,
+            'logistic' => $logistic,
+            'fecha' => $fecha,
+            'logoImage' => $logoImage
+        ])->render();
+
+        $dompdf = new Dompdf();
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        return response($dompdf->output(), 200)
+            ->header('Content-Type', 'application/pdf');
+    }
+
+    public function generarPDFKPI3(Request $request)
+    {
+        $units = $request->input('units');
+        $months = $request->input('months');
+        $month = $request->input('month');
+        $logistic = $request->input('logistic');
+
+        if (!$units || empty($units)) {
+            return response()->json(['message' => 'Sin datos'], 400);
+        }
+
+        $units = collect($units)
+            ->sortBy('no_economico')
+            ->values()
+            ->all();
+
+        $fecha = Carbon::now()->locale('es')
+            ->isoFormat('dddd, D [de] MMMM [de] YYYY');
+
+        $logoImage = $this->getImageBase64(public_path('imgPDF/logo.png'));
+
+        $html = view('KPI 3 CONFIABILIDAD MTTO', [
+            'units' => $units,
+            'months' => $months,
+            'month' => $month,
+            'logistic' => $logistic,
+            'fecha' => $fecha,
+            'logoImage' => $logoImage
+        ])->render();
+
+        $dompdf = new Dompdf();
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        return response($dompdf->output(), 200)
+            ->header('Content-Type', 'application/pdf');
+    }
+
+    public function getImageBase64($path)
+    {
+        if (!file_exists($path)) {
+            return null;
+        }
+
+        $type = pathinfo($path, PATHINFO_EXTENSION);
+        $data = file_get_contents($path);
+
+        return 'data:image/' . $type . ';base64,' . base64_encode($data);
     }
 
 }
