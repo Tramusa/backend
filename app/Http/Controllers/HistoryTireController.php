@@ -10,8 +10,11 @@ class HistoryTireController extends Controller
 {
     public function index($tiresId)
     {
-        // Filtrar las actividades por el ID de la llanta
-        $activities = HistoryTire::where('tire_ctrl', $tiresId)->get();
+        // Filtrar las actividades por el ID de la llanta y cargar el usuario
+        $activities = HistoryTire::with('user')
+            ->where('tire_ctrl', $tiresId)
+            ->get();
+
         return response()->json($activities);
     }
 
@@ -22,7 +25,11 @@ class HistoryTireController extends Controller
 
     public function show($id)
     {
-        $activities = HistoryTire::where('tire_ctrl', $id)->get();
+        // Filtrar las actividades por el ID de la llanta y cargar el usuario
+        $activities = HistoryTire::with('user')
+            ->where('tire_ctrl', $id)
+            ->get();
+
         return response()->json($activities);
     }
 

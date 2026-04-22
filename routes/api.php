@@ -45,7 +45,9 @@ use App\Http\Controllers\SubTitleAccountController;
 use App\Http\Controllers\SupplierBanckController;
 use App\Http\Controllers\SuppliersController;
 use App\Http\Controllers\TestFlashSecurityController;
+use App\Http\Controllers\TiresControlController;
 use App\Http\Controllers\TiresController;
+use App\Http\Controllers\TiresInspectionController;
 use App\Http\Controllers\TitleAccountController;
 use App\Http\Controllers\TripController;
 use App\Http\Controllers\UnitController;
@@ -203,10 +205,11 @@ Route::middleware('auth:sanctum')->post('/docs-pdfs/{id}', [DocsPDFsController::
 
 Route::middleware('auth:sanctum')->apiResource('missing-docs', MissingDocsController::class);
 Route::middleware('auth:sanctum')->apiResource('tires', TiresController::class);
-Route::middleware('auth:sanctum')->apiResource('ctrl-tires', CtrlTiresController::class);
+Route::middleware('auth:sanctum')->apiResource('ctrl-tires', TiresControlController::class);
+Route::middleware('auth:sanctum')->post('/tire_control/scrap/{id}', [TiresControlController::class, 'scrap']);
+Route::middleware('auth:sanctum')->get('/ctrl-tires/unit/{type}/{unit}', [TiresControlController::class, 'getByUnit']);
 Route::middleware('auth:sanctum')->apiResource('history-tires', HistoryTireController::class);
-Route::middleware('auth:sanctum')->apiResource('revisions-tires', RevisionsTireController::class);
-Route::middleware('auth:sanctum')->apiResource('renovation-tires', RenovationsTireController::class);
+Route::middleware('auth:sanctum')->apiResource('tire-inspections', TiresInspectionController::class);
 Route::middleware('auth:sanctum')->apiResource('repair-tires', RepairTireController::class);
 //MODULES (CUENTAS, PORDUCTOS, CATEGORIAS, PROVVEDORES, AREAS)
 Route::middleware('auth:sanctum')->apiResource('work-areas', WorkAreasController::class);

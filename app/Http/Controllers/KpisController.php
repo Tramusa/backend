@@ -304,7 +304,7 @@ class KpisController extends Controller
                         (str_contains($logistic,'personal') ||
                         str_contains($logistic,'utilitario'))
                             ? 280
-                            : 100;
+                            : 250;
 
                     /*--------------------------------------------------------------------------
                     | 🔹 MESES POR UNIDAD

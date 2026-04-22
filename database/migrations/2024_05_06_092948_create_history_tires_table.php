@@ -6,31 +6,30 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         Schema::create('history_tires', function (Blueprint $table) {
             $table->id();
+
             $table->foreignId('tire_ctrl')
-                ->constrained('ctrl_tires')
-                ->onDelete('cascade') // Eliminación en cascada al borrar un tire de ctrl_tires
+                ->constrained('tires_control')
+                ->onDelete('cascade')
                 ->nullable();
+
             $table->string('activity');
-            $table->string('date');
-            $table->string('details')->nullable();
+            $table->dateTime('date');
+            $table->text('details')->nullable();
+
+            // 🔥 usuario que hizo el cambio
+            $table->foreignId('user_id')
+                ->nullable()
+                ->constrained('users')
+                ->onDelete('set null');
+
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::dropIfExists('history_tires');
