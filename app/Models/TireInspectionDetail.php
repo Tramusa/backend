@@ -32,4 +32,8 @@ class TireInspectionDetail extends Model
     {
         return $this->belongsTo(TireInspection::class, 'inspection_id');
     }
+    public function tire()
+    {
+        return $this->belongsTo(TiresControl::class, 'tire_id');
+    }
 }

@@ -3,12 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\HistoryTire;
+use App\Models\Inspections;
 use App\Models\TireInspection;
 use App\Models\TireInspectionDetail;
 use App\Models\TiresControl;
+use Dompdf\Dompdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpKernel\Log\Logger;
 
 class TiresInspectionController extends Controller
 {
@@ -250,7 +254,7 @@ class TiresInspectionController extends Controller
             |
             foreach ($inspection->details as $detail) {
                 HistoryTire::create([
-                    'tire_id' => $detail->tire_id,
+                    'tire_ctrl' => $detail->tire_id,
                     'activity' => 'REVISION_ELIMINADA',
                     'details' => 'Se eliminó una revisión de llanta (ID inspección: ' . $inspection->id . ')',
                     'date' => now(),
@@ -290,4 +294,76 @@ class TiresInspectionController extends Controller
             ->orderBy('position')
             ->get();
     }
+
+    private function getImageBase64($path)
+    {
+        // 1️⃣ Si viene una ruta absoluta (public_path)
+        if (file_exists($path)) {
+            $file = file_get_contents($path);
+            $extension = pathinfo($path, PATHINFO_EXTENSION);
+
+            return 'data:image/' . $extension . ';base64,' . base64_encode($file);
+        }
+
+        // 2️⃣ Si viene una ruta de Storage (public/...)
+        if (Storage::exists($path)) {
+            $file = Storage::get($path);
+            $extension = pathinfo($path, PATHINFO_EXTENSION);
+
+            return 'data:image/' . $extension . ';base64,' . base64_encode($file);
+        }
+
+        return null;
+    }
+
+    public function generateInspectionPDF($id)
+    {
+        try {
+
+            // 🔥 INSPECCIÓN
+            $inspection = TireInspection::with([
+                'details.tire',
+                'user'
+            ])->findOrFail($id);
+
+            // 🔥 UNIDAD
+            $unit = DB::table('units_all')
+                ->where('unit_id', $inspection->unit_id)
+                ->where('type', $inspection->type)
+                ->first();
+
+            // 🔥 IMÁGENES
+            $logo = $this->getImageBase64(public_path('imgPDF/logo.png'));
+            $img1 = $this->getImageBase64(public_path('imgPDF/tire-guide-1.jpg'));
+            $img2 = $this->getImageBase64(public_path('imgPDF/tire-guide-2.jpg'));
+            
+            // 🔥 DATA
+            $data = [
+                'inspection' => $inspection,
+                'unit' => $unit,
+                'logo' => $logo,
+                'img1' => $img1,
+                'img2' => $img2,
+            ];
+
+            // 🔥 HTML
+            $html = view('F-05-23 R2 INSPECCION DE NEUMATICOS', $data)->render();
+
+            $dompdf = new \Dompdf\Dompdf();
+            $dompdf->loadHtml($html);
+            $dompdf->setPaper('A4', 'landscape');
+            $dompdf->render();
+
+            return response($dompdf->output(), 200)
+                ->header('Content-Type', 'application/pdf');
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'message' => 'Error al generar PDF',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
 }

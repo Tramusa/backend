@@ -118,10 +118,10 @@
                 </div>
             </td>
         </tr>
-<body>
+
     </table>
   </header>
-
+<body>
     <table>
     <thead>
         <tr>

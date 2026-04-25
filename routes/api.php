@@ -210,6 +210,7 @@ Route::middleware('auth:sanctum')->post('/tire_control/scrap/{id}', [TiresContro
 Route::middleware('auth:sanctum')->get('/ctrl-tires/unit/{type}/{unit}', [TiresControlController::class, 'getByUnit']);
 Route::middleware('auth:sanctum')->apiResource('history-tires', HistoryTireController::class);
 Route::middleware('auth:sanctum')->apiResource('tire-inspections', TiresInspectionController::class);
+Route::middleware('auth:sanctum')->get('/inspection-tire-pdf/{id}', [TiresInspectionController::class, 'generateInspectionPDF']);
 Route::middleware('auth:sanctum')->apiResource('repair-tires', RepairTireController::class);
 //MODULES (CUENTAS, PORDUCTOS, CATEGORIAS, PROVVEDORES, AREAS)
 Route::middleware('auth:sanctum')->apiResource('work-areas', WorkAreasController::class);
