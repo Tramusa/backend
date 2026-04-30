@@ -623,8 +623,32 @@ class KpisController extends Controller
             ];
         }
 
+        /*-------------------------------------------------------------------------- 
+        | 🔥 LISTA DE RETRABAJOS DETALLADA
+        |--------------------------------------------------------------------------*/
+        $retrabajosList = DB::table('retrabajos as r')
+            ->join('units_all as u', function ($join) {
+                $join->on('u.unit_id', '=', 'r.unit')
+                    ->on('u.type', '=', 'r.type');
+            })
+            ->select(
+                'r.id',
+                'r.type',
+                'r.unit',
+                'u.no_economic',
+                'r.mes',
+                'r.year',
+                'r.cantidad',
+                'r.comment',
+                'r.created_at'
+            )
+            ->where('r.year', $year)
+            ->orderByDesc('r.created_at')
+            ->get();
+
         return response()->json([
-            'kpi3' => $resultado
+            'kpi3' => $resultado,
+            'retrabajos_list' => $retrabajosList // 👈 NUEVO
         ]);
     }
 
@@ -636,6 +660,7 @@ class KpisController extends Controller
             'mes'     => 'required|integer|min:1|max:12',
             'year'    => 'required|integer',
             'cantidad'=> 'required|integer|min:0',
+            'comment'=> 'required',
         ]);
 
         $retrabajo = Retrabajo::where([
@@ -647,9 +672,10 @@ class KpisController extends Controller
 
         if ($retrabajo) {
 
-            // ✅ Si existe → solo actualiza cantidad
+            // ✅ Si existe → solo actualiza cantidad y el comentario
             $retrabajo->update([
-                'cantidad' => $request->cantidad
+                'cantidad' => $request->cantidad,
+                'comment' => $request->comment
             ]);
 
             return response()->json([
@@ -666,6 +692,7 @@ class KpisController extends Controller
                 'mes'     => $request->mes,
                 'year'    => $request->year,
                 'cantidad'=> $request->cantidad,
+                'comment'=> $request->comment,
             ]);
 
             return response()->json([

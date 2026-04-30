@@ -11,6 +11,7 @@ class Retrabajo extends Model
         'unit',
         'mes',
         'year',
-        'cantidad'
+        'cantidad',
+        'comment',
     ];
 }
