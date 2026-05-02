@@ -44,6 +44,7 @@ class ProgramsMttoVehiclesController extends Controller
                     'type' => $program->type,
                     'unit_id' => $program->unit_id,
                     'no_economic' => $program->no_economic,
+                    'logistic' => $program->logistic,
                     'activities' => [],
                 ];
             }

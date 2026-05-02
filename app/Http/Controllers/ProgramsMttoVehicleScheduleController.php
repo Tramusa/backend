@@ -33,7 +33,7 @@ class ProgramsMttoVehicleScheduleController extends Controller
         ], 201);
     }
 
-   public function update(Request $request, $id)
+    public function update(Request $request, $id)
     {
         $request->validate([
             'current_week' => 'required|integer|min:1|max:53',
