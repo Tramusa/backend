@@ -310,8 +310,8 @@
                 </td>
             </tr>
             <tr>
-                <td class="blue-bg" style="width: 33%; text-align: center;">ELABORÓ </td>
-                <td class="blue-bg" style="width: 34%; text-align: center;">AUTORIZACIÓN </td>
+                <td class="blue-bg" style="width: 50%; text-align: center;">ELABORÓ </td>
+                <td class="blue-bg" style="width: 50%; text-align: center;">AUTORIZACIÓN </td>
             </tr>
         </table>
       </div>             

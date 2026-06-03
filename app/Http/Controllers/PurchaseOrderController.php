@@ -138,9 +138,6 @@ class PurchaseOrderController extends Controller
 
     public function generarPDF($order){
         $pdfContent = $this->PDF($order);
-
-        Storage::disk('public')->put('ordersCompra/ORDEN COMPRA N°'. ($order) . '.pdf', $pdfContent);
-
         return response($pdfContent, 200)->header('Content-Type', 'application/pdf');// Devolver el contenido del PDF
     }
 
@@ -168,16 +165,30 @@ class PurchaseOrderController extends Controller
                     'authorizeInfo',
                 ])
                 ->first();
-        $logoImagePath = public_path('imgPDF/logo.png');
-        $logoImage = $this->getImageBase64($logoImagePath);// Convertir las imágenes a base64
+          
+        $isMultiservicios =
+            trim($orderData->requisition->company_name ?? '') ===
+            'Multiservicios Murillo SA de CV';
 
+        if ($isMultiservicios) {
+            $logoImagePath = public_path('imgPDF/logo_multiservicios.png');
+
+            $view = 'F-04-02 MMU ORDEN DE COMPRA';
+        } else {
+            $logoImagePath = public_path('imgPDF/logo.png');
+
+            $view = 'F-04-03 R4 ORDEN DE COMPRA';
+        }
+
+        $logoImage = $this->getImageBase64($logoImagePath);
+        
         $data = [
             'logoImage' => $logoImage,
             'Data' => $orderData,
             'fecha' => Carbon::parse($orderData->date_order)->locale('es')->isoFormat('dddd, D [de] MMMM [de] YYYY'),
         ];
 
-        $html = view('F-04-03 R4 ORDEN DE COMPRA', $data)->render();
+        $html = view($view, $data)->render();
 
         $dompdf = new Dompdf();
         $dompdf->loadHtml($html);

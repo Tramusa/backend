@@ -453,8 +453,6 @@ class OrderController extends Controller
     {
         $pdfContent = $this->PDF($order);
 
-        Storage::disk('public')->put('orders/Orden N°'. ($order) . '.pdf', $pdfContent);
-
         return response($pdfContent, 200)->header('Content-Type', 'application/pdf');// Devolver el contenido del PDF
     }
 

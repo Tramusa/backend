@@ -94,8 +94,6 @@ class RequisitionsController extends Controller
     public function generarPDF($requisition){
         $pdfContent = $this->PDF($requisition);
 
-        Storage::disk('public')->put('requisitions/Requisicion N°'. ($requisition) . '.pdf', $pdfContent);
-
         return response($pdfContent, 200)->header('Content-Type', 'application/pdf');// Devolver el contenido del PDF
     }
 
@@ -119,7 +117,14 @@ class RequisitionsController extends Controller
                     ->with('user_analyze') // Eager load  relationship
                     ->first();
 
-        $logoImagePath = public_path('imgPDF/logo.png');
+        if ($requisitionData->company_name === 'Multiservicios Murillo SA de CV') {
+            $logoImagePath = public_path('imgPDF/logo_multiservicios.png');
+            $pdf = 'F-04-01 REQUISICION DE SUMINISTROS MMU';
+        }else{
+            $logoImagePath = public_path('imgPDF/logo.png');
+            $pdf = 'F-04-02 REQUISICION DE SUMINISTROS';
+        }        
+
         $logoImage = $this->getImageBase64($logoImagePath);// Convertir las imágenes a base64
 
         $detailsRequisitions = DetailsRequisitions::where('id_requisition', $requisition)->get();
@@ -131,7 +136,7 @@ class RequisitionsController extends Controller
             'fecha' => Carbon::parse($requisitionData->date)->locale('es')->isoFormat('dddd, D [de] MMMM [de] YYYY'),
         ];
 
-        $html = view('F-04-02 REQUISICION DE SUMINISTROS', $data)->render();
+        $html = view($pdf, $data)->render();
 
         $dompdf = new Dompdf();
         $dompdf->loadHtml($html);
@@ -165,6 +170,7 @@ class RequisitionsController extends Controller
             'id_user',
             'id_work_area',
             'observations',
+            'company_name',
             'status',
             'updated_at'
         ]);

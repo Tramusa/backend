@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActionPlanController;
 use App\Http\Controllers\AddressGroupController;
 use App\Http\Controllers\ApplicantsController;
 use Illuminate\Support\Facades\Route;
@@ -13,6 +14,7 @@ use App\Http\Controllers\DetailsRequisitionsController;
 use App\Http\Controllers\DocsPDFsController;
 use App\Http\Controllers\EarringsController;
 use App\Http\Controllers\EntryDetailsController;
+use App\Http\Controllers\EvaluationController;
 use App\Http\Controllers\ExpirationUnitsController;
 use App\Http\Controllers\FatigueRatingController;
 use App\Http\Controllers\HistoryTireController;
@@ -23,6 +25,8 @@ use App\Http\Controllers\InventoryOutputController;
 use App\Http\Controllers\KpisController;
 use App\Http\Controllers\MayorAccountController;
 use App\Http\Controllers\MissingDocsController;
+use App\Http\Controllers\NonConformityActionController;
+use App\Http\Controllers\NonConformityController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OutputDetailsController;
 use App\Http\Controllers\ParentAccountController;
@@ -275,3 +279,12 @@ Route::middleware('auth:sanctum')->post('/kpi-2/pdf',[KpisController::class,'gen
 Route::middleware('auth:sanctum')->post('/kpi-1/pdf',[KpisController::class,'generarPDFKPI1']);
 Route::middleware('auth:sanctum')->post('/kpi-3/pdf',[KpisController::class,'generarPDFKPI3']);
 Route::middleware('auth:sanctum')->get('/fatigue-ratings/{id}/pdf', [FatigueRatingController::class,'pdf']);
+Route::middleware('auth:sanctum')->apiResource('non-conformities', NonConformityController::class);
+Route::middleware('auth:sanctum')->post('/pdf-plain', [NonConformityController::class, 'generarPDF']);
+Route::middleware('auth:sanctum')->post('/evaluations', [EvaluationController::class, 'store']);
+Route::middleware('auth:sanctum')->apiResource('action-plan', ActionPlanController::class);
+Route::middleware('auth:sanctum')->get('/action-plan/{nonConformity}/pdf', [ActionPlanController::class, 'generarPDF']);
+
+
+
+

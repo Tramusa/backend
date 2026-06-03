@@ -150,8 +150,6 @@ class PaymentOrderController extends Controller
     {
         $pdfContent = $this->PDF($payment);        
 
-        Storage::disk('public')->put('ordersPayment/ORDEN PAGO N°'. ($payment) . '.pdf', $pdfContent);
-
         return response($pdfContent, 200)->header('Content-Type', 'application/pdf');// Devolver el contenido del PDF
     }
 
@@ -163,62 +161,90 @@ class PaymentOrderController extends Controller
     }
 
     private function PDF($payment)
-    {       
+    {
         $paymentData = PaymentOrder::where('id', $payment)
             ->with([
-                'supplierInfo.firstBankDetail', // Cambiar a firstBankDetail
+                'supplierInfo.firstBankDetail',
                 'elaborateInfo',
                 'authorizeInfo'
             ])
             ->first();
 
-        if ($paymentData && $paymentData->date) {
-            $fecha = Carbon::parse($paymentData->date)->locale('es')->isoFormat('dddd, D [de] MMMM [de] YYYY');
-        } else {
-            $fecha = Carbon::parse(now())->locale('es')->isoFormat('dddd, D [de] MMMM [de] YYYY');
+        // Determinar empresa
+        $companyName = '';
+
+        if ($paymentData) {
+            $firstBilling = BillingData::where('id_paymentOrder', $paymentData->id)->first();
+
+            if ($firstBilling) {
+                $firstOrderId = explode(',', $firstBilling->id_order)[0] ?? null;
+
+                if ($firstOrderId) {
+                    $purchaseOrder = PurchaseOrder::with('requisition')->find($firstOrderId);
+
+                    $companyName = $purchaseOrder->requisition->company_name ?? '';
+                }
+            }
         }
 
-        // Después de obtener el PaymentOrder, cargar las facturas y sus órdenes de compra relacionadas
+        if ($paymentData && $paymentData->date) {
+            $fecha = Carbon::parse($paymentData->date)
+                ->locale('es')
+                ->isoFormat('dddd, D [de] MMMM [de] YYYY');
+        } else {
+            $fecha = Carbon::now()
+                ->locale('es')
+                ->isoFormat('dddd, D [de] MMMM [de] YYYY');
+        }
+
+        // Facturas
         if ($paymentData) {
-            // Cargar las facturas que tienen asignado este PaymentOrder (billing_data.id_paymentOrder = PaymentOrder.id)
-            $billings = BillingData::where('id_paymentOrder', $paymentData->id)->get()
+
+            $billings = BillingData::where('id_paymentOrder', $paymentData->id)
+                ->get()
                 ->map(function ($billing) {
-                    $orderIds = explode(',', $billing->id_order); // Convertir lista en array
-                
-                    // Obtener todas las órdenes de compra con los datos de las requisiciones
+
+                    $orderIds = explode(',', $billing->id_order);
+
                     $orders = PurchaseOrder::whereIn('id', $orderIds)
-                        ->with('requisition') // Eager load the related requisition data
+                        ->with('requisition')
                         ->get();
 
-                    // Verificar si todas las órdenes tienen el estado deseado
-                    if ($orders->isNotEmpty()) {
-                        // Agregar las órdenes a la factura antes de devolverla
-                        $billing->purchaseOrders = $orders;
-                        return $billing;
-                    }
+                    $billing->purchaseOrders = $orders;
+
+                    return $billing;
                 });
 
-            // Asignar las facturas cargadas al objeto $paymentData
             $paymentData->billings = $billings;
         }
 
-        $logoImagePath = public_path('imgPDF/logo.png');
-        $logoImage = $this->getImageBase64($logoImagePath); // Convertir las imágenes a base64
+        // Logo y plantilla
+        if ($companyName === 'Multiservicios Murillo SA de CV') {
+            $logoImagePath = public_path('imgPDF/logo_multiservicios.png');
+
+            $view = 'F-04-03 MMU ORDEN DE PAGO';
+        } else {
+            $logoImagePath = public_path('imgPDF/logo.png');
+
+            $view = 'F-04-01 R1 ORDEN DE PAGO';
+        }
+
+        $logoImage = $this->getImageBase64($logoImagePath);
 
         $data = [
             'logoImage' => $logoImage,
-            'Data' => $paymentData,
-            'fecha' => $fecha, // Safely handle the date
+            'Data'      => $paymentData,
+            'fecha'     => $fecha,
         ];
 
-        $html = view('F-04-01 R1 ORDEN DE PAGO', $data)->render();
+        $html = view($view, $data)->render();
 
         $dompdf = new Dompdf();
         $dompdf->loadHtml($html);
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
-        
-        return $dompdf->output();                     
+
+        return $dompdf->output();
     }
 
     public function updateStatus(Request $request, $id)
