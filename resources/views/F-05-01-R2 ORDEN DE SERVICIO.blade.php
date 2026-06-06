@@ -27,6 +27,16 @@
         border: 2.5px solid #D1D1D1;
       }
 
+      pre {
+        white-space: pre-wrap;      /* conserva saltos de línea */
+        word-wrap: break-word;      /* compatibilidad */
+        overflow-wrap: break-word;  /* corta palabras largas */
+        word-break: break-word;     /* fuerza cortes */
+        margin: 0;
+        font-family: inherit;
+        font-size: inherit;
+      }
+
       .column-50 {
         width: 50%;
         float: left;
