@@ -22,6 +22,7 @@ use App\Http\Controllers\InspectionsController;
 use App\Http\Controllers\InventoryDetailsController;
 use App\Http\Controllers\InventoryEntriesController;
 use App\Http\Controllers\InventoryOutputController;
+use App\Http\Controllers\IshikawaController;
 use App\Http\Controllers\KpisController;
 use App\Http\Controllers\MayorAccountController;
 use App\Http\Controllers\MissingDocsController;
@@ -30,6 +31,7 @@ use App\Http\Controllers\NonConformityController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OutputDetailsController;
 use App\Http\Controllers\ParentAccountController;
+use App\Http\Controllers\ParetoController;
 use App\Http\Controllers\PaymentOrderController;
 use App\Http\Controllers\PaymentSuppliersController;
 use App\Http\Controllers\PeajesController;
@@ -40,6 +42,7 @@ use App\Http\Controllers\ProgramsController;
 use App\Http\Controllers\ProgramsMttoVehicleScheduleController;
 use App\Http\Controllers\ProgramsMttoVehiclesController;
 use App\Http\Controllers\PurchaseOrderController;
+use App\Http\Controllers\RelationController;
 use App\Http\Controllers\RenovationsTireController;
 use App\Http\Controllers\RepairTireController;
 use App\Http\Controllers\RequisitionsController;
@@ -284,6 +287,10 @@ Route::middleware('auth:sanctum')->post('/pdf-plain', [NonConformityController::
 Route::middleware('auth:sanctum')->post('/evaluations', [EvaluationController::class, 'store']);
 Route::middleware('auth:sanctum')->apiResource('action-plan', ActionPlanController::class);
 Route::middleware('auth:sanctum')->get('/action-plan/{nonConformity}/pdf', [ActionPlanController::class, 'generarPDF']);
+Route::middleware('auth:sanctum')->apiResource('ishikawa', IshikawaController::class);
+Route::middleware('auth:sanctum')->apiResource('relation', RelationController::class);
+Route::middleware('auth:sanctum')->apiResource('pareto', ParetoController::class);
+
 
 
 

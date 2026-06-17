@@ -32,7 +32,8 @@ class CreateNonConformitiesTable extends Migration
                 'registered',
                 'evaluation_pending',
                 'analysis_pending',
-                'analysis_in_process',
+                'relation',
+                'pareto',
                 'action_plan_pending',
                 'finished'
             ])->default('registered');

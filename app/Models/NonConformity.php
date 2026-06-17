@@ -25,10 +25,7 @@ class NonConformity extends Model
     /* ================= RESPONSIBLE ================= */
     public function responsible()
     {
-        return $this->belongsTo(
-            User::class,
-            'responsible'
-        );
+        return $this->belongsTo(User::class, 'responsible' );
     }
 
     /* ================= EVALUATION ================= */
@@ -40,5 +37,10 @@ class NonConformity extends Model
     public function actionPlanCauses()
     {
         return $this->hasMany(ActionPlanCause::class);
+    }
+
+    public function relation()
+    {
+        return $this->hasOne(Relation::class);
     }
 }
