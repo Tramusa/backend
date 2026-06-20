@@ -121,12 +121,9 @@ class NonConformityController extends Controller
 
             /* ================= DATOS FICTICIOS ================= */
             $causes = [
-
                 [
                     'cause' => 'Falta de seguimiento al procedimiento operativo',
-
                     'actions' => [
-
                         [
                             'action' => 'Capacitar al personal involucrado',
                             'responsible' => 'Juan Pérez',
@@ -211,6 +208,46 @@ class NonConformityController extends Controller
 
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function generarCaratulaPDF(Request $request)
+    {
+        try {
+            $id = $request->id;
+
+            $nonConformity = NonConformity::with([
+                'responsible',
+                'evaluation',
+                'actionPlanCauses',
+                'actionPlanCauses.responsible',
+                'actionPlanCauses.correctiveActions',
+                'actionPlanCauses.correctiveActions.responsible',
+                'actionPlanCauses.correctiveActions.activities',
+                'actionPlanCauses.correctiveActions.activities.responsible',
+            ])->findOrFail($id);
+
+            /* ================= LOGO ================= */
+            $logoImage = $this->getImageBase64(public_path('imgPDF/logo.png'));
+
+            /* ================= HTML ================= */
+            $html = view('F-10-05 REPORTE DE ACCIONES',
+                compact(
+                    'nonConformity',
+                    'logoImage'
+                )
+            )->render();
+
+            /* ================= PDF ================= */
+            $dompdf = new Dompdf();
+            $dompdf->loadHtml($html);
+            $dompdf->setPaper('A4', 'portrait');
+            $dompdf->render();
+
+            return response($dompdf->output(), 200)->header('Content-Type', 'application/pdf');
+
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage(),], 500);
         }
     }
 }

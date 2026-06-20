@@ -220,6 +220,25 @@
         margin-left: 5px;      /* Opcional, separa un poco del borde */
         margin-bottom: 4px;    /* Espacio si hay salto de línea debajo */
       }
+      .break-text {
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+          word-break: break-word;
+          white-space: normal;
+      }
+      
+      table {
+          page-break-inside: auto;
+      }
+
+      tr {
+          page-break-inside: avoid;
+          page-break-after: auto;
+      }
+
+      td {
+          page-break-inside: avoid;
+      }
     </style>
   </head>
   <body>
@@ -246,7 +265,9 @@
                 <th>FOLIO DE REVISIÓN DE <br> CONDICIONES FÍSICO-MECÁNICAS</th>
             </tr>
             <tr>
-                <td>{{ $orderData->requisitions ?? 'N/A' }}</td>
+                <td class="break-text">
+                    {{ $orderData->requisitions ?? 'N/A' }}
+                </td>
                 <td>{{ $fm ?? 'N/A'}}</td>
             </tr>
         </table>
@@ -281,7 +302,7 @@
             </tr>
         </table>
       </div>        
-      <div class="row">
+      <div>
         @php
           // ===== FALLAS
           $cantidadFallas = substr_count($fallas, '<li>') ?: substr_count($fallas, '<br>');

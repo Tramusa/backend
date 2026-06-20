@@ -290,8 +290,4 @@ Route::middleware('auth:sanctum')->get('/action-plan/{nonConformity}/pdf', [Acti
 Route::middleware('auth:sanctum')->apiResource('ishikawa', IshikawaController::class);
 Route::middleware('auth:sanctum')->apiResource('relation', RelationController::class);
 Route::middleware('auth:sanctum')->apiResource('pareto', ParetoController::class);
-
-
-
-
-
+Route::middleware('auth:sanctum')->get('/non-conformities/{id}/cover-pdf', [NonConformityController::class, 'generarCaratulaPDF']);
