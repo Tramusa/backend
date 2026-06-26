@@ -152,8 +152,8 @@ class OrderController extends Controller
                 users.a_materno,
                 MAX(earrings.type_mtto) AS type_mtto,
                 MAX(ua.no_economic) AS unidad,
-                SUM(orders.total_mano) AS total_mano,
-                SUM(orders.total_parts) AS total_parts,
+                MAX(orders.total_mano) AS total_mano,
+                MAX(orders.total_parts) AS total_parts,
                 GROUP_CONCAT(DISTINCT earrings.description SEPARATOR ', ') AS fallas
             ")
             ->groupBy(
@@ -197,7 +197,8 @@ class OrderController extends Controller
         }
 
         return response()->json(
-            $query->orderBy('orders.date_attended', 'desc')->paginate(60)
+            $query->orderBy('orders.date_attended', 'desc')
+                ->paginate(60)
         );
     }
 

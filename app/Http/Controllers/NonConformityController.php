@@ -12,7 +12,7 @@ class NonConformityController extends Controller
     /* ================= LIST ================= */
     public function index()
     {
-        $data = NonConformity::with('responsible')
+        $data = NonConformity::with('responsibleUser')
             ->orderBy('id', 'desc')
             ->get();
         return response()->json($data);
@@ -217,7 +217,7 @@ class NonConformityController extends Controller
             $id = $request->id;
 
             $nonConformity = NonConformity::with([
-                'responsible',
+                'responsibleUser',
                 'evaluation',
                 'actionPlanCauses',
                 'actionPlanCauses.responsible',
@@ -226,6 +226,10 @@ class NonConformityController extends Controller
                 'actionPlanCauses.correctiveActions.activities',
                 'actionPlanCauses.correctiveActions.activities.responsible',
             ])->findOrFail($id);
+
+            logger($nonConformity->responsibleUser);
+            logger($nonConformity);
+
 
             /* ================= LOGO ================= */
             $logoImage = $this->getImageBase64(public_path('imgPDF/logo.png'));
@@ -237,6 +241,7 @@ class NonConformityController extends Controller
                     'logoImage'
                 )
             )->render();
+
 
             /* ================= PDF ================= */
             $dompdf = new Dompdf();

@@ -14,7 +14,7 @@ class ActionPlanController extends Controller
     public function show($id)
     {
         $nonConformity = NonConformity::with([
-            'responsible',
+            'responsibleUser',
             'actionPlanCauses.responsible',
             'actionPlanCauses.correctiveActions.responsible',
             'actionPlanCauses.correctiveActions.activities.responsible',
@@ -23,78 +23,110 @@ class ActionPlanController extends Controller
         return response()->json($nonConformity);
     }
 
-    public function store(Request $request)
-    {
-        $data = $request->validate([
-            'non_conformity_id' => 'required|exists:non_conformities,id',
-            'finish' => 'nullable|boolean',
+   public function store(Request $request)
+{
+    $finish = $request->boolean('finish');
 
-            'causes' => 'required|array|min:1',
+    $data = $request->validate([
+        'non_conformity_id' => 'required|exists:non_conformities,id',
+        'finish' => 'nullable|boolean',
 
-            'causes.*.ishikawa_cause_id' => 'nullable|integer',
-            'causes.*.main_cause' => 'nullable|string',
-            'causes.*.commitment_date' => 'nullable|date',
-            'causes.*.responsible_id' => 'nullable|exists:users,id',
+        'causes' => 'required|array|min:1',
 
-            'causes.*.actions' => 'required|array|min:1',
-            'causes.*.actions.*.corrective_action' => 'required|string',
-            'causes.*.actions.*.commitment_date' => 'nullable|date',
-            'causes.*.actions.*.responsible_id' => 'nullable|exists:users,id',
+        'causes.*.ishikawa_cause_id' => 'nullable|integer',
+        'causes.*.main_cause' => 'nullable|string',
+        'causes.*.commitment_date' => 'nullable|date',
+        'causes.*.responsible_id' => 'nullable|exists:users,id',
 
-            'causes.*.actions.*.activities' => 'nullable|array',
-            'causes.*.actions.*.activities.*.activity' => 'nullable|string',
-            'causes.*.actions.*.activities.*.commitment_date' => 'nullable|date',
-            'causes.*.actions.*.activities.*.responsible_id' => 'nullable|exists:users,id',
-        ]);
+        'causes.*.actions' => 'nullable|array',
 
-        $nonConformity = NonConformity::findOrFail($data['non_conformity_id']);
+        'causes.*.actions.*.corrective_action' => $finish
+            ? 'required|string'
+            : 'nullable|string',
 
-        DB::transaction(function () use ($data, $nonConformity) {
-            $nonConformity->actionPlanCauses()->delete();
+        'causes.*.actions.*.commitment_date' => 'nullable|date',
+        'causes.*.actions.*.responsible_id' => 'nullable|exists:users,id',
 
-            foreach ($data['causes'] as $causeData) {
-                $cause = $nonConformity->actionPlanCauses()->create([
-                    'ishikawa_cause_id' => $causeData['ishikawa_cause_id'] ?? null,
-                    'main_cause' => $causeData['main_cause'] ?? null,
-                    'commitment_date' => $causeData['commitment_date'] ?? null,
-                    'responsible_id' => $causeData['responsible_id'] ?? null,
-                ]);
+        'causes.*.actions.*.activities' => 'nullable|array',
+        'causes.*.actions.*.activities.*.activity' => 'nullable|string',
+        'causes.*.actions.*.activities.*.commitment_date' => 'nullable|date',
+        'causes.*.actions.*.activities.*.responsible_id' => 'nullable|exists:users,id',
+    ]);
 
-                foreach ($causeData['actions'] as $actionData) {
-                    $action = $cause->correctiveActions()->create([
-                        'corrective_action' => $actionData['corrective_action'],
-                        'commitment_date' => $actionData['commitment_date'] ?? null,
-                        'responsible_id' => $actionData['responsible_id'] ?? null,
-                        'status' => 'pending',
-                    ]);
+    $nonConformity = NonConformity::findOrFail($data['non_conformity_id']);
 
-                    foreach ($actionData['activities'] ?? [] as $activityData) {
-                        if (empty($activityData['activity'])) {
-                            continue;
-                        }
+    DB::transaction(function () use ($data, $nonConformity, $finish) {
 
-                        $action->activities()->create([
-                            'activity' => $activityData['activity'],
-                            'commitment_date' => $activityData['commitment_date'] ?? null,
-                            'responsible_id' => $activityData['responsible_id'] ?? null,
-                        ]);
+        $nonConformity->actionPlanCauses()->delete();
+
+        foreach ($data['causes'] as $causeData) {
+
+            $cause = $nonConformity->actionPlanCauses()->create([
+                'ishikawa_cause_id' => $causeData['ishikawa_cause_id'] ?? null,
+                'main_cause' => $causeData['main_cause'] ?? null,
+                'commitment_date' => $causeData['commitment_date'] ?? null,
+                'responsible_id' => $causeData['responsible_id'] ?? null,
+            ]);
+
+            foreach (($causeData['actions'] ?? []) as $actionData) {
+
+                $activities = $actionData['activities'] ?? [];
+
+                // 🔥 NUEVA REGLA:
+                // SI HAY ACTIVIDADES → SIEMPRE CREAR ACCIÓN
+                // SI NO HAY ACTIVIDADES → TAMBIÉN CREAR ACCIÓN
+
+                $hasActivity = collect($activities)->contains(function ($a) {
+                    return !empty(trim($a['activity'] ?? ''));
+                });
+
+                // 🔥 EN FINISH SÍ VALIDAS
+                if ($finish) {
+                    if (empty(trim($actionData['corrective_action'] ?? ''))) {
+                        continue;
                     }
                 }
+
+                // 🔥 CREAR ACCIÓN SIEMPRE QUE:
+                // - finish = true (ya validado)
+                // - finish = false (siempre se guarda)
+                $action = $cause->correctiveActions()->create([
+                    'corrective_action' => $actionData['corrective_action'] ?? '',
+                    'commitment_date' => $actionData['commitment_date'] ?? null,
+                    'responsible_id' => $actionData['responsible_id'] ?? null,
+                    'status' => 'pending',
+                ]);
+
+                foreach ($activities as $activityData) {
+
+                    $text = trim($activityData['activity'] ?? '');
+
+                    if ($text === '') {
+                        continue;
+                    }
+
+                    $action->activities()->create([
+                        'activity' => $text,
+                        'commitment_date' => $activityData['commitment_date'] ?? null,
+                        'responsible_id' => $activityData['responsible_id'] ?? null,
+                    ]);
+                }
             }
+        }
 
-            $nonConformity->update([
-                'status' => !empty($data['finish'])
-                    ? 'finished'
-                    : 'action_plan_pending',
-            ]);
-        });
-
-        return response()->json([
-            'message' => !empty($data['finish'])
-                ? 'Plan de acción finalizado correctamente'
-                : 'Plan de acción guardado correctamente',
+        $nonConformity->update([
+            'status' => $finish
+                ? 'finished'
+                : 'action_plan_pending',
         ]);
-    }
+    });
+
+    return response()->json([
+        'message' => $finish
+            ? 'Plan de acción finalizado correctamente'
+            : 'Plan de acción guardado correctamente',
+    ]);
+}
 
     private function getImageBase64($path)
     {
@@ -118,7 +150,7 @@ class ActionPlanController extends Controller
     private function PDF($nonConformityId)
     {
         $nonConformity = NonConformity::with([
-            'responsible',
+            'responsibleUser',
             'actionPlanCauses.responsible',
             'actionPlanCauses.correctiveActions.responsible',
             'actionPlanCauses.correctiveActions.activities.responsible',

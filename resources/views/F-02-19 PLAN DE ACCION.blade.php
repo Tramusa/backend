@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -7,148 +6,149 @@
 
 <style>
 
-*{
-    box-sizing:border-box;
-}
+    *{
+        box-sizing:border-box;
+    }
 
-body{
-    font-family:Arial, Helvetica, sans-serif;
-    font-size:11px;
-    color:#000;
-    margin:0;
-    padding:6px;
-}
+    body{
+        font-family:Arial, Helvetica, sans-serif;
+        font-size:11px;
+        color:#000;
+        margin:0;
+        padding:6px;
+    }
 
-table{
-    width:100%;
-    border-collapse:collapse;
-}
+    table{
+        width:100%;
+        border-collapse:collapse;
+    }
 
-td,th{
-    border:1px solid #000;
-    padding:1px 3px;
-    vertical-align:middle;
-    line-height:1.05;
-}
+    td,th{
+        border:1px solid #000;
+        padding:1px 3px;
+        vertical-align:middle;
+        line-height:1.05;
+    }
 
-.logo{
-    width:110px;
-}
+    .logo{
+        width:110px;
+    }
 
-.company{
-    text-align:center;
-    font-size:15px;
-    font-weight:bold;
-}
+    .company{
+        text-align:center;
+        font-size:15px;
+        font-weight:bold;
+    }
 
-.title{
-    text-align:center;
-    font-size:14px;
-    font-weight:bold;
-    margin-top:2px;
-}
+    .title{
+        text-align:center;
+        font-size:14px;
+        font-weight:bold;
+        margin-top:2px;
+    }
 
-.headerTable{
-    border:1px solid #000;
-    width:100%;
-    border-collapse:collapse;
-}
+    .headerTable{
+        border:1px solid #000;
+        width:100%;
+        border-collapse:collapse;
+    }
 
-.headerTable td{
-    background:#e69043;
-    color:#fff;
-    font-weight:bold;
-    text-align:center;
-    border:none;
-    padding:2px;
-}
+    .headerTable td{
+        background:#e69043;
+        color:#fff;
+        font-weight:bold;
+        text-align:center;
+        border:none;
+        padding:2px;
+    }
 
-.instructionsTable{
-    border:none;
-}
+    .instructionsTable{
+        border:none;
+    }
 
-.instructionsTable td{
-    border:none !important;
-    padding:0;
-    font-size:10px;
-    line-height:1.2;
-}
+    .instructionsTable td{
+        border:none !important;
+        padding:0;
+        font-size:10px;
+        line-height:1.2;
+    }
 
-.legend{
-    width:88%;
-    margin-top:2px;
-}
+    .legend{
+        width:88%;
+        margin-top:2px;
+    }
 
-.legend td{
-    border:1px solid #c8c8c8;
-    padding:1px 3px;
-}
+    .legend td{
+        border:1px solid #c8c8c8;
+        padding:1px 3px;
+    }
 
-.square{
-    width:30px;
-}
+    .square{
+        width:30px;
+    }
 
-.yellow{
-    background:#ffe600;
-}
+    .cause{
+        background:#5F789C;
+        font-weight:bold;
+        color:#fff;
+    }
 
-.blue{
-    background:#00b0f0;
-}
+    .action{
+        background:#00B0F0;
+    }
 
-.green{
-    background:#cdeec7;
-}
+    .activity{
+        background:#C6E0B4;
+    }
 
-.problem-header{
-    background: #ffffff;
-    color: #ff0000;
-    font-weight: bold;
-    border: 1px solid #ff0000;
-}
+    .problem-header{
+        background: #ffffff;
+        color: #ff0000;
+        font-weight: bold;
+        border: 1px solid #ff0000;
+    }
 
-.problem-body{
-    background: #ff0000;
-    color: #ffffff;
-    font-weight: bold;
-    border: 1px solid #ff0000;
-}
+    .problem-body{
+        background: #ff0000;
+        color: #ffffff;
+        font-weight: bold;
+        border: 1px solid #ff0000;
+    }
 
-.problem-date{
-    background: #ffffff;
-    color: #ff0000;
-    font-weight: bold;
-    text-align: center;
-    border: 1px solid #ff0000;
-}
+    .problem-date{
+        background: #ffffff;
+        color: #ff0000;
+        font-weight: bold;
+        text-align: center;
+        border: 1px solid #ff0000;
+    }
 
-.problem-date-value{
-    background: #ff0000;
-    color: #ffffff;
-    font-weight: bold;
-    text-align: center;
-    border: 1px solid #ff0000;
-    font-size: 14px;
-}
+    .problem-date-value{
+        background: #ff0000;
+        color: #ffffff;
+        font-weight: bold;
+        text-align: center;
+        border: 1px solid #ff0000;
+        font-size: 14px;
+    }
 
-.gray{
-    background:#efefef;
-    font-weight:bold;
-    text-align:center;
-}
+    .gray{
+        background:#efefef;
+        font-weight:bold;
+        text-align:center;
+    }
 
-.center{
-    text-align:center;
-}
+    .center{
+        text-align:center;
+    }
 
-.small{
-    font-size:9px;
-}
+    .small{
+        font-size:9px;
+    }
 
-.blank{
-    background:#fff;
-}
-
+    .blank{
+        background:#fff;
+    }
 </style>
 
 </head>
@@ -205,62 +205,24 @@ td,th{
 
     <!-- LEYENDA -->
     <table style="width:100%; border-collapse:collapse; margin-top:2px;">
-
         <tr>
-
-            <!-- Cuadro amarillo -->
-            <td style="
-                width:28px;
-                background:#ffe600;
-                border:1px solid #000;
-            "></td>
-
-            <!-- Texto sin borde -->
-            <td style="
-                border:none;
-                padding-left:6px;
-            ">
+            <td style="width:28px; background:#5F789C; border:1px solid #000;"></td>
+            <td style="border:none; padding-left:6px;">
                 Causa principal de la no conformidad
             </td>
-
         </tr>
-
         <tr>
-
-            <!-- Cuadro azul -->
-            <td style="
-                background:#00b0f0;
-                border:1px solid #000;
-            "></td>
-
-            <!-- Texto sin borde -->
-            <td style="
-                border:none;
-                padding-left:6px;
-            ">
+            <td style="background:#00B0F0;    border:1px solid #000;"></td>
+            <td style="border:none; padding-left:6px; ">
                 Acción correctiva para eliminar la causa.
             </td>
-
         </tr>
-
         <tr>
-
-            <!-- Cuadro verde -->
-            <td style="
-                background:#cdeec7;
-                border:1px solid #000;
-            "></td>
-
-            <!-- Texto sin borde -->
-            <td style="
-                border:none;
-                padding-left:6px;
-            ">
+            <td style="background:#C6E0B4; border:1px solid #000;"></td>
+            <td style="border:none; padding-left:6px; ">
                 Actividades
             </td>
-
         </tr>
-
     </table><br>
 
     <!-- PROBLEMA -->
@@ -284,14 +246,15 @@ td,th{
     </table><br>
 
     <!-- ENCABEZADO TABLA -->
+    <!-- ENCABEZADO TABLA -->
     <table>
-        <tr>
+        <tr style="color: #1f7be4">
             <td style="width:57%;background:#fff;"></td>
             <td class="gray" style="width:10%;">
-                FECHA  COMPROM.
+                FECHA COMPROM.
             </td>
             <td class="gray" style="width:21%;">
-                RESPONSABLE DE   SEGUIMIENTO
+                RESPONSABLE DE SEGUIMIENTO
             </td>
             <td class="gray" style="width:12%;">
                 FIRMA DE RESPONSABLE
@@ -300,12 +263,13 @@ td,th{
 
         @forelse($nonConformity->actionPlanCauses as $cause)
 
-            <tr class="yellow">
+            {{-- CAUSA --}}
+            <tr class="cause">
                 <td>
                     {{ $cause->main_cause ?? '. ' }}
                 </td>
                 <td class="center">
-                    {{ strtolower(\Carbon\Carbon::parse($cause->date_commitment)->locale('es')->translatedFormat('d-M-y')) }}
+                    {{ strtolower(\Carbon\Carbon::parse($cause->commitment_date)->locale('es')->translatedFormat('d-M-y')) }}
                 </td>
                 <td class="center">
                     {{ optional($cause->responsible)->name }}
@@ -315,12 +279,14 @@ td,th{
             </tr>
 
             @foreach($cause->correctiveActions as $action)
-                <tr class="blue">
+
+                {{-- ACCIÓN --}}
+                <tr class="action">
                     <td>
                         {{ $action->corrective_action }}
                     </td>
                     <td class="center">
-                        {{ strtolower(\Carbon\Carbon::parse($action->date_commitment)->locale('es')->translatedFormat('d-M-y')) }}
+                        {{ strtolower(\Carbon\Carbon::parse($action->commitment_date)->locale('es')->translatedFormat('d-M-y')) }}
                     </td>
                     <td class="center">
                         {{ optional($action->responsible)->name }}
@@ -329,13 +295,14 @@ td,th{
                     <td></td>
                 </tr>
 
+                {{-- ACTIVIDADES REALES --}}
                 @foreach($action->activities as $activity)
-                    <tr class="green">
+                    <tr class="activity">
                         <td>
                             {{ $activity->activity }}
                         </td>
                         <td class="center">
-                            {{ strtolower(\Carbon\Carbon::parse($activity->date_commitment)->locale('es')->translatedFormat('d-M-y')) }}
+                            {{ strtolower(\Carbon\Carbon::parse($activity->commitment_date)->locale('es')->translatedFormat('d-M-y')) }}
                         </td>
                         <td class="center">
                             {{ optional($activity->responsible)->name }}
@@ -345,21 +312,24 @@ td,th{
                     </tr>
                 @endforeach
 
+                {{-- RELLENO DINÁMICO (MÍNIMO 4 POR ACCIÓN) --}}
+                @php
+                    $activityCount = $action->activities->count();
+                    $emptyRows = max(0, 4 - $activityCount);
+                @endphp
+
+                @for($i = 0; $i < $emptyRows; $i++)
+                    <tr class="activity">
+                        <td>&nbsp;</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                @endfor
+
             @endforeach
 
-
-            <!-- Renglones vacíos para escribir -->
-            @for($i=0;$i<4;$i++)
-                <tr class="green">
-                    <td>&nbsp;</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-            @endfor
-
-
-            @empty
+        @empty
             <tr>
                 <td colspan="4" style="height:80px;text-align:center;">
                     Sin plan de acción registrado.

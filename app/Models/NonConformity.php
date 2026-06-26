@@ -23,7 +23,7 @@ class NonConformity extends Model
     ];
 
     /* ================= RESPONSIBLE ================= */
-    public function responsible()
+    public function responsibleUser()
     {
         return $this->belongsTo(User::class, 'responsible' );
     }
