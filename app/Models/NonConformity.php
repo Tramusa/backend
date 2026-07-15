@@ -43,4 +43,9 @@ class NonConformity extends Model
     {
         return $this->hasOne(Relation::class);
     }
+
+    public function ishikawa()
+    {
+        return $this->hasOne(Ishikawa::class);
+    }
 }

@@ -26,4 +26,9 @@ class ActionPlanActivity extends Model
     {
         return $this->belongsTo(User::class, 'responsible_id');
     }
+
+    public function sisegac()
+    {
+        return $this->hasOne(Sisegac::class,'activity_id');
+    }
 }

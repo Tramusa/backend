@@ -123,11 +123,25 @@
         background:#BFBFBF;
     }
 
+    .causeTitle{
+        width:15%;
+        font-weight:bold;
+        text-align:center;
+        vertical-align:middle;
+    }
+
     .causeBox{
+        font-weight:bold;
         background:#BFBFBF;
-        height:180px;
+        color:#0033cc;
         vertical-align:top;
-        color:#0000cc;
+        height:120px;
+        padding:8px;
+        line-height:1;
+    }
+
+    .causeItem{
+        margin-bottom:4px;
     }
 
     .actionRow{
@@ -159,7 +173,7 @@
 
 </head>
 
-<body>
+<body><br>
     <!-- =============== ENCABEZADO  =================== -->
     <table>
       <tr>
@@ -269,7 +283,7 @@
     </table>
 
     <!-- ================= AFECTA A / TRAMUSA ================= -->
-     <table style="margin-top:4px;">
+     <table style="margin-top:4px;border:none !important;">
         <tr>
             <td width="65%" style="padding:0;">
                 <table class="infoDetect">
@@ -440,55 +454,201 @@
     <!-- =================== CAUSAS RAÍZ  ======================== -->
     <table style="margin-top:4px;">
         <tr>
-            <td width="15%" class="center bold">
-                CAUSA RAÍZ:
+            <td class="causeTitle">
+                CAUSA<br>RAÍZ
             </td>
             <td class="causeBox">
                 @foreach($nonConformity->actionPlanCauses as $cause)
-                {{ $cause->main_cause }}<br>
+                    <div class="causeItem">
+                        • {{ $cause->main_cause }}
+                    </div>
                 @endforeach
             </td>
         </tr>
     </table>
 
     <!-- =================== PLAN DE ACCIÓN RESUMIDO =========================== -->
-    <table style="margin-top:18px;">
-        <tr>
-            <th width="5%">No.</th>
-            <th width="58%">ACCIONES</th>
-            <th width="22%">RESPONSABLE</th>
-            <th width="8%">FECHA</th>
-            <th width="7%">FIRMA</th>
+    <table style="margin-top:10px;border-collapse:collapse;width:100%;font-size:10px;">
+
+        <tr style="height:28px;font-weight:bold;text-align:center;">
+            <td width="12%">No.</td>
+            <td width="52%">ACCIONES</td>
+            <td width="22%">RESPONSABLE</td>
+            <td width="9%" style="font-size:8px;">FECHA</td>
+            <td width="5%" style="font-size:8px;">FIRMA</td>
         </tr>
 
         @php
-        $contador=1;
+            $totalFilas = 12;
+            $filasUsadas = 0;
+            $indice = 0;
+            $folio = $nonConformity->number;
+
+            if (!function_exists('letraConsecutiva')) {
+                function letraConsecutiva($indice)
+                {
+                    $resultado = '';
+
+                    do {
+                        $resultado = chr(65 + ($indice % 26)) . $resultado;
+                        $indice = intdiv($indice, 26) - 1;
+                    } while ($indice >= 0);
+
+                    return $resultado;
+                }
+            }
         @endphp
 
         @foreach($nonConformity->actionPlanCauses as $cause)
+
             @foreach($cause->correctiveActions as $action)
+
+                {{-- ACCIÓN --}}
                 <tr class="actionRow">
-                    <td class="center">
-                        {{ $contador++ }}
+
+                    <td class="center" style="color:red;font-weight:bold;">
+                        {{ $folio . '-' . letraConsecutiva($indice++) }}
                     </td>
-                    <td style="background:#BFBFBF;">
+
+                    <td style="background:#CFCFCF;font-weight:bold;">
                         {{ $action->corrective_action }}
                     </td>
-                    <td style="background:#BFBFBF;">
+
+                    <td style="background:#CFCFCF;">
                         {{ optional($action->responsible)->name }}
+                        {{ optional($action->responsible)->a_paterno }}
+                        {{ optional($action->responsible)->a_materno }}
                     </td>
-                    <td style="background:#BFBFBF;">
-                        @if($action->date_commitment)
-                            {{ \Carbon\Carbon::parse($action->date_commitment)->format('d/m/Y') }}
+
+                    <td class="center" style="background:#CFCFCF;">
+                        @if($action->commitment_date)
+                            {{ \Carbon\Carbon::parse($action->commitment_date)->format('d/m/Y') }}
                         @endif
                     </td>
-                    <td></td>
+
+                    <td class="firma"></td>
+
                 </tr>
+
+                @php
+                    $filasUsadas++;
+                @endphp
+
+                {{-- ACTIVIDADES --}}
+                @foreach($action->activities as $activity)
+
+                    <tr class="actionRow">
+
+                        <td class="center" style="color:red;font-weight:bold;">
+                            {{ $folio . '-' . letraConsecutiva($indice++) }}
+                        </td>
+
+                        <td style="background:#D9D9D9;padding-left:18px;">
+                             {{ $activity->activity }}
+                        </td>
+
+                        <td style="background:#D9D9D9;">
+                            {{ optional($activity->responsible)->name }}
+                            {{ optional($activity->responsible)->a_paterno }}
+                            {{ optional($activity->responsible)->a_materno }}
+                        </td>
+
+                        <td class="center" style="background:#D9D9D9;">
+                            @if($activity->commitment_date)
+                                {{ \Carbon\Carbon::parse($activity->commitment_date)->format('d/m/Y') }}
+                            @endif
+                        </td>
+
+                        <td class="firma"></td>
+
+                    </tr>
+
+                    @php
+                        $filasUsadas++;
+                    @endphp
+
+                @endforeach
+
             @endforeach
+
         @endforeach
+
+        {{-- Completar filas vacías --}}
+        @for($i = $filasUsadas; $i < $totalFilas; $i++)
+
+            <tr class="actionRow">
+
+                <td></td>
+
+                <td style="background:#CFCFCF;"></td>
+
+                <td style="background:#CFCFCF;">
+                    &nbsp;
+                </td>
+
+                <td style="background:#CFCFCF;"></td>
+
+                <td class="firma"></td>
+
+            </tr>
+
+        @endfor
+
+    </table>
+
+    <table style="margin-top:6px;border-collapse:collapse;">
+        <tr>
+            <td width="17%">  Fecha de Eliminación </td>
+            <td width="43%" style="background:#CFCFCF;">
+                &nbsp;
+            </td>
+            <td width="18%" class="center">
+                Firma de Revisor:
+            </td>
+            <td width="22%" style="background:#CFCFCF;">
+                &nbsp;
+            </td>
+        </tr>
+        <tr>
+            <td> Nombre de Revisor: </td>
+            <td style="background:#CFCFCF;">
+                &nbsp;
+            </td>
+            <td colspan="2"> &nbsp;  </td>
+        </tr>
+    </table>
+
+    <table style="margin-top:6px;border-collapse:collapse;">
+        <tr>
+            <td width="12%"> QUEJA No. </td>
+            <td width="5%" style="background:#CFCFCF;">
+                &nbsp;
+            </td>
+            <td width="15%" class="center">
+                NOMBRE DEL CLIENTE:
+            </td>
+            <td width="43%" style="background:#CFCFCF;">
+                &nbsp;
+            </td>
+            <td width="7%" class="center">
+                FIRMA DEL:
+            </td>
+            <td width="18%" style="background:#CFCFCF;">
+                &nbsp;
+            </td>
+        </tr>
+    </table>
+
+    <table style="border:none;margin-top:4px;">
+        <tr>
+            <td style="border:none;font-size:9px;">
+                <b>*NOTA:</b> Los espacios rellenados en color gris, son de uso exclusivo del Facilitador de Grupos de Proyecto.
+            </td>
+        </tr>
     </table>
 
 </body>
 
 </html>
+
 

@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\NonConformity;
+use App\Models\Sisegac;
 use Carbon\Carbon;
 use Dompdf\Dompdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class NonConformityController extends Controller
 {
@@ -112,105 +114,6 @@ class NonConformityController extends Controller
         return 'data:image/' . $type . ';base64,' . base64_encode($data);
     }
 
-    public function generarPDF(Request $request)
-    {
-        try {
-            $id = $request->id;
-
-            $nonConformity = NonConformity::with('responsible')->findOrFail($id);
-
-            /* ================= DATOS FICTICIOS ================= */
-            $causes = [
-                [
-                    'cause' => 'Falta de seguimiento al procedimiento operativo',
-                    'actions' => [
-                        [
-                            'action' => 'Capacitar al personal involucrado',
-                            'responsible' => 'Juan Pérez',
-                            'date_commitment' => '2026-05-20',
-
-                            'activities' => [
-                                [
-                                    'activity' => 'Programar capacitación',
-                                    'responsible' => 'Luis Torres',
-                                    'date_commitment' => '2026-05-10'
-                                ],
-
-                                [
-                                    'activity' => 'Evaluar conocimientos',
-                                    'responsible' => 'María López',
-                                    'date_commitment' => '2026-05-18'
-                                ]
-                            ]
-                        ]
-                    ]
-                ],
-
-                [
-                    'cause' => 'No existe evidencia documental',
-
-                    'actions' => [
-
-                        [
-                            'action' => 'Implementar nuevo formato de control',
-                            'responsible' => 'Carlos Medina',
-                            'date_commitment' => '2026-05-25',
-
-                            'activities' => [
-                                [
-                                    'activity' => 'Diseñar formato',
-                                    'responsible' => 'Ana Ruiz',
-                                    'date_commitment' => '2026-05-15'
-                                ]
-                            ]
-                        ]
-                    ]
-                ]
-            ];
-
-            /* ================= ARRAY GENERAL ================= */
-            $data = [
-
-                'number' => $nonConformity->number,
-                'date' => $nonConformity->date,
-                'date_commitment' => $nonConformity->date_commitment,
-                'problem' => $nonConformity->problem,
-                'detected' => $nonConformity->detected,
-                'affects' => $nonConformity->affects,
-                'area' => $nonConformity->area,
-                'status' => $nonConformity->status,
-
-                'responsible' => [
-                    'name' => $nonConformity->responsible->name ?? '',
-                    'a_paterno' => $nonConformity->responsible->a_paterno ?? '',
-                ],
-
-                'causes' => $causes
-            ];
-
-            /* ================= LOGO ================= */
-            $logoImage = $this->getImageBase64(public_path('imgPDF/logo.png'));
-
-            /* ================= HTML ================= */
-            $html = view('PLAN DE ACCION', [
-                'data' => $data,
-                'logoImage' => $logoImage
-            ])->render();
-
-            /* ================= PDF ================= */
-            $dompdf = new Dompdf();
-            $dompdf->loadHtml($html);
-            $dompdf->setPaper('A4', 'portrait');
-            $dompdf->render();
-
-            return response($dompdf->output(), 200)
-                ->header('Content-Type', 'application/pdf');
-
-        } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 500);
-        }
-    }
-
     public function generarCaratulaPDF(Request $request)
     {
         try {
@@ -219,6 +122,8 @@ class NonConformityController extends Controller
             $nonConformity = NonConformity::with([
                 'responsibleUser',
                 'evaluation',
+                'ishikawa',
+                'ishikawa.causes',
                 'actionPlanCauses',
                 'actionPlanCauses.responsible',
                 'actionPlanCauses.correctiveActions',
@@ -226,10 +131,6 @@ class NonConformityController extends Controller
                 'actionPlanCauses.correctiveActions.activities',
                 'actionPlanCauses.correctiveActions.activities.responsible',
             ])->findOrFail($id);
-
-            logger($nonConformity->responsibleUser);
-            logger($nonConformity);
-
 
             /* ================= LOGO ================= */
             $logoImage = $this->getImageBase64(public_path('imgPDF/logo.png'));
@@ -253,6 +154,443 @@ class NonConformityController extends Controller
 
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage(),], 500);
+        }
+    }
+
+    public function generarGeneralPDF($id)
+    {
+        try {
+
+            $nonConformity = NonConformity::with([
+                'responsibleUser',
+                'evaluation',
+
+                'ishikawa',
+                'ishikawa.causes',
+
+                'relation',
+
+                'actionPlanCauses',
+                'actionPlanCauses.responsible',
+                'actionPlanCauses.correctiveActions',
+                'actionPlanCauses.correctiveActions.responsible',
+                'actionPlanCauses.correctiveActions.activities',
+                'actionPlanCauses.correctiveActions.activities.responsible',
+
+            ])->findOrFail($id);
+
+            /* =======================================================
+            | RELACIÓN
+            =======================================================*/
+
+            $causes = [];
+            $matrix = [];
+            $totals = [];
+            $ranking = [];
+
+            /* =======================================================
+            | PARETO
+            =======================================================*/
+
+            $pareto = [];
+            $totalFrequency = 0;
+
+            if ($nonConformity->relation && $nonConformity->ishikawa) {
+
+                /* Todas las causas */
+                $causes = $nonConformity
+                    ->ishikawa
+                    ->causes
+                    ->pluck('description')
+                    ->values()
+                    ->toArray();
+
+                /* Matriz */
+                $matrix = $nonConformity->relation->matrix ?? [];
+
+                /* Inicializar */
+                $totals = array_fill(0, count($causes), 0);
+
+                foreach ($matrix as $key => $value) {
+
+                    if (!$value) {
+                        continue;
+                    }
+
+                    [$row,$col] = explode('-', $key);
+
+                    $totals[$row]++;
+                    $totals[$col]++;
+
+                }
+
+                /* Ranking */
+
+                foreach ($causes as $i => $cause) {
+
+                    $ranking[] = [
+
+                        'no'    => $i + 1,
+
+                        'cause' => $cause,
+
+                        'total' => $totals[$i],
+
+                    ];
+
+                }
+
+                usort($ranking,function($a,$b){
+
+                    return $b['total'] <=> $a['total'];
+
+                });
+
+                /* ================= PARETO ================= */
+
+                $totalFrequency = array_sum($totals);
+
+                $accumulated = 0;
+
+                $selected = true;
+
+                foreach($ranking as $row){
+
+                    $accumulated += $row['total'];
+
+                    $percent = $totalFrequency > 0
+                        ? ($row['total'] / $totalFrequency) * 100
+                        : 0;
+
+                    $accumulatedPercent = $totalFrequency > 0
+                        ? ($accumulated / $totalFrequency) * 100
+                        : 0;
+
+                    if($accumulatedPercent > 80){
+                        $selected = false;
+                    }
+
+                    $pareto[] = [
+
+                        'number' => $row['no'],
+
+                        'description' => $row['cause'],
+
+                        'frequency' => $row['total'],
+
+                        'accumulated' => $accumulated,
+
+                        'percent' => $percent,
+
+                        'accumulatedPercent' => $accumulatedPercent,
+
+                        'selected' => $selected,
+
+                    ];
+
+                }
+
+            }
+
+            /* =======================================================
+            | IMÁGENES
+            =======================================================*/
+
+            $logoImage = $this->getImageBase64(
+                public_path('imgPDF/logo.png')
+            );
+
+            $diagrama = $this->getImageBase64(
+                public_path('imgPDF/diagrama.png')
+            );
+
+            /* =======================================================
+            | PDF
+            =======================================================*/
+
+            $html = view(
+                'pdf.GENERAL DOC ACR',
+                compact(
+                    'nonConformity',
+
+                    'logoImage',
+                    'diagrama',
+
+                    'causes',
+                    'matrix',
+                    'totals',
+                    'ranking',
+
+                    'pareto',
+                    'totalFrequency'
+                )
+            )->render();
+
+            $dompdf = new Dompdf();
+
+            $dompdf->loadHtml($html);
+
+            $dompdf->setPaper('A4','portrait');
+
+            $dompdf->render();
+
+            return response(
+                $dompdf->output(),
+                200
+            )->header(
+                'Content-Type',
+                'application/pdf'
+            );
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'message' => $e->getMessage(),
+                'line'    => $e->getLine(),
+                'file'    => $e->getFile()
+            ],500);
+
+        }
+    }
+
+    public function sisegac()
+    {
+        $records = NonConformity::with([
+            'actionPlanCauses.correctiveActions.responsible',
+            'actionPlanCauses.correctiveActions.sisegac',
+
+            'actionPlanCauses.correctiveActions.activities.responsible',
+            'actionPlanCauses.correctiveActions.activities.sisegac',
+        ])
+        ->orderBy('date', 'desc')
+        ->get();
+
+        $detections = [
+            'AUDITORIA INTERNA DE CALIDAD' => 'AI',
+            'AUDITORIA DE SERVICIO'        => 'AS',
+            'QUEJA'                        => 'Q',
+            'PRODUCTO NO CONFORME'         => 'PNC',
+            'REVISIÓN DE INDICADORES'      => 'KPI',
+            'IMPACTO AMBIENTAL'            => 'SGA',
+            'INCIDENTE'                    => 'IS',
+        ];
+
+        $result = [];
+
+        foreach ($records as $nonConformity) {
+
+            $rows = [];
+
+            foreach ($nonConformity->actionPlanCauses as $cause) {
+
+                foreach ($cause->correctiveActions as $action) {
+
+                    $sisegac = $action->sisegac;
+
+                    /* ================= ACCION ================= */
+                    $rows[] = [
+                        'id'            => $action->id,
+                        'type'          => 'action',
+                        'description'   => $action->corrective_action,
+                        'responsible'   => optional($action->responsible)->name,
+                        'commitment'    => $action->commitment_date,
+
+                        'typeCode'      => $sisegac?->type,
+
+                        'jan' => $sisegac?->jan,
+                        'feb' => $sisegac?->feb,
+                        'mar' => $sisegac?->mar,
+                        'apr' => $sisegac?->apr,
+                        'may' => $sisegac?->may,
+                        'jun' => $sisegac?->jun,
+                        'jul' => $sisegac?->jul,
+                        'aug' => $sisegac?->aug,
+                        'sep' => $sisegac?->sep,
+                        'oct' => $sisegac?->oct,
+                        'nov' => $sisegac?->nov,
+                        'dec' => $sisegac?->dec,
+
+                        'months' => [
+                            $sisegac?->jan ?? '',
+                            $sisegac?->feb ?? '',
+                            $sisegac?->mar ?? '',
+                            $sisegac?->apr ?? '',
+                            $sisegac?->may ?? '',
+                            $sisegac?->jun ?? '',
+                            $sisegac?->jul ?? '',
+                            $sisegac?->aug ?? '',
+                            $sisegac?->sep ?? '',
+                            $sisegac?->oct ?? '',
+                            $sisegac?->nov ?? '',
+                            $sisegac?->dec ?? '',
+                        ],
+
+                        'progress'      => $sisegac?->progress ?? 0,
+                        'closeDate'     => optional($sisegac?->close_date)
+                                                ?->format('Y-m-d'),
+                        'verifyDate'    => optional($sisegac?->next_verification)
+                                                ?->format('Y-m-d'),
+
+                        'overdue'       => $sisegac?->overdue ?? false,
+                        'closed'        => $sisegac?->closed ?? false,
+                        'recurrent'     => $sisegac?->recurrent ?? false,
+                        'observations'  => $sisegac?->observations ?? '',
+                    ];
+
+                    /* ================= ACTIVIDADES ================= */
+                    foreach ($action->activities as $activity) {
+
+                        $sisegac = $activity->sisegac;
+
+                        $rows[] = [
+                            'id'            => $activity->id,
+                            'type'          => 'activity',
+                            'description'   => $activity->activity,
+                            'responsible'   => optional($activity->responsible)->name,
+                            'commitment'    => $activity->commitment_date,
+
+                            'typeCode'      => $sisegac?->type,
+
+                            'jan' => $sisegac?->jan,
+                            'feb' => $sisegac?->feb,
+                            'mar' => $sisegac?->mar,
+                            'apr' => $sisegac?->apr,
+                            'may' => $sisegac?->may,
+                            'jun' => $sisegac?->jun,
+                            'jul' => $sisegac?->jul,
+                            'aug' => $sisegac?->aug,
+                            'sep' => $sisegac?->sep,
+                            'oct' => $sisegac?->oct,
+                            'nov' => $sisegac?->nov,
+                            'dec' => $sisegac?->dec,
+
+                            'months' => [
+                                $sisegac?->jan ?? '',
+                                $sisegac?->feb ?? '',
+                                $sisegac?->mar ?? '',
+                                $sisegac?->apr ?? '',
+                                $sisegac?->may ?? '',
+                                $sisegac?->jun ?? '',
+                                $sisegac?->jul ?? '',
+                                $sisegac?->aug ?? '',
+                                $sisegac?->sep ?? '',
+                                $sisegac?->oct ?? '',
+                                $sisegac?->nov ?? '',
+                                $sisegac?->dec ?? '',
+                            ],
+
+                            'progress'      => $sisegac?->progress ?? 0,
+                            'closeDate'     => optional($sisegac?->close_date)
+                                                    ?->format('Y-m-d'),
+                            'verifyDate'    => optional($sisegac?->next_verification)
+                                                    ?->format('Y-m-d'),
+
+                            'overdue'       => $sisegac?->overdue ?? false,
+                            'closed'        => $sisegac?->closed ?? false,
+                            'recurrent'     => $sisegac?->recurrent ?? false,
+                            'observations'  => $sisegac?->observations ?? '',
+                        ];
+                    }
+                }
+            }
+
+            $result[] = [
+                'id' => $nonConformity->id,
+
+                'folio' => $nonConformity->number,
+
+                'problem' => $nonConformity->problem,
+
+                'detection' => [
+                    'short' =>
+                        $detections[$nonConformity->detected]
+                        ?? $nonConformity->detected,
+
+                    'full' => $nonConformity->detected,
+                ],
+
+                'date' => $nonConformity->date,
+
+                'rows' => $rows,
+            ];
+        }
+
+        return response()->json($result);
+    }
+
+    public function saveSisegac(Request $request)
+    {
+        DB::beginTransaction();
+
+        try {
+
+            foreach ($request->records as $nonConformity) {
+
+                foreach ($nonConformity['rows'] as $row) {
+
+                    $data = [
+                        'type' => $row['typeCode'] ?? null,
+
+                        'jan' => $row['jan'] ?? null,
+                        'feb' => $row['feb'] ?? null,
+                        'mar' => $row['mar'] ?? null,
+                        'apr' => $row['apr'] ?? null,
+                        'may' => $row['may'] ?? null,
+                        'jun' => $row['jun'] ?? null,
+                        'jul' => $row['jul'] ?? null,
+                        'aug' => $row['aug'] ?? null,
+                        'sep' => $row['sep'] ?? null,
+                        'oct' => $row['oct'] ?? null,
+                        'nov' => $row['nov'] ?? null,
+                        'dec' => $row['dec'] ?? null,
+
+                        'progress' => $row['progress'] ?? 0,
+                        'close_date' => $row['closeDate'] ?? null,
+                        'next_verification' => $row['verifyDate'] ?? null,
+                        'overdue' => $row['overdue'] ?? false,
+                        'closed' => $row['closed'] ?? false,
+                        'recurrent' => $row['recurrent'] ?? false,
+                        'observations' => $row['observations'] ?? null,
+                    ];
+
+                    if ($row['type'] == 'action') {
+
+                        Sisegac::updateOrCreate(
+                            [ 'corrective_action_id' => $row['id'] ],
+
+                            array_merge(
+                                $data, [ 'activity_id' => null ]
+                            )
+                        );
+                    }
+
+                    if ($row['type'] == 'activity') {
+
+                        Sisegac::updateOrCreate(
+                            [ 'activity_id' => $row['id'] ],
+
+                            array_merge(
+                                $data, [ 'corrective_action_id' => null ]
+                            )
+                        );
+                    }
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Guardado correctamente'
+            ]);
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'message' => $e->getMessage(),
+                'line' => $e->getLine()
+            ],500);
         }
     }
 }

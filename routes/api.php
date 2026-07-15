@@ -291,3 +291,6 @@ Route::middleware('auth:sanctum')->apiResource('ishikawa', IshikawaController::c
 Route::middleware('auth:sanctum')->apiResource('relation', RelationController::class);
 Route::middleware('auth:sanctum')->apiResource('pareto', ParetoController::class);
 Route::middleware('auth:sanctum')->get('/non-conformities/{id}/cover-pdf', [NonConformityController::class, 'generarCaratulaPDF']);
+Route::middleware('auth:sanctum')->get('/non-conformities/{id}/general-pdf', [NonConformityController::class, 'generarGeneralPDF']);
+Route::middleware('auth:sanctum')->get('/sisegac', [NonConformityController::class,'sisegac']);
+Route::middleware('auth:sanctum')->post('/sisegac/save',[NonConformityController::class,'saveSisegac']);

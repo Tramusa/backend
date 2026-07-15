@@ -24,11 +24,16 @@ class CorrectiveAction extends Model
 
     public function responsible()
     {
-        return $this->belongsTo(User::class, 'responsible_id');
+        return $this->belongsTo(User::class,'responsible_id');
     }
 
     public function activities()
     {
         return $this->hasMany(ActionPlanActivity::class);
+    }
+
+    public function sisegac()
+    {
+        return $this->hasOne(Sisegac::class,'corrective_action_id');
     }
 }
