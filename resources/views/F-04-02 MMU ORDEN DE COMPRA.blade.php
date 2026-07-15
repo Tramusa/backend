@@ -479,11 +479,11 @@
         </td>
 
         <td class="right bold nowrap">
-            ${{ number_format($Data->total, 2) }}
+            ${{ number_format($granSubtotal, 2) }}
         </td>
 
         <td class="right bold nowrap">
-            ${{ number_format($granTotal, 2) }}
+            ${{ number_format($Data->total, 2) }}
         </td>
     </tr>
 </table>
