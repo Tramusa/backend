@@ -26,4 +26,23 @@ class InventoryDetailsController extends Controller
             ],500);
         }
     }
+
+    public function show($id)
+    {
+        try {
+
+            $details = InventoryDetails::where('id_inventory', $id)
+                        ->with('product')
+                        ->get();
+
+            return response()->json($details);
+        } catch (\Throwable $e) {
+
+            return response()->json([
+                'message' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
+            ],500);
+        }
+    }
 }
