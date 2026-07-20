@@ -370,9 +370,9 @@ class NonConformityController extends Controller
             'AUDITORIA DE SERVICIO'        => 'AS',
             'QUEJA'                        => 'Q',
             'PRODUCTO NO CONFORME'         => 'PNC',
-            'REVISIÓN DE INDICADORES'      => 'KPI',
+            'REV. DE INDICADORES'          => 'KPI',
             'IMPACTO AMBIENTAL'            => 'SGA',
-            'INCIDENTE'                    => 'IS',
+            'INCIDENTE'                    => 'SST',
         ];
 
         $result = [];
@@ -579,9 +579,7 @@ class NonConformityController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'message' => 'Guardado correctamente'
-            ]);
+            return response()->json(['message' => 'Guardado correctamente' ]);
 
         } catch (\Exception $e) {
 

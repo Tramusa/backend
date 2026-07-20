@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ActionPlanCause;
+use App\Models\ConcentradoResolution;
 use App\Models\NonConformity;
 use Dompdf\Dompdf;
 use Illuminate\Http\Request;
@@ -149,6 +150,10 @@ class ActionPlanController extends Controller
                     : 'action_plan_pending',
                 'date_commitment' => $maxCommitmentDate,
             ]);
+
+            if($finish){
+                $this->syncConcentrado($nonConformity->fresh());
+            }
         });
 
         return response()->json([
@@ -156,6 +161,48 @@ class ActionPlanController extends Controller
                 ? 'Plan de acción finalizado correctamente'
                 : 'Plan de acción guardado correctamente',
         ]);
+    }
+
+    private function syncConcentrado( NonConformity $nc )
+    {
+        $nc->load(['actionPlanCauses.correctiveActions.activities']);
+
+        /* ELIMINAR REGISTROS ANTERIORES POR SI SE REABRIO Y VOLVIO
+        A FINALIZARSE */
+        ConcentradoResolution::where( 'non_conformity_id', $nc->id )
+            ->where( 'source', 'ACR' )
+            ->delete();
+
+        foreach($nc->actionPlanCauses as $cause){
+
+            foreach( $cause->correctiveActions as $action ){
+                ConcentradoResolution::create([
+                    'source'=>'ACR',
+                    'non_conformity_id'=>$nc->id,
+                    'corrective_action_id'=>$action->id,
+                    'folio'=>$nc->number,
+                    'area'=>$nc->area,
+                    'resolution'=> $action->corrective_action,
+                    'responsible_id'=>$action->responsible_id,
+                    'planned_closure'=>$action->commitment_date,
+                ]);
+
+                foreach($action->activities as $activity){
+
+                    ConcentradoResolution::create([
+                        'source'=>'ACR',
+                        'non_conformity_id'=>$nc->id,
+                        'activity_id'=>$activity->id,
+                        'folio'=>$nc->number,
+                        'area'=>$nc->area,
+                        'resolution'=>$activity->activity,
+                        'responsible_id'=>$activity->responsible_id,
+                        'planned_closure'=>$activity->commitment_date,
+                    ]);
+
+                }
+            }
+        }
     }
 
     private function getImageBase64($path)

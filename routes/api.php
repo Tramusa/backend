@@ -8,6 +8,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BalanceSuppliersController;
 use App\Http\Controllers\CategoryProductsController;
 use App\Http\Controllers\CollaboratorsController;
+use App\Http\Controllers\ConcentratedResolutionController;
 use App\Http\Controllers\CtrlTiresController;
 use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\DetailsRequisitionsController;
@@ -294,3 +295,4 @@ Route::middleware('auth:sanctum')->get('/non-conformities/{id}/cover-pdf', [NonC
 Route::middleware('auth:sanctum')->get('/non-conformities/{id}/general-pdf', [NonConformityController::class, 'generarGeneralPDF']);
 Route::middleware('auth:sanctum')->get('/sisegac', [NonConformityController::class,'sisegac']);
 Route::middleware('auth:sanctum')->post('/sisegac/save',[NonConformityController::class,'saveSisegac']);
+Route::middleware('auth:sanctum')->apiResource('/concentrated-resolutions', ConcentratedResolutionController::class);

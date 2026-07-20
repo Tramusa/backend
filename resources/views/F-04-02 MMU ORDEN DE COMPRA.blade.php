@@ -486,9 +486,7 @@
             ${{ number_format($Data->total, 2) }}
         </td>
     </tr>
-</table>
-
-<br><br>
+</table><br><br>
 
 <table>
     <tr>
