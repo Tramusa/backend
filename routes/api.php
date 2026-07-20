@@ -255,13 +255,14 @@ Route::middleware('auth:sanctum')->apiResource('balance-suppliers', BalanceSuppl
 Route::middleware('auth:sanctum')->apiResource('payment-billings', PaymentSuppliersController::class);
 //MODULE INVENTORIES
 Route::middleware('auth:sanctum')->apiResource('warehouses', WarehousesController::class);
-Route::middleware('auth:sanctum')->apiResource('inventory_details', InventoryDetailsController::class);
-Route::middleware('auth:sanctum')->apiResource('inventory_entries', InventoryEntriesController::class);
-Route::middleware('auth:sanctum')->apiResource('entry_details', EntryDetailsController::class);
+Route::middleware('auth:sanctum')->get('/inventory-details-products',[InventoryDetailsController::class,'index']);
+
+Route::middleware('auth:sanctum')->apiResource('inventory-entries', InventoryEntriesController::class);
+Route::middleware('auth:sanctum')->apiResource('entry-details', EntryDetailsController::class);
 Route::middleware('auth:sanctum')->get('/invoices/{supplierId}/status/{status}', [PaymentOrderController::class, 'getInvoicesWithAllStatusOrders']);
 Route::middleware('auth:sanctum')->post('/pdf-balance', [BalanceSuppliersController::class, 'balancePDF']);
-Route::middleware('auth:sanctum')->apiResource('inventory_outputs', InventoryOutputController::class);
-Route::middleware('auth:sanctum')->apiResource('output_details', OutputDetailsController::class);
+Route::middleware('auth:sanctum')->apiResource('inventory-outputs', InventoryOutputController::class);
+Route::middleware('auth:sanctum')->apiResource('output-details', OutputDetailsController::class);
 Route::middleware('auth:sanctum')->get('/output-pdf/{order}', [InventoryOutputController::class, 'generarPDF']);
 
 Route::middleware('auth:sanctum')->apiResource('/programs-mtto/schedule', ProgramsMttoVehicleScheduleController::class);
