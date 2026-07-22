@@ -256,6 +256,7 @@ Route::middleware('auth:sanctum')->apiResource('payment-billings', PaymentSuppli
 //MODULE INVENTORIES
 Route::middleware('auth:sanctum')->apiResource('warehouses', WarehousesController::class);
 Route::middleware('auth:sanctum')->get('/inventory-details-products',[InventoryDetailsController::class,'index']);
+Route::middleware('auth:sanctum')->get('/inventory-details-products/{id}',[InventoryDetailsController::class,'show']);
 
 Route::middleware('auth:sanctum')->apiResource('inventory-entries', InventoryEntriesController::class);
 Route::middleware('auth:sanctum')->apiResource('entry-details', EntryDetailsController::class);
