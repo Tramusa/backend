@@ -193,8 +193,8 @@ td {
                 </tr>
 
             @endforeach
-            {{-- Completar hasta 35 filas --}}
-            @for ($i = count($units); $i < 35; $i++)
+            {{-- Completar hasta 34 filas --}}
+            @for ($i = count($units); $i < 34; $i++)
                 <tr>
                     <td>{{ $i + 1 }}</td>
                     <td>&nbsp;</td>
