@@ -14,31 +14,21 @@ class ConcentradoResolution extends Model
 
     public function nonConformity()
     {
-        return $this->belongsTo(
-            NonConformity::class
-        );
+        return $this->belongsTo(NonConformity::class);
     }
 
     public function correctiveAction()
     {
-        return $this->belongsTo(
-            CorrectiveAction::class
-        );
+        return $this->belongsTo(CorrectiveAction::class);
     }
 
     public function activity()
     {
-        return $this->belongsTo(
-            ActionPlanActivity::class,
-            'activity_id'
-        );
+        return $this->belongsTo(ActionPlanActivity::class, 'activity_id');
     }
 
     public function responsible()
     {
-        return $this->belongsTo(
-            User::class,
-            'responsible_id'
-        );
+        return $this->belongsTo(User::class, 'responsible_id');
     }
 }

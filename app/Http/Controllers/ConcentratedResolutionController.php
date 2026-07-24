@@ -57,4 +57,33 @@ class ConcentratedResolutionController extends Controller
             return response()->json(['message'=>$e->getMessage()],500);
         }
     }
+
+    public function update(Request $request, $id)
+    {
+        $item = ConcentradoResolution::findOrFail($id);
+
+        $item->update([
+
+            'category' => $request->category,
+
+            'support' => $request->support,
+
+            'agreement_date' => $request->agreement_date,
+
+            'responsible_id' => $request->responsible_id,
+
+            'planned_closure' => $request->planned_closure,
+
+            'actual_closure' => $request->actual_closure,
+
+            'status' => $request->status,
+
+            'observations' => $request->observations,
+
+        ]);
+
+        return response()->json([
+            'message'=>'Actualizado'
+        ]);
+    }
 }
