@@ -181,6 +181,7 @@ class ActionPlanController extends Controller
                     'non_conformity_id'=>$nc->id,
                     'corrective_action_id'=>$action->id,
                     'folio'=>$nc->number,
+                    'category' => $nc->detected . ' ' . $nc->number,
                     'area'=>$nc->area,
                     'resolution'=> $action->corrective_action,
                     'responsible_id'=>$action->responsible_id,
