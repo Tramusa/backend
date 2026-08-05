@@ -39,6 +39,8 @@ use App\Http\Controllers\PeajesController;
 use App\Http\Controllers\PointsInterest;
 use App\Http\Controllers\ProductsServicesController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProgramMttoGeneralController;
+use App\Http\Controllers\ProgramMttoGeneralScheduleController;
 use App\Http\Controllers\ProgramsController;
 use App\Http\Controllers\ProgramsMttoVehicleScheduleController;
 use App\Http\Controllers\ProgramsMttoVehiclesController;
@@ -298,3 +300,6 @@ Route::middleware('auth:sanctum')->get('/non-conformities/{id}/general-pdf', [No
 Route::middleware('auth:sanctum')->get('/sisegac', [NonConformityController::class,'sisegac']);
 Route::middleware('auth:sanctum')->post('/sisegac/save',[NonConformityController::class,'saveSisegac']);
 Route::middleware('auth:sanctum')->apiResource('/concentrated-resolutions', ConcentratedResolutionController::class);
+Route::middleware('auth:sanctum')->apiResource('/programs-mtto-general', ProgramMttoGeneralController::class);
+Route::middleware('auth:sanctum')->apiResource('/programs-mtto-general-schedule', ProgramMttoGeneralScheduleController::class);
+Route::middleware('auth:sanctum')->patch('programs-mtto-general/{programMttoGeneral}/toggle',[ProgramMttoGeneralController::class, 'toggleStatus']);

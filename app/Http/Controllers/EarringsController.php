@@ -21,14 +21,14 @@ class EarringsController extends Controller
 {
     public function index(Request $request)
     {
-        $tipo = $request->get('tipo'); // personal, cc, utilitario
+        $tipo = $request->tipo;
+        $status = $request->status_filter; // active | finished | all
 
         $query = DB::table('earrings')
             ->join('units_all', function ($join) {
                 $join->on('units_all.unit_id', '=', 'earrings.unit')
                     ->on('units_all.type', '=', 'earrings.type');
             })
-            ->whereIn('earrings.status', [1, 2]) // Pendientes y en proceso
             ->select(
                 'earrings.*',
                 'units_all.no_economic',
@@ -36,7 +36,16 @@ class EarringsController extends Controller
                 'units_all.customer'
             );
 
-        // FILTRO POR LOGÍSTICA
+        // Estado
+        if ($status == 'active') {
+            $query->whereIn('earrings.status', [1,2]);
+        }
+
+        if ($status == 'finished') {
+            $query->where('earrings.status', 0);
+        }
+
+        // logística
         if ($tipo === 'personal') {
             $query->where('units_all.logistic', 'Logistica Personal');
         }
@@ -50,11 +59,6 @@ class EarringsController extends Controller
         }
 
         return response()->json($query->get());
-    }
-
-    public function store(Request $request)
-    {
-        //
     }
 
     public function create(Request $request)
@@ -141,10 +145,19 @@ class EarringsController extends Controller
     }
 
     public function update(Request $request, $id)
-    {   
-        Earrings::find($id)->update(['description'=> $request->description, 'type_mtto'=> $request->type_mtto] );
-        
-        return response()->json(['message' => 'Earrings updated successfully.']); 
+    {
+        $earring = Earrings::findOrFail($id);
+
+        $earring->update([
+            'description'     => $request->description ?? $earring->description,
+            'type_mtto'       => $request->type_mtto ?? $earring->type_mtto,
+            'priority'        => $request->priority ?? $earring->priority,
+            'committed_date'  => $request->committed_date ?? $earring->committed_date,
+        ]);
+
+        return response()->json([
+            'message' => 'Earring updated successfully.'
+        ]);
     }
 
     public function destroy($id)
