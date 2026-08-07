@@ -65,67 +65,97 @@ class PurchaseOrderController extends Controller
     
     public function store(Request $request)
     {
+        // Validaciones
+        $request->validate([
+            'id_requisition'      => 'required',
+            'date_order'          => 'required|date',
+            'id_supplier'         => 'required',
+            'total'               => 'required|numeric',
+            'Billing.folio'       => 'required|string|max:255',
+            'products'            => 'required|array|min:1',
+        ], [
+            'Billing.folio.required' => 'El folio de la factura es obligatorio.',
+        ]);
+
         // Extraer los campos principales
-        $orderData = $request->only('id_requisition', 'date_order', 'id_supplier', 'additional', 'total');
+        $orderData = $request->only(
+            'id_requisition',
+            'date_order',
+            'id_supplier',
+            'additional',
+            'total'
+        );
+
         $user = Auth::user();
         $orderData['perform'] = $user->id;
+
         // Extraer la información de facturación
         $billingData = $request->input('Billing');
 
-        // Validar si la orden de compra ya existe antes de crearla        
+        // Validar si la orden de compra ya existe antes de crearla
         $existingPurchaseOrder = PurchaseOrder::where([
             'id_requisition' => $orderData['id_requisition'],
-            'date_order' => $orderData['date_order'],
-            'id_supplier' => $orderData['id_supplier'],
-            'total' => $orderData['total'],
+            'date_order'     => $orderData['date_order'],
+            'id_supplier'    => $orderData['id_supplier'],
+            'total'          => $orderData['total'],
         ])
-        ->where('status', '<>', 'CANCELADA') // <-- ignorar órdenes canceladas
+        ->where('status', '<>', 'CANCELADA')
         ->first();
 
         if ($existingPurchaseOrder) {
-            return response()->json(['error' => 'Orden de COMPRA ya ha sido registrada (datos repetidos).'], 409);
+            return response()->json([
+                'error' => 'Orden de COMPRA ya ha sido registrada (datos repetidos).'
+            ], 409);
         }
 
         // Actualizar precios de los productos
         $products = $request->input('products');
+
         foreach ($products as $product) {
             DetailsRequisitions::where('id', $product['id'])
-                ->update(['price' => $product['price']]);
+                ->update([
+                    'price' => $product['price']
+                ]);
         }
-        
+
         // Crear la orden de compra
         $order = PurchaseOrder::create($orderData);
-        
-        // Verificar si la factura ya existe considerando folio e id_supplier SIN PAGAR 
+
+        // Verificar si la factura ya existe considerando folio e id_supplier SIN PAGAR
         $billing = BillingData::where('folio', $billingData['folio'])
             ->where('id_supplier', $orderData['id_supplier'])
-            ->where('id_paymentOrder', null)
+            ->whereNull('id_paymentOrder')
             ->where('payment', 0)
             ->first();
 
         if ($billing) {
+
             // La factura ya existe, verificar si la orden ya está registrada
-            $orderIds = explode(',', $billing->id_order); // Separar los IDs de la orden existentes
+            $orderIds = explode(',', $billing->id_order);
+
             if (!in_array($order->id, $orderIds)) {
-                // Agregar el nuevo ID de la orden
                 $billing->id_order .= ',' . $order->id;
                 $billing->save();
             }
+
         } else {
-            // La factura no existe, crear un nuevo registro con id_supplier
+
+            // La factura no existe, crear un nuevo registro
             $billingData['id_order'] = $order->id;
-            $billingData['id_supplier'] = $orderData['id_supplier']; // Agregar id_supplier al registro
+            $billingData['id_supplier'] = $orderData['id_supplier'];
+
             BillingData::create($billingData);
         }
 
-        // Actualizar el estado de la requisición a 'ORDEN COMPRA'
+        // Actualizar el estado de la requisición
         $requisition = Requisitions::find($orderData['id_requisition']);
+
         $requisition->status = 'ORDEN COMPRA';
         $requisition->date_atended = now();
         $requisition->analyze = $user->id;
         $requisition->save();
-        
-        // Generar el PDF y devolverlo
+
+        // Generar el PDF
         return $this->generarPDF($order->id);
     }
 
