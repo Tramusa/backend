@@ -29,4 +29,9 @@ class ProgramMttoGeneralSchedule extends Model
     {
         return $this->belongsTo(ProgramMttoGeneral::class, 'program_id');
     }
+
+    public function concentrate()
+    {
+        return $this->hasOne(MaintenanceGeneralConcentrate::class, 'schedule_id');
+    }
 }

@@ -33,4 +33,9 @@ class ProgramMttoGeneral extends Model
     {
         return $this->hasMany(ProgramMttoGeneralSchedule::class, 'program_id', 'id');
     }
+
+    public function concentrates()
+    {
+        return $this->hasMany(MaintenanceGeneralConcentrate::class, 'program_id');
+    }
 }

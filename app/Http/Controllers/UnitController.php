@@ -698,9 +698,12 @@ class UnitController extends Controller
 
     public function destroyDocs($id)
     {
-        $unit = UnitsPDFs::find($id);
-        if ($unit->location){ Storage::delete($unit->location); }
+        $unit = UnitsPDFs::findOrFail($id);
+
+        if ($unit->location) { Storage::delete($unit->location); }
+
         $unit->delete();
+
         return response()->json(['message' => 'Documento eliminado exitosamente.']);
     }
 
@@ -713,24 +716,54 @@ class UnitController extends Controller
         ]);
 
         if ($request->hasFile('pdf')) {
-            $path = $request->file('pdf')->store('public/pdfs');  
-            
-            // Guardar el título y el ID de la unidad
+
+            $path = $request->file('pdf')->store('public/pdfs');
+
             $title = $request->input('title');
             $unitId = $request->input('unit_id');
             $unitType = $request->input('type_unit');
-            
-            // Crear un nuevo registro en la tabla "pdfs"
+
             UnitsPDFs::create([
                 'title' => $title,
                 'unit_id' => $unitId,
                 'type_unit' => $unitType,
                 'location' => $path
             ]);
-            
+
             return response()->json(['message' => 'Archivo PDF subido correctamente']);
         }
-        
+
         return response()->json(['error' => 'No se encontró ningún archivo PDF']);
+    }
+
+    public function updateDoc(Request $request, $id)
+    {
+        $request->validate([
+            'title' => 'required',
+            'pdf' => 'nullable|file|mimes:pdf',
+        ]);
+
+        $doc = UnitsPDFs::findOrFail($id);
+
+        // Actualizar título
+        $doc->title = $request->input('title');
+
+        // Si seleccionaron un nuevo PDF
+        if ($request->hasFile('pdf')) {
+
+            // Eliminar PDF anterior
+            if ($doc->location && Storage::exists($doc->location)) {
+                Storage::delete($doc->location);
+            }
+
+            // Guardar nuevo PDF
+            $path = $request->file('pdf')->store('public/pdfs');
+
+            $doc->location = $path;
+        }
+
+        $doc->save();
+
+        return response()->json(['message' => 'Documento actualizado correctamente.']);
     }
 }

@@ -25,6 +25,7 @@ use App\Http\Controllers\InventoryEntriesController;
 use App\Http\Controllers\InventoryOutputController;
 use App\Http\Controllers\IshikawaController;
 use App\Http\Controllers\KpisController;
+use App\Http\Controllers\MaintenanceGeneralConcentrateController;
 use App\Http\Controllers\MayorAccountController;
 use App\Http\Controllers\MissingDocsController;
 use App\Http\Controllers\NonConformityActionController;
@@ -94,6 +95,7 @@ Route::middleware('auth:sanctum')->get('/units/{type}', [UnitController::class, 
 Route::middleware('auth:sanctum')->post('/unit/{type}', [UnitController::class, 'update']);
 Route::middleware('auth:sanctum')->post('/upload-pdf', [UnitController::class, 'upload']);
 Route::middleware('auth:sanctum')->post('/docsUnits', [UnitController::class, 'show']);
+Route::middleware('auth:sanctum')->post('/docsUnits/{id}', [UnitController::class, 'updateDoc']);
 Route::middleware('auth:sanctum')->delete('/docsUnits/{id}', [UnitController::class, 'destroyDocs']);
 
 Route::middleware('auth:sanctum')->apiResource('applicants', ApplicantsController::class);
@@ -303,3 +305,4 @@ Route::middleware('auth:sanctum')->apiResource('/concentrated-resolutions', Conc
 Route::middleware('auth:sanctum')->apiResource('/programs-mtto-general', ProgramMttoGeneralController::class);
 Route::middleware('auth:sanctum')->apiResource('/programs-mtto-general-schedule', ProgramMttoGeneralScheduleController::class);
 Route::middleware('auth:sanctum')->patch('programs-mtto-general/{programMttoGeneral}/toggle',[ProgramMttoGeneralController::class, 'toggleStatus']);
+Route::middleware('auth:sanctum')->get('/maintenance-general-concentrate', [MaintenanceGeneralConcentrateController::class, 'index']);

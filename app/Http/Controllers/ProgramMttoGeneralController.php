@@ -22,7 +22,7 @@ class ProgramMttoGeneralController extends Controller
             'activity'   => 'required|string|max:255',
             'area'       => 'required|string|max:255',
             'building'   => 'required|string|max:255',
-            'category'   => 'required|in:COMPUTO,INFRA',
+            'category'   => 'required|in:COMPUTO,INFRAESTRUCTURA',
             'observations' => 'nullable|string',
         ]);
 
@@ -71,6 +71,7 @@ class ProgramMttoGeneralController extends Controller
             'message' => 'Actividad eliminada correctamente.'
         ]);
     }
+    
 
     public function toggleStatus(ProgramMttoGeneral $programMttoGeneral)
     {

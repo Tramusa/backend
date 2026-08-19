@@ -15,6 +15,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('generate:revisions')->dailyAt('8:00');
         $schedule->command('check:expirationUnits')->dailyAt('8:00');
         $schedule->command('generate:failsPrograms')->dailyAt('8:00');
+        $schedule->command('generate:general-concentrate')->dailyAt('8:00');
     }
     protected function commands()
     {
