@@ -227,6 +227,7 @@ class RevisionsController extends Controller
                             'type' => $infoRevision['type'],
                             'description' => $description,
                             'fm' => $folio,
+                            'reported_by' => auth()->id(),
                         ]
                     );//GENERAMOS LOS PENDIENTES UNO A UNO 
                     $earrings->save();
@@ -242,6 +243,7 @@ class RevisionsController extends Controller
                             'type' => $infoRevision['type'],
                             'description' => $value,
                             'fm' => $folio,
+                            'reported_by' => auth()->id(),
                         ]
                     );//GENERAMOS LOS PENDIENTES UNO A UNO 
                     $earrings->save();
