@@ -23,17 +23,13 @@ class OrderController extends Controller
         $selectedEarrings = $request->input('selectedEarrings');
 
         if (!$selectedEarrings || count($selectedEarrings) === 0) {
-            return response()->json([
-                'message' => 'No se seleccionaron fallas'
-            ], 400);
+            return response()->json(['message' => 'No se seleccionaron fallas'], 400);
         }
 
         $earrings = Earrings::whereIn('id', $selectedEarrings)->get(); // 🔎 Traer las fallas seleccionadas
 
         if ($earrings->count() !== count($selectedEarrings)) {
-            return response()->json([
-                'message' => 'Una o más fallas no existen'
-            ], 404);
+            return response()->json(['message' => 'Una o más fallas no existen'], 404);
         }
 
         // 🔒 Tomar unidad, type y type_mtto base (de la primera falla)
@@ -56,9 +52,7 @@ class OrderController extends Controller
 
         // 🔒 Validar que ninguna esté en proceso
         if ($earrings->where('status', 2)->count() > 0) {
-            return response()->json([
-                'message' => 'Una o más fallas ya están en proceso'
-            ], 409);
+            return response()->json(['message' => 'Una o más fallas ya están en proceso'], 409);
         }
 
         // ========================= CREAR ORDEN =======================
@@ -71,29 +65,19 @@ class OrderController extends Controller
             ]);
 
             foreach ($earrings as $earring) {
-
                 OrderDetail::create([
                     'id_order' => $order->id,
                     'id_earring' => $earring->id
                 ]);
-
                 $earring->update(['status' => 2]);
             }
 
             DB::commit();
-
-            return response()->json([
-                'message' => 'Orden creada correctamente',
-                'order_id' => $order->id
-            ]);
+            return response()->json(['message' => 'Orden creada correctamente', 'order_id' => $order->id]);
 
         } catch (\Exception $e) {
-
             DB::rollBack();
-
-            return response()->json([
-                'message' => 'Error al crear la orden'
-            ], 500);
+            return response()->json(['message' => 'Error al crear la orden'], 500);
         }
     }
 
