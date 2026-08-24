@@ -65,9 +65,9 @@ class OrderController extends Controller
         DB::beginTransaction();
 
         try {
-
             $order = Orders::create([
-                'date' => now()
+                'date' => now(),
+                'created_by' => auth()->id(),
             ]);
 
             foreach ($earrings as $earring) {
