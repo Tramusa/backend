@@ -8,15 +8,30 @@ use Illuminate\Database\Eloquent\Model;
 class InventoryDetails extends Model
 {
     use HasFactory;
-    protected $fillable = ['id_inventory', 'id_product', 'quality'];
-    
+
+    protected $fillable = [
+        'id_inventory',
+        'id_product',
+        'quality',
+    ];
+
+    protected $casts = [
+        'quality' => 'decimal:3',
+    ];
+
     public function warehouse()
     {
-        return $this->belongsTo(Warehouses::class, 'id_inventory');
+        return $this->belongsTo(
+            Warehouses::class,
+            'id_inventory'
+        );
     }
-    
+
     public function product()
     {
-        return $this->belongsTo(ProductsServices::class, 'id_product');
+        return $this->belongsTo(
+            ProductsServices::class,
+            'id_product'
+        );
     }
 }

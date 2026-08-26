@@ -10,9 +10,28 @@ return new class extends Migration
     {
         Schema::create('entry_details', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_entry')->constrained('inventory_entries');
-            $table->foreignId('id_product')->constrained('products_services');
-            $table->integer('quality');
+
+            $table->foreignId('id_entry')
+                ->constrained('inventory_entries')
+                ->cascadeOnDelete();
+
+            // Referencia al producto del catálogo
+            $table->foreignId('id_product')
+                ->constrained('products_services')
+                ->restrictOnDelete();
+
+            // Copia de la información del producto
+            // en el momento de registrar la entrada
+            $table->string('name');
+            $table->string('category')->nullable();
+            $table->string('unit_measure')->nullable();
+            $table->text('description')->nullable();
+
+            // Datos específicos de esta compra
+            $table->decimal('quantity', 12, 3);
+            $table->decimal('unit_price', 12, 2);
+            $table->decimal('subtotal', 14, 2);
+
             $table->timestamps();
         });
     }

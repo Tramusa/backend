@@ -14,74 +14,140 @@ use Illuminate\Support\Facades\Storage;
 
 class InventoryOutputController extends Controller
 {
+
+    public function index(Request $request)
+    {
+        try {
+
+            $idInventory = $request->id_inventory;
+
+            $outputs = InventoryOutput::with([
+                'user',
+                'details.product'
+            ])
+            ->where('id_inventory', $idInventory)
+            ->orderBy('id', 'desc')
+            ->get();
+
+            return response()->json($outputs);
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'message' => 'Error al consultar el historial de salidas.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function store(Request $request)
     {
         $request->validate([
             'id_inventory' => 'required|exists:warehouses,id',
-            'products' => 'required|array',
+            'receiver' => 'required|string|max:255',
+            'observations' => 'nullable|string',
+            'products' => 'required|array|min:1',
             'products.*.id_product' => 'required|exists:products_services,id',
-            'products.*.cantidad' => 'required|numeric|min:0.1', // Permitir decimales
+            'products.*.cantidad' => 'required|numeric|min:0.1',
+            'products.*.price' => 'required|numeric|min:0',
         ]);
 
-        $userId = auth()->id(); // Obtener usuario autenticado
+        $userId = auth()->id();
         $inventoryId = $request->id_inventory;
         $errors = [];
         $productsToUpdate = [];
 
-        // 1️⃣ **Validar stock antes de realizar cambios**
+        /*----------------------------------------------------------------------
+        | 1. VALIDAR EXISTENCIAS
+        |--------------------------------------------------------------------------*/
         foreach ($request->products as $product) {
             $productId = $product['id_product'];
             $quantity = (float) $product['cantidad'];
-
+            $price = (float) $product['price'];
             $inventoryDetail = InventoryDetails::where('id_inventory', $inventoryId)
-                ->where('id_product', $productId)
-                ->first();
+            ->where('id_product', $productId)
+            ->first();
 
-            if ($inventoryDetail) {
-                if ($inventoryDetail->quality >= $quantity) {
-                    // Guardamos los productos que pueden actualizarse
-                    $productsToUpdate[] = [
-                        'inventoryDetail' => $inventoryDetail,
-                        'quantity' => $quantity,
-                        'productId' => $productId
-                    ];
-                } else {
-                    // Error: stock insuficiente
-                    $errors[] = "Stock insuficiente para el producto: " . $inventoryDetail->product->name;
-                }
-            } else {
-                // Error: el producto no existe en el inventario
-                $productName = ProductsServices::find($productId)->name ?? 'Producto desconocido';
-                $errors[] = "El producto $productName no existe en el inventario";
+            /*------------------------------------------------------------------------
+            | Producto no existe en inventario
+            |-------------------------------------------------------------------------*/
+            if (!$inventoryDetail) {
+                $productData = ProductsServices::find($productId);
+                $errors[] = "El producto " .($productData->name ?? 'desconocido') ." no existe en el inventario.";
+                continue;
             }
+
+            /*-----------------------------------------------------------------------
+            | Stock insuficiente
+            |--------------------------------------------------------------------------*/
+            if ((float) $inventoryDetail->quality < $quantity) {
+                $errors[] =
+                    "Stock insuficiente para el producto: " .($inventoryDetail->product->name ?? 'desconocido') .
+                    ". Disponible: " .$inventoryDetail->quality .
+                    ", solicitado: " .$quantity;
+                continue;
+            }
+
+            /*------------------------------------------------------------------------
+            | Precio válido
+            |------------------------------------------------------------------------*/
+            if ($price < 0) {
+                $errors[] =
+                    "El precio del producto " . ($inventoryDetail->product->name ?? 'desconocido') .
+                    " no es válido.";
+                continue;
+            }
+
+            /*----------------------------------------------------------------------
+            | Guardar para actualizar
+            |--------------------------------------------------------------------------*/
+            $productsToUpdate[] = [
+                'inventoryDetail' => $inventoryDetail,
+                'productId' => $productId,
+                'quantity' => $quantity,
+                'price' => $price,
+            ];
         }
 
-        // 2️⃣ **Si hay errores, no hacemos ningún cambio y los mostramos**
+        /*------------------------------------------------------------------------
+        | 2. SI HAY ERRORES NO HACER NADA
+        |------------------------------------------------------------------------ */
         if (!empty($errors)) {
             return response()->json(['errors' => $errors], 400);
         }
 
-        // 3️⃣ **Registrar la salida en InventoryOutput**
+        /*-----------------------------------------------------------------------
+        | 3. CREAR SALIDA
+        |-------------------------------------------------------------------------*/
         $inventoryOutput = InventoryOutput::create([
             'id_inventory' => $inventoryId,
             'date' => now(),
             'user_id' => $userId,
+            'receiver' => $request->receiver,
+            'observations' => $request->observations,
         ]);
 
-        // 4️⃣ **Actualizar el inventario y registrar la salida**
-        foreach ($productsToUpdate as $update) {
-            // Reducir la cantidad en el inventario
-            $update['inventoryDetail']->decrement('quality', $update['quantity']);
+        /*-----------------------------------------------------------------------
+        | 4. DESCONTAR INVENTARIO Y GUARDAR PRECIO
+        |------------------------------------------------------------------------*/
+        foreach ($productsToUpdate as $item) {
+            $inventoryDetail = $item['inventoryDetail'];
+            /*  Descontar existencia */
+            $inventoryDetail->decrement('quality', $item['quantity']);
 
-            // Registrar en OutputDetails
+            /* Guardar detalle de salida */
             OutputDetails::create([
                 'id_output' => $inventoryOutput->id,
-                'id_product' => $update['productId'],
-                'quality' => $update['quantity'],
+                'id_product' => $item['productId'],
+                'quality' => $item['quantity'],
+                // ESTE ES EL PRECIO QUE EL USUARIO DEJÓ
+                'price' => $item['price'],
             ]);
         }
 
-        // Generar el PDF y devolverlo
+        /*-----------------------------------------------------------------------
+        | 5. GENERAR PDF
+        |------------------------------------------------------------------------*/
         return $this->generarPDF($inventoryOutput->id);
     }
 

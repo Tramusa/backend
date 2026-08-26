@@ -10,12 +10,19 @@ return new class extends Migration
     {
         Schema::create('inventory_outputs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_inventory')->constrained('warehouses');
-            $table->date('date');
-            $table->foreignId('user_id')->constrained('users');
+            $table->foreignId('id_inventory')
+                ->constrained('warehouses')
+                ->cascadeOnDelete();
+            $table->dateTime('date');
+            $table->foreignId('user_id')
+                ->constrained('users')
+                ->restrictOnDelete();
+            $table->string('receiver')->nullable();
+            $table->text('observations')->nullable();
             $table->timestamps();
         });
     }
+    
 
     public function down()
     {

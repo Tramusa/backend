@@ -9,15 +9,24 @@ class InventoryOutput extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['id_inventory', 'date', 'user_id'];
-    
+    protected $fillable = ['id_inventory', 'date', 'user_id', 'receiver', 'observations',];
+
+    protected $casts = [
+        'date' => 'datetime',
+    ];
+
     public function warehouse()
     {
         return $this->belongsTo(Warehouses::class, 'id_inventory');
     }
-    
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function details()
+    {
+        return $this->hasMany(OutputDetails::class, 'id_output');
     }
 }

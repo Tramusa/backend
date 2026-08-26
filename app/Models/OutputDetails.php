@@ -9,13 +9,15 @@ class OutputDetails extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['id_output', 'id_product', 'quality'];
-    
+    protected $fillable = ['id_output', 'id_product', 'quality', 'price',];
+
+    protected $casts = ['price' => 'decimal:2', 'quality' => 'decimal:2',];
+
     public function inventoryOutput()
     {
         return $this->belongsTo(InventoryOutput::class, 'id_output');
     }
-    
+
     public function product()
     {
         return $this->belongsTo(ProductsServices::class, 'id_product');

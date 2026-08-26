@@ -10,6 +10,8 @@ return new class extends Migration
     {
         Schema::create('inventory_entries', function (Blueprint $table) {
             $table->id();
+            $table->string('invoice')->nullable();
+            $table->string('requisition');
             $table->foreignId('id_inventory')->constrained('warehouses');
             $table->date('date');
             $table->foreignId('user_id')->constrained('users');

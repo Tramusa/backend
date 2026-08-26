@@ -441,6 +441,9 @@ class KpisController extends Controller
     {
         $year = $request->year ?? Carbon::now()->year;
 
+        // Logística seleccionada desde React
+        $selectedLogistics = strtoupper($request->logistic ?? 'PERSONAL');
+
         /*--------------------------------------------------------------------------
         | 1️⃣ ÓRDENES TERMINADAS
         |--------------------------------------------------------------------------*/
@@ -456,7 +459,7 @@ class KpisController extends Controller
             ->select(
                 'o.id',
                 DB::raw('MONTH(o.date) as mes'),
-                'u.unit_id', // 🔥 IMPORTANTE
+                'u.unit_id',
                 'u.no_economic',
                 'u.logistic',
                 'u.type'
@@ -465,7 +468,7 @@ class KpisController extends Controller
             ->get();
 
         /*--------------------------------------------------------------------------
-        | 2️⃣ RETRABAJOS AGRUPADOS (unit_id_type_mes)
+        | 2️⃣ RETRABAJOS AGRUPADOS
         |--------------------------------------------------------------------------*/
         $retrabajosTabla = DB::table('retrabajos')
             ->where('year', $year)
@@ -503,7 +506,6 @@ class KpisController extends Controller
         /*--------------------------------------------------------------------------
         | 4️⃣ CALCULAR KPI3
         |--------------------------------------------------------------------------*/
-
         $resultado = [];
 
         foreach ($logisticas as $nombre => $items) {
@@ -514,28 +516,28 @@ class KpisController extends Controller
             /*--------------------------------------------------------------------------
             | 🔥 GENERAL POR MES
             |--------------------------------------------------------------------------*/
-
             $meses = collect(range(1, 12))->map(function ($mes) use ($items, $retrabajosTabla) {
 
                 $itemsMes = $items->where('mes', $mes);
                 $realizadasMes = $itemsMes->count();
                 $retrabajosMes = 0;
 
-                $itemsMes->groupBy('unit_id')->each(function ($unidadItems) use (&$retrabajosMes, $retrabajosTabla, $mes) {
+                $itemsMes->groupBy('unit_id')->each(
+                    function ($unidadItems) use (&$retrabajosMes, $retrabajosTabla, $mes ) {
 
-                    $unit = $unidadItems->first()->unit_id;
-                    $type = $unidadItems->first()->type;
+                        $unit = $unidadItems->first()->unit_id;
+                        $type = $unidadItems->first()->type;
+                        $key = $unit . '_' . $type . '_' . $mes;
 
-                    $key = $unit . '_' . $type . '_' . $mes;
-
-                    if (isset($retrabajosTabla[$key])) {
-                        $retrabajosMes += $retrabajosTabla[$key]->sum('cantidad');
+                        if (isset($retrabajosTabla[$key])) {
+                            $retrabajosMes += $retrabajosTabla[$key]->sum('cantidad');
+                        }
                     }
-                });
+                );
+
 
                 $kpiMes = $realizadasMes > 0
-                    ? round((($realizadasMes - $retrabajosMes) / $realizadasMes) * 100, 2)
-                    : 0;
+                    ? round((($realizadasMes - $retrabajosMes) / $realizadasMes) * 100, 2) : 0;
 
                 return [
                     'mes' => $mes,
@@ -545,10 +547,10 @@ class KpisController extends Controller
                 ];
             });
 
+
             /*--------------------------------------------------------------------------
             | 🔥 POR UNIDAD + MESES
             |--------------------------------------------------------------------------*/
-
             $unidades = $items
                 ->groupBy('unit_id')
                 ->map(function ($unidadItems) use (&$retrabajosGeneral, $retrabajosTabla) {
@@ -557,40 +559,37 @@ class KpisController extends Controller
                     $unit = $unidadItems->first()->unit_id;
                     $type = $unidadItems->first()->type;
                     $noEconomic = $unidadItems->first()->no_economic;
-
                     $retrabajosUnidad = 0;
 
-                    $mesesUnidad = collect(range(1, 12))->map(function ($mes) use ($unidadItems, $retrabajosTabla, $unit, $type, &$retrabajosUnidad) {
+                    $mesesUnidad = collect(range(1, 12))->map(
+                        function ($mes) use ($unidadItems, $retrabajosTabla, $unit, $type, &$retrabajosUnidad) {
 
-                        $itemsMes = $unidadItems->where('mes', $mes);
-                        $realizadasMes = $itemsMes->count();
+                            $itemsMes = $unidadItems->where('mes', $mes);
+                            $realizadasMes = $itemsMes->count();
+                            $key = $unit. '_'. $type. '_'. $mes;
+                            $retrabajosMes = 0;
 
-                        $key = $unit . '_' . $type . '_' . $mes;
+                            if (isset($retrabajosTabla[$key])) {
+                                $retrabajosMes = $retrabajosTabla[$key]->sum('cantidad');
+                                $retrabajosUnidad += $retrabajosMes;
+                            }
 
-                        $retrabajosMes = 0;
+                            $kpiMes = $realizadasMes > 0
+                                ? round((($realizadasMes - $retrabajosMes) / $realizadasMes) * 100,  2) : 0;
 
-                        if (isset($retrabajosTabla[$key])) {
-                            $retrabajosMes = $retrabajosTabla[$key]->sum('cantidad');
-                            $retrabajosUnidad += $retrabajosMes;
+                            return [
+                                'mes' => $mes,
+                                'realizadas' => $realizadasMes,
+                                'retrabajos' => $retrabajosMes,
+                                'kpi3' => $kpiMes
+                            ];
                         }
-
-                        $kpiMes = $realizadasMes > 0
-                            ? round((($realizadasMes - $retrabajosMes) / $realizadasMes) * 100, 2)
-                            : 0;
-
-                        return [
-                            'mes' => $mes,
-                            'realizadas' => $realizadasMes,
-                            'retrabajos' => $retrabajosMes,
-                            'kpi3' => $kpiMes
-                        ];
-                    });
+                    );
 
                     $retrabajosGeneral += $retrabajosUnidad;
 
                     $kpiUnidad = $realizadasUnidad > 0
-                        ? round((($realizadasUnidad - $retrabajosUnidad) / $realizadasUnidad) * 100, 2)
-                        : 0;
+                        ? round((($realizadasUnidad - $retrabajosUnidad) / $realizadasUnidad) * 100, 2) : 0;
 
                     return [
                         'unit_id' => $unit,
@@ -607,10 +606,8 @@ class KpisController extends Controller
             /*--------------------------------------------------------------------------
             | 🔥 KPI GENERAL ANUAL
             |--------------------------------------------------------------------------*/
-
             $kpiGeneral = $realizadas > 0
-                ? round((($realizadas - $retrabajosGeneral) / $realizadas) * 100, 2)
-                : 0;
+                ? round((($realizadas - $retrabajosGeneral) / $realizadas) * 100, 2) : 0;
 
             $resultado[$nombre] = [
                 'general' => [
@@ -623,10 +620,10 @@ class KpisController extends Controller
             ];
         }
 
-        /*-------------------------------------------------------------------------- 
+        /*--------------------------------------------------------------------------
         | 🔥 LISTA DE RETRABAJOS DETALLADA
         |--------------------------------------------------------------------------*/
-        $retrabajosList = DB::table('retrabajos as r')
+        $retrabajosListQuery = DB::table('retrabajos as r')
             ->join('units_all as u', function ($join) {
                 $join->on('u.unit_id', '=', 'r.unit')
                     ->on('u.type', '=', 'r.type');
@@ -636,19 +633,36 @@ class KpisController extends Controller
                 'r.type',
                 'r.unit',
                 'u.no_economic',
+                'u.logistic',
                 'r.mes',
                 'r.year',
                 'r.cantidad',
                 'r.comment',
                 'r.created_at'
             )
-            ->where('r.year', $year)
+            ->where('r.year', $year);
+
+        /*--------------------------------------------------------------------------
+        | 🔥 FILTRO DE LOGÍSTICA PARA TABLA DE RETRABAJOS
+        |--------------------------------------------------------------------------*/
+        if ($selectedLogistics === 'PERSONAL') {
+            $retrabajosListQuery->whereRaw("LOWER(u.logistic) LIKE '%personal%'");
+        } elseif ($selectedLogistics === 'CC') {
+            $retrabajosListQuery->whereRaw("LOWER(u.logistic) LIKE '%cc%'");
+        } elseif ($selectedLogistics === 'UTILITARIOS') {
+            $retrabajosListQuery->whereRaw("LOWER(u.logistic) LIKE '%utilitario%'");
+        }
+
+        $retrabajosList = $retrabajosListQuery
             ->orderByDesc('r.created_at')
             ->get();
 
+        /*--------------------------------------------------------------------------
+        | RESPUESTA
+        |--------------------------------------------------------------------------*/
         return response()->json([
             'kpi3' => $resultado,
-            'retrabajos_list' => $retrabajosList // 👈 NUEVO
+            'retrabajos_list' => $retrabajosList
         ]);
     }
 

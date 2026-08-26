@@ -10,9 +10,14 @@ return new class extends Migration
     {
         Schema::create('output_details', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_output')->constrained('inventory_outputs');
-            $table->foreignId('id_product')->constrained('products_services');
-            $table->integer('quality');
+            $table->foreignId('id_output')
+                ->constrained('inventory_outputs')
+                ->cascadeOnDelete();
+            $table->foreignId('id_product')
+                ->constrained('products_services')
+                ->restrictOnDelete();
+            $table->decimal('quality', 12, 2);
+            $table->decimal('price', 12, 2);
             $table->timestamps();
         });
     }

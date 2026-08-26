@@ -190,7 +190,7 @@
                 {{-- Mostrar los datos reales --}}
                 @foreach($DataDetails as $detail)
                     <tr>
-                        <td>{{ $DataOut->purchase_type ?? 'NO DATA' }}</td>
+                        <td>{{ $DataOut->purchase_type ?? '' }}</td>
                         <td>{{ $detail->quality ?? '' }}</td>
                         <td>{{ $detail->product->unit_measure ?? '' }}</td>
                         <td>{{ $detail->product->name ?? '' }}</td>
@@ -216,7 +216,9 @@
             <th>OBSERVACIONES</th>
           </tr>
           <tr>
-            <td><br><br><br>NO DATA<br><br></td>
+            <td style="height: 70px; text-align: left;">
+                {{ $DataOut->observations ?? ' ' }}
+            </td>
           </tr>
         </table>
       </div>
@@ -225,24 +227,32 @@
         <table style="width: 100%; text-align: center;">            
             <tr>              
               <td>
-                FIRMA Y FECHA
-                <br><br><br><br><br><br>
-                _________________________________________<br>
-                NO DATA
-                {{ $data['auxiliar']->name ?? ' ' }} {{ $data['auxiliar']->a_paterno ?? ' ' }} {{ $data['auxiliar']->a_materno ?? ' ' }}<br>
+                  FIRMA Y FECHA
+                  <br><br><br><br><br>
+                  _________________________________________
+                  <br><br>
+
+                  {{ $DataOut->receiver ?? ' ' }}
               </td>
+
               <td>
-                FIRMA Y FECHA
-                <br><br><br><br><br><br>
-                _________________________________________<br>
-                NO DATA
-                {{ $data['operator']->name  ?? ' ' }} {{ $data['operator']->a_paterno  ?? ' '}} {{ $data['operator']->a_materno  ?? ' ' }}<br>
+                  FIRMA Y FECHA
+                  <br><br><br><br><br>
+                  _________________________________________
+                  <br><br>
+
+                  {{ 
+                      ($DataOut->user->name ?? '') . ' ' .
+                      ($DataOut->user->a_paterno ?? '') . ' ' .
+                      ($DataOut->user->a_materno ?? '')
+                  }}
               </td>
-            </tr>
-            <tr>
+          </tr>
+
+          <tr>
               <th>RECIBE</th>
-              <th>ENTRGEÓ</th>
-            </tr>
+              <th>ENTREGÓ</th>
+          </tr>
         </table>
       </div>  
     </main>
