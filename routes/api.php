@@ -23,6 +23,7 @@ use App\Http\Controllers\InspectionsController;
 use App\Http\Controllers\InventoryDetailsController;
 use App\Http\Controllers\InventoryEntriesController;
 use App\Http\Controllers\InventoryOutputController;
+use App\Http\Controllers\InventoryTransferController;
 use App\Http\Controllers\IshikawaController;
 use App\Http\Controllers\KpisController;
 use App\Http\Controllers\MaintenanceGeneralConcentrateController;
@@ -306,3 +307,6 @@ Route::middleware('auth:sanctum')->apiResource('/programs-mtto-general', Program
 Route::middleware('auth:sanctum')->apiResource('/programs-mtto-general-schedule', ProgramMttoGeneralScheduleController::class);
 Route::middleware('auth:sanctum')->patch('programs-mtto-general/{programMttoGeneral}/toggle',[ProgramMttoGeneralController::class, 'toggleStatus']);
 Route::middleware('auth:sanctum')->get('/maintenance-general-concentrate', [MaintenanceGeneralConcentrateController::class, 'index']);
+Route::middleware('auth:sanctum')->get('/inventory-transfers/{id}', [InventoryTransferController::class, 'index']);
+Route::middleware('auth:sanctum')->post('/inventory-transfers', [InventoryTransferController::class, 'store']);
+Route::middleware('auth:sanctum')->get('/inventory-transfer/{id}/pdf', [InventoryTransferController::class, 'generarPDF']);
