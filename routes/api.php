@@ -70,8 +70,7 @@ use Illuminate\Support\Facades\DB;
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
-Route::middleware(['auth:sanctum', 'admin'])->group(function () {
-    Route::get('/users', [AuthController::class, 'usersAll']);
+Route::middleware(['auth:sanctum', 'admin'])->group(function () {    
     Route::put('/updateStatus', [AuthController::class, 'updateStatus']);
     Route::post('/upData', [AuthController::class, 'proceedingsUp']);
     Route::get('/user/{id}', [AuthController::class, 'show']);
@@ -84,6 +83,7 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
 
 });
 
+Route::middleware('auth:sanctum')->get('/users', [AuthController::class, 'usersAll']);
 Route::middleware('auth:sanctum')->post('/change-password', [ProfileController::class, 'changePassword']);
 Route::middleware('auth:sanctum')->get('/profile', [ProfileController::class, 'show']);
 Route::middleware('auth:sanctum')->post('/user', [AuthController::class, 'update']);
