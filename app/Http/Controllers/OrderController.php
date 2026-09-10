@@ -309,7 +309,10 @@ class OrderController extends Controller
 
             $order->fill($request->input('data.form'));
             $order->date_attended = now();
-            $order->perform = Auth::id();
+            // Mecánico que realizó el trabajo
+            // Si no se seleccionó uno, se asigna el usuario que está finalizando
+            $perform = $request->input('data.form.perform');
+            $order->perform = !empty($perform) ? (int) $perform : Auth::id();;
 
             // FINALIZAR FALLAS
             $earringsIds = OrderDetail::where('id_order', $order->id)
