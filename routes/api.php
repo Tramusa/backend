@@ -53,6 +53,7 @@ use App\Http\Controllers\RepairTireController;
 use App\Http\Controllers\RequisitionsController;
 use App\Http\Controllers\RevisionsController;
 use App\Http\Controllers\RevisionsTireController;
+use App\Http\Controllers\SecurityFlashAlertController;
 use App\Http\Controllers\SubTitleAccountController;
 use App\Http\Controllers\SupplierBanckController;
 use App\Http\Controllers\SuppliersController;
@@ -310,3 +311,8 @@ Route::middleware('auth:sanctum')->get('/maintenance-general-concentrate', [Main
 Route::middleware('auth:sanctum')->get('/inventory-transfers/{id}', [InventoryTransferController::class, 'index']);
 Route::middleware('auth:sanctum')->post('/inventory-transfers', [InventoryTransferController::class, 'store']);
 Route::middleware('auth:sanctum')->get('/inventory-transfer/{id}/pdf', [InventoryTransferController::class, 'generarPDF']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('security-flash', SecurityFlashAlertController::class);
+    Route::post('security-flash/{id}/finalize', [SecurityFlashAlertController::class, 'finalize']);
+    Route::post('security-flash/{id}/pdf', [SecurityFlashAlertController::class, 'generarPDF']);
+});

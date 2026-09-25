@@ -60,7 +60,7 @@ class SuppliersController extends Controller
         $query = $request->input('supplier');
 
         $suppliers = Suppliers::query()
-            ->select('id', 'business_name', 'payment_method') // Solo selecciona los campos necesarios
+            ->select('id', 'business_name', 'payment_method', 'RFC') // Solo selecciona los campos necesarios
             ->when($query, function ($q) use ($query) {
                 $q->where('business_name', 'like', '%' . $query . '%')
                 ->orWhere('tradename', 'like', '%' . $query . '%');

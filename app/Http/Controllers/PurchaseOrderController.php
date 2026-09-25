@@ -67,50 +67,65 @@ class PurchaseOrderController extends Controller
     
     public function store(Request $request)
     {
-        // ============= VALIDACIONES ====================
+        // ============================================================
+        // VALIDACIONES
+        // ============================================================
         $request->validate([
             'id_requisition'      => 'required|integer',
             'date_order'          => 'required|date',
             'id_supplier'         => 'required|integer',
-            'total'               => 'required|numeric',
+            'total'               => 'nullable|numeric',
+
             'Billing.folio'       => 'required|string|max:255',
             'Billing.date'        => 'required|date',
+
             'products'            => 'required|array|min:1',
+            'products.*.id'       => 'required|integer',
+            'products.*.price'    => 'required|numeric|min:0',
         ], [
             'Billing.folio.required' => 'El folio de la factura es obligatorio.',
             'Billing.date.required'  => 'La fecha de la factura es obligatoria.',
             'products.required'      => 'La orden debe tener al menos un producto.',
             'products.min'            => 'La orden debe tener al menos un producto.',
+            'products.*.id.required' => 'Uno de los productos no tiene ID.',
+            'products.*.price.required' => 'Uno de los productos no tiene precio.',
+            'products.*.price.numeric' => 'El precio de uno de los productos no es válido.',
+            'products.*.price.min' => 'El precio de un producto no puede ser negativo.',
         ]);
 
         try {
 
             return DB::transaction(function () use ($request) {
-                // =========== DATOS ===================
+                // ========================================================
+                // DATOS DE LA ORDEN
+                // ========================================================
                 $orderData = $request->only(
                     'id_requisition',
                     'date_order',
                     'id_supplier',
-                    'additional',
-                    'total'
+                    'additional'
                 );
+
                 $user = Auth::user();
                 $orderData['perform'] = $user->id;
                 $billingData = $request->input('Billing');
-                // ============== BLOQUEAR LA REQUISICIÓN ==================
+                // ========================================================
+                // BLOQUEAR LA REQUISICIÓN
+                // ========================================================
                 $requisition = Requisitions::where('id', $orderData['id_requisition'])
-                ->lockForUpdate()
-                ->first();
+                    ->lockForUpdate()
+                    ->first();
 
                 if (!$requisition) {
                     throw new \Exception('La requisición no existe.');
                 }
-
-                // =============== VERIFICAR QUE NO TENGA YA UNA ORDEN ======================
+                // ========================================================
+                // VERIFICAR QUE NO TENGA YA UNA ORDEN
+                // ========================================================
                 $existingPurchaseOrder = PurchaseOrder::where('id_requisition', $orderData['id_requisition'])
-                ->where('status', '<>', 'CANCELADA')
-                ->lockForUpdate()
-                ->first();
+                    ->where('status', '<>', 'CANCELADA')
+                    ->lockForUpdate()
+                    ->first();
 
                 if ($existingPurchaseOrder) {
                     return response()->json([
@@ -119,61 +134,164 @@ class PurchaseOrderController extends Controller
                             'No se puede generar otra.'
                     ], 409);
                 }
-
-                // ================== VERIFICAR FACTURA =======================
+                // ========================================================
+                // VERIFICAR FACTURA
+                // ========================================================
                 $folio = trim($billingData['folio'] ?? '');
 
                 if ($folio === '') {
                     throw new \Exception('El folio de la factura es obligatorio.');
                 }
-
-                // =================  BUSCAR FACTURA EXISTENTE ========================
+                // ========================================================
+                // BUSCAR FACTURA EXISTENTE
+                // ========================================================
                 $billing = BillingData::where('folio', $folio)
                     ->where('id_supplier', $orderData['id_supplier'])
                     ->whereNull('id_paymentOrder')
                     ->where('payment', 0)
                     ->lockForUpdate()
                     ->first();
+                // ========================================================
+                // OBTENER PRODUCTOS DE LA REQUISICIÓN
+                // ========================================================
+                $requisitionProducts = $requisition->products()
+                    ->lockForUpdate()
+                    ->get();
 
-                // =============== CREAR LA ORDEN =========================
+                if ($requisitionProducts->isEmpty()) {
+                    throw new \Exception('La requisición no tiene productos.');
+                }
+                // ========================================================
+                // ACTUALIZAR PRECIOS DE LOS PRODUCTOS
+                // ========================================================
+                $productsRequest = $request->input('products', []);
+
+                foreach ($productsRequest as $productData) {
+                    $detail = $requisitionProducts->firstWhere('id', $productData['id']);
+
+                    if (!$detail) {
+                        throw new \Exception(
+                            "El producto con ID {$productData['id']} " .
+                            "no pertenece a la requisición."
+                        );
+                    }
+
+                    $detail->price = (float) $productData['price'];
+                    if (!$detail->save()) {
+                        throw new \Exception(
+                            "No fue posible actualizar el precio " .
+                            "del producto {$detail->name}."
+                        );
+                    }
+                }
+                // ========================================================
+                // RECARGAR PRODUCTOS CON LOS PRECIOS ACTUALIZADOS
+                // ========================================================
+                $requisitionProducts = $requisition->products()
+                    ->lockForUpdate()
+                    ->get();
+                // ========================================================
+                // CALCULAR TOTALES
+                // ========================================================
+                $subtotal = 0;
+                $totalIva = 0;
+                $totalRetIva = 0;
+                $totalRetIsh = 0;
+                $totalIsr = 0;
+
+                foreach ($requisitionProducts as $product) {
+                    $price = (float) ($product->price ?? 0);
+                    $cantidad = (float) ($product->cantidad ?? 0);
+
+                    $iva = (float) ($product->iva ?? 0);
+                    $isr = (float) ($product->isr ?? 0);
+                    $retIva = (float) ($product->ret_iva ?? 0);
+                    $retIsh = (float) ($product->ret_ish ?? 0);
+                    // --------------------------------------------
+                    // IMPORTE SIN IVA
+                    // --------------------------------------------
+                    $importe = $cantidad * $price;
+                    // --------------------------------------------
+                    // IVA
+                    // --------------------------------------------
+                    $ivaAmount = $importe * ($iva / 100);
+                    // --------------------------------------------
+                    // RETENCIÓN IVA
+                    // --------------------------------------------
+                    $retIvaAmount = $importe * ($retIva / 100);
+                    // --------------------------------------------
+                    // RETENCIÓN ISR
+                    // --------------------------------------------
+                    $isrAmount = $importe * ($isr / 100);
+                    // --------------------------------------------
+                    // RETENCIÓN ISH
+                    // --------------------------------------------
+                    $retIshAmount = $importe * ($retIsh / 100);
+                    // --------------------------------------------
+                    // ACUMULAR
+                    // --------------------------------------------
+                    $subtotal += $importe;
+                    $totalIva += $ivaAmount;
+                    $totalRetIva += $retIvaAmount;
+                    $totalIsr += $isrAmount;
+                    $totalRetIsh += $retIshAmount;
+                }
+                // ========================================================
+                // TOTAL FINAL
+                // ========================================================
+                $total = $subtotal
+                    + $totalIva
+                    - $totalRetIva
+                    - $totalIsr
+                    + $totalRetIsh;
+
+                // Redondear a 2 decimales
+                $total = round($total, 2);
+                // ========================================================
+                // GUARDAR TOTAL EN LA ORDEN
+                // ========================================================
+                $orderData['total'] = $total;
+                // ========================================================
+                // CREAR ORDEN DE COMPRA
+                // ========================================================
                 $order = PurchaseOrder::create($orderData);
                 if (!$order) {
-                    throw new \Exception('No fue posible crear la orden de compra.'                    );
+                    throw new \Exception('No fue posible crear la orden de compra.');
                 }
-
-                // ===================  REGISTRAR FACTURA =======================
+                // ========================================================
+                // REGISTRAR FACTURA
+                // ========================================================
                 if ($billing) {
                     $orderIds = array_filter(explode(',', $billing->id_order));
-
-                    if (!in_array(
-                        (string) $order->id,
-                        array_map('strval', $orderIds),
-                        true
-                    )) {
+                    if (!in_array((string) $order->id, array_map('strval', $orderIds), true)) {
                         $orderIds[] = $order->id;
                         $billing->id_order = implode(',', $orderIds);
                         if (!$billing->save()) {
-                            throw new \Exception('No fue posible actualizar el registro de la factura.');
+                            throw new \Exception('No fue posible actualizar ' . 'el registro de la factura.');
                         }
                     }
                 } else {
                     $billingData['id_order'] = $order->id;
                     $billingData['id_supplier'] = $orderData['id_supplier'];
                     $newBilling = BillingData::create($billingData);
+
                     if (!$newBilling) {
                         throw new \Exception('No fue posible registrar la factura.');
                     }
                 }
-
-                // =================  ACTUALIZAR REQUISICIÓN ======================
+                // ========================================================
+                // ACTUALIZAR REQUISICIÓN
+                // ========================================================
                 $requisition->status = 'ORDEN COMPRA';
                 $requisition->date_atended = now();
                 $requisition->analyze = $user->id;
+
                 if (!$requisition->save()) {
                     throw new \Exception('No fue posible actualizar la requisición.');
                 }
-
-                // ================== GENERAR PDF =====================
+                // ========================================================
+                // GENERAR PDF
+                // ========================================================
                 return $this->generarPDF($order->id);
             });
 
@@ -182,7 +300,6 @@ class PurchaseOrderController extends Controller
             throw $e;
 
         } catch (\Throwable $e) {
-
             \Log::error(
                 'Error al crear orden de compra',
                 [
@@ -191,13 +308,15 @@ class PurchaseOrderController extends Controller
                     'supplier_id' => $request->id_supplier,
                     'folio' => $request->input('Billing.folio'),
                     'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
                 ]
             );
 
-            return response()->json(['error' => 'No se pudo crear la orden de compra. ' .$e->getMessage()], 500);
+            return response()->json([
+                'error' =>'No se pudo crear la orden de compra. ' . $e->getMessage()
+            ], 500);
         }
     }
-
 
     public function update(Request $request, $id)
     { 
