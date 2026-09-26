@@ -239,18 +239,9 @@ class PurchaseOrderController extends Controller
                 // ========================================================
                 // TOTAL FINAL
                 // ========================================================
-                $total = $subtotal
-                    + $totalIva
-                    - $totalRetIva
-                    - $totalIsr
-                    + $totalRetIsh;
+                $totalEnviado = round((float) $request->input('total'), 2);
 
-                // Redondear a 2 decimales
-                $total = round($total, 2);
-                // ========================================================
-                // GUARDAR TOTAL EN LA ORDEN
-                // ========================================================
-                $orderData['total'] = $total;
+                $orderData['total'] = $totalEnviado;
                 // ========================================================
                 // CREAR ORDEN DE COMPRA
                 // ========================================================
