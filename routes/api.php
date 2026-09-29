@@ -314,5 +314,5 @@ Route::middleware('auth:sanctum')->get('/inventory-transfer/{id}/pdf', [Inventor
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('security-flash', SecurityFlashAlertController::class);
     Route::post('security-flash/{id}/finalize', [SecurityFlashAlertController::class, 'finalize']);
-    Route::post('security-flash/{id}/pdf', [SecurityFlashAlertController::class, 'generarPDF']);
+    Route::get('security-flash/{id}/pdf', [SecurityFlashAlertController::class, 'generarPDF']);
 });

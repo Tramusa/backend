@@ -127,7 +127,13 @@
         }
         .x-cell-done {
             background-color: #1bad51; /* verde */
-            color: #000;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .x-cell-process {
+            background-color: #3b82f6; /* azul */
+            color: #fff;
             font-weight: bold;
         }
 
@@ -237,7 +243,6 @@
                         <span class="inactive-label">INACTIVA</span>
                     @endif
                 </td>
-
                 <!-- Celdas de semanas -->
                 @php
                     $weeksNumbers = collect($activity['weeks'])->pluck('week')->toArray();
@@ -253,10 +258,22 @@
                     <td class="
                         @if($activity['active'] === 0)
                             inactive-row
+
                         @elseif($exists)
-                            {{ ($status === 'done' || $status === 'late') ? 'x-cell-done' : 'x-cell-pending' }}
+
+                            @if($status === 'process')
+                                x-cell-process
+
+                            @elseif($status === 'done' || $status === 'late')
+                                x-cell-done
+
+                            @else
+                                x-cell-pending
+                            @endif
+
                         @elseif($i == $currentWeek)
                             current-week-body
+
                         @else
                             {{ $weekClasses[$i] }}
                         @endif

@@ -20,16 +20,11 @@ class SecurityFlashAlertImage extends Model
 
     public function alert()
     {
-        return $this->belongsTo(
-            SecurityFlashAlert::class,
-            'security_flash_alert_id'
-        );
+        return $this->belongsTo(SecurityFlashAlert::class, 'security_flash_alert_id' );
     }
 
     public function getUrlAttribute()
     {
-        return Storage::disk('public')->url(
-            $this->imagen
-        );
+        return Storage::disk('public')->url($this->imagen);
     }
 }

@@ -20,59 +20,59 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 class ProgramsMttoVehiclesController extends Controller
 {
     public function index()
-{
-    $programs = ProgramsMttoVehicles::query()
-        ->select(
-            'programs_mtto_vehicles.*',
-            'u.unit_id as unit_id',
-            'u.no_economic',
-            'u.logistic',
-            'u.customer'
-        )
-        ->join('units_all as u', function ($join) {
-            $join->on('u.unit_id', '=', 'programs_mtto_vehicles.unit')
-                ->whereColumn('u.type', 'programs_mtto_vehicles.type');
-        })
-        ->with(['schedules' => function ($q) {
-            $q->select('program_mtto_vehicle_id', 'week', 'status');
-        }])
-        ->orderBy('programs_mtto_vehicles.type')
-        ->orderBy('u.no_economic')
-        ->orderBy('programs_mtto_vehicles.activity')
-        ->get();
+    {
+        $programs = ProgramsMttoVehicles::query()
+            ->select(
+                'programs_mtto_vehicles.*',
+                'u.unit_id as unit_id',
+                'u.no_economic',
+                'u.logistic',
+                'u.customer'
+            )
+            ->join('units_all as u', function ($join) {
+                $join->on('u.unit_id', '=', 'programs_mtto_vehicles.unit')
+                    ->whereColumn('u.type', 'programs_mtto_vehicles.type');
+            })
+            ->with(['schedules' => function ($q) {
+                $q->select('program_mtto_vehicle_id', 'week', 'status');
+            }])
+            ->orderBy('programs_mtto_vehicles.type')
+            ->orderBy('u.no_economic')
+            ->orderBy('programs_mtto_vehicles.activity')
+            ->get();
 
-    $grouped = [];
+        $grouped = [];
 
-    foreach ($programs as $program) {
+        foreach ($programs as $program) {
 
-        $key = $program->type . '-' . $program->unit_id;
+            $key = $program->type . '-' . $program->unit_id;
 
-        if (!isset($grouped[$key])) {
-            $grouped[$key] = [
-                'type' => $program->type,
-                'unit_id' => $program->unit_id,
-                'no_economic' => $program->no_economic,
-                'logistic' => $program->logistic,
-                'customer' => $program->customer,
-                'activities' => [],
+            if (!isset($grouped[$key])) {
+                $grouped[$key] = [
+                    'type' => $program->type,
+                    'unit_id' => $program->unit_id,
+                    'no_economic' => $program->no_economic,
+                    'logistic' => $program->logistic,
+                    'customer' => $program->customer,
+                    'activities' => [],
+                ];
+            }
+
+            $grouped[$key]['activities'][] = [
+                'id' => $program->id,
+                'name' => $program->activity,
+                'active' => $program->active,
+                'weeks' => $program->schedules->map(function ($s) {
+                    return [
+                        'week' => $s->week,
+                        'status' => $s->status,
+                    ];
+                })->values(),
             ];
         }
 
-        $grouped[$key]['activities'][] = [
-            'id' => $program->id,
-            'name' => $program->activity,
-            'active' => $program->active,
-            'weeks' => $program->schedules->map(function ($s) {
-                return [
-                    'week' => $s->week,
-                    'status' => $s->status,
-                ];
-            })->values(),
-        ];
+        return response()->json(array_values($grouped));
     }
-
-    return response()->json(array_values($grouped));
-}
 
     public function show($id)
     {
@@ -205,15 +205,18 @@ class ProgramsMttoVehiclesController extends Controller
 
                     $status = $weeksByNumber[$i]['status'];
 
-                    $row[] = ($status === 'done' || $status === 'late')
-                        ? 'FF22C55E'   // verde
-                        : 'FFFF9800';  // naranja
+                    if ($status === 'process') {
+                        $row[] = 'FF3B82F6'; // 🔵 process
+                    } elseif ($status === 'done' || $status === 'late') {
+                        $row[] = 'FF22C55E'; // 🟢 done / late
+                    } else {
+                        $row[] = 'FFFF9800'; // 🟠 pendiente
+                    }
 
                 } else {
                     $row[] = '';
                 }
             }
-
 
             $row[] = $act['active'];
             $row[] = $act['unidad'] ?? '';

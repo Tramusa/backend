@@ -26,28 +26,25 @@ class OrderController extends Controller
             return response()->json(['message' => 'No se seleccionaron fallas'], 400);
         }
 
-        $earrings = Earrings::whereIn('id', $selectedEarrings)->get(); // 🔎 Traer las fallas seleccionadas
+        $earrings = Earrings::whereIn('id', $selectedEarrings)->get();
 
         if ($earrings->count() !== count($selectedEarrings)) {
             return response()->json(['message' => 'Una o más fallas no existen'], 404);
         }
 
-        // 🔒 Tomar unidad, type y type_mtto base (de la primera falla)
+        // 🔒 Tomar unidad, type y type_mtto base
         $baseUnit = $earrings->first()->unit;
         $baseType = $earrings->first()->type;
         $baseMtto = $earrings->first()->type_mtto;
 
         // 🔎 Verificar que TODAS tengan mismo unit, type y type_mtto
         $invalidMix = $earrings->contains(function ($earring) use ($baseUnit, $baseType, $baseMtto) {
-            return $earring->unit !== $baseUnit
-                || $earring->type !== $baseType
+            return $earring->unit !== $baseUnit || $earring->type !== $baseType
                 || $earring->type_mtto !== $baseMtto;
         });
 
         if ($invalidMix) {
-            return response()->json([
-                'message' => 'No se pueden mezclar fallas de diferentes unidades o mantenimientos en una misma orden'
-            ], 409);
+            return response()->json(['message' => 'No se pueden mezclar fallas de diferentes unidades o mantenimientos en una misma orden'], 409);
         }
 
         // 🔒 Validar que ninguna esté en proceso
@@ -55,21 +52,32 @@ class OrderController extends Controller
             return response()->json(['message' => 'Una o más fallas ya están en proceso'], 409);
         }
 
-        // ========================= CREAR ORDEN =======================
+        // ========================= CREAR ORDEN ========================
         DB::beginTransaction();
 
         try {
-            $order = Orders::create([
-                'date' => now(),
-                'created_by' => auth()->id(),
-            ]);
-
+            $order = Orders::create(['date' => now(), 'created_by' => auth()->id(),]);
+            // ==========================================================
+            // CREAR DETALLES + CAMBIAR FALLAS A EN PROCESO
+            // ==========================================================
             foreach ($earrings as $earring) {
-                OrderDetail::create([
-                    'id_order' => $order->id,
-                    'id_earring' => $earring->id
-                ]);
+                OrderDetail::create(['id_order' => $order->id, 'id_earring' => $earring->id]);
+                // 🔵 Falla -> EN PROCESO
                 $earring->update(['status' => 2]);
+            }
+
+            // ==========================================================
+            // ACTUALIZAR CRONOGRAMA -> PROCESS
+            // ==========================================================
+            // Obtener los schedule_id de las fallas seleccionadas
+            $scheduleIds = $earrings
+                ->pluck('schedule_id')
+                ->filter()
+                ->unique()
+                ->values();
+
+            if ($scheduleIds->isNotEmpty()) {
+                ProgramsMttoVehicleSchedule::whereIn('id', $scheduleIds)->update(['status' => 'process']);
             }
 
             DB::commit();
@@ -77,7 +85,7 @@ class OrderController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['message' => 'Error al crear la orden'], 500);
+            return response()->json(['message' => 'Error al crear la orden: ' . $e->getMessage() ], 500);
         }
     }
 
