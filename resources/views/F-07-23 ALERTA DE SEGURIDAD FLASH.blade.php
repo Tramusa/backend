@@ -1,19 +1,15 @@
+
 <!DOCTYPE html>
 <html lang="es">
 
 <head>
-    <meta charset="utf-8">
 
-    <title>F-07-23-R2 ALERTA DE SEGURIDAD</title>
+    <meta charset="UTF-8">
 
     <style>
 
-        /* =========================================================
-           CONFIGURACIÓN GENERAL
-        ========================================================= */
-
         @page {
-            margin: 25px 25px 30px 25px;
+            margin: 10px 10px 15px 10px;
         }
 
         * {
@@ -22,856 +18,640 @@
 
         body {
             margin: 0;
-            color: #000;
-            background: #FFFFFF;
-            font-size: 10px;
-            font-family: "Arial Narrow", Arial, sans-serif;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 7px;
+            color: #222;
         }
 
         table {
-            border-collapse: collapse;
-            border-spacing: 0;
             width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
         }
 
-        td,
-        th {
-            border: 1px solid #000;
+        td {
+            border: 1px solid #666;
+            padding: 2px 4px;
+            vertical-align: middle;
         }
 
-        .clearfix:after {
-            content: "";
-            display: table;
-            clear: both;
+        .no-border {
+            border: 0 !important;
         }
 
-        .break-text {
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            word-break: break-word;
-            white-space: normal;
+        /* ================= COLORES ======================== */
+
+        .blue {
+            background: #24577e;
+            color: #fff;
         }
 
-        pre {
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            word-break: break-word;
-            margin: 0;
-            font-family: inherit;
-            font-size: inherit;
+        .orange {
+            background: #e9784f;
+            color: #fff;
         }
 
-        /* =========================================================
-           ENCABEZADO
-        ========================================================= */
+        .yellow {
+            background: #f6c84b;
+        }
+
+        .green-border {
+            border: 2px solid #218c4c !important;
+        }
+
+        /* =================  ENCABEZADO ========================= */
 
         .header {
-            width: 100%;
-            margin-bottom: 8px;
+            height: 61px;
         }
 
         .header-logo {
             width: 20%;
-            height: 85px;
-            border: 2px solid #D1D1D1;
-            float: left;
             text-align: center;
-            vertical-align: middle;
         }
 
-        .header-info {
+        .header-logo img {
+            width: 135px;
+            height: auto;
+        }
+
+        .header-title {
             width: 80%;
-            height: 85px;
-            border: 2px solid #D1D1D1;
-            float: left;
+            padding: 0;
         }
 
-        .logoImg {
-            max-width: 95%;
-            max-height: 70px;
-            margin-top: 7px;
-        }
-
-        .company {
-            color: #0073B5;
+        .company-name {
+            height: 22px;
+            text-align: center;
             font-size: 15px;
             font-weight: bold;
-            text-align: center;
-            margin-top: 7px;
-            margin-bottom: 3px;
+            color: #0068b5;
+            padding-top: 7px;
         }
 
-        .main-title {
-            color: #000000;
-            font-size: 15px;
-            font-weight: bold;
+        .security-title {
+            height: 18px;
             text-align: center;
-            margin: 2px 0 5px 0;
+            font-size: 12px;
+            font-weight: bold;
+            padding-top: 3px;
         }
 
-        .header-footer {
-            color: #FFFFFF;
-            background: #1E4E79;
-            font-size: 8px;
+        .orange-bar {
+            height: 13px;
+            background: #ef8c3a;
+            color: #fff;
+            font-size: 9px;
             font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
             text-align: center;
-            padding: 4px 3px;
+            padding-top: 2px;
         }
 
-        /* =========================================================
-           DATOS GENERALES
-        ========================================================= */
-
-        .section-title {
-            background: #1E4E79;
-            color: #FFFFFF;
-            font-weight: bold;
-            text-align: center;
-            padding: 4px;
+        .folio {
+            position: absolute;
+            right: 12px;
+            top: 72px;
             font-size: 10px;
+            color: #e9784f;
+            font-weight: bold;
         }
+
+        /* ===============  ETIQUETAS ========================== */
 
         .label {
+            background: #24577e;
+            color: #fff;
+            font-weight: bold;
+            font-size: 9px;
+            text-transform: uppercase;
+            padding: 3px 4px;
+        }
+
+        .value {
+            font-size: 9.5px;
+            padding: 3px 5px;
+        }
+
+        .value-blue {
+            color: #0067a9;
             font-weight: bold;
         }
 
-        .data-table {
-            width: 100%;
-            margin-bottom: 8px;
+        /* ==============  DATOS GENERALES ======================= */
+        .general {
+            margin-top: 7px;
         }
 
-        .data-table td {
-            padding: 5px;
-            vertical-align: top;
-            height: 30px;
+        .row-small {
+            height: 26px;
         }
 
-        .data-table .label {
-            font-size: 8px;
+        .row-medium {
+            height: 28px;
+        }
+
+        .row-supervisor {
+            height: 33px;
+        }
+
+        /* ==============   CLASIFICACIÓN  ======================= */
+        .classification {
+            height: 44px;
+        }
+
+        .classification-label {
+            width: 20%;
+            background: #24577e;
+            color: #fff;
+            font-weight: bold;
+            font-size: 9px;
+            text-transform: uppercase;
+            vertical-align: middle;
+        }
+
+        .classification-item {
+            width: 11.42%;
+            text-align: center;
+            font-size: 9px;
+            line-height: 10px;
+            padding: 2px;
+            font-weight: normal;
+        }
+
+        .classification-selected {
+            background: #f6c84b;
+            font-weight: bold;
+        }
+
+        .classification-selected .unit {
             display: block;
-            margin-bottom: 2px;
-        }
-
-        .data-table .value {
-            font-size: 10px;
-            min-height: 12px;
-        }
-
-        /* =========================================================
-           CAMPOS DE TEXTO
-        ========================================================= */
-
-        .text-section {
-            width: 100%;
-            margin-bottom: 8px;
-            page-break-inside: avoid;
-        }
-
-        .text-title {
-            background: #1E4E79;
-            color: #FFFFFF;
+            margin-top: 9px;
+            color: #0067a9;
             font-weight: bold;
-            font-size: 10px;
+        }
+
+        /* ===============   SECCIONES  ==================== */
+        .section-header {
+            background: #24577e;
+            color: #fff;
+            font-weight: bold;
+            font-size: 9px;
+            height: 18px;
             padding: 4px 5px;
-            text-align: left;
+            border: 1px solid #555;
         }
 
-        .text-content {
-            border: 1px solid #000;
-            padding: 7px;
-            min-height: 70px;
-            font-size: 10px;
-            line-height: 1.35;
-        }
-
-        .text-content-large {
-            min-height: 100px;
-        }
-
-        /* =========================================================
-           IMÁGENES
-        ========================================================= */
-
-        .images-section {
-            width: 100%;
-            margin-bottom: 8px;
-            page-break-inside: avoid;
-        }
-
-        .images-title {
-            background: #1E4E79;
-            color: #FFFFFF;
-            font-weight: bold;
-            font-size: 10px;
-            padding: 4px;
-            text-align: center;
-        }
-
-        .image-cell {
-            width: 50%;
-            text-align: center;
-            vertical-align: middle;
-            padding: 5px;
-            height: 190px;
-        }
-
-        .image-cell img {
-            max-width: 100%;
-            max-height: 175px;
-        }
-
-        .image-cell-full {
-            width: 100%;
-            text-align: center;
-            vertical-align: middle;
-            padding: 5px;
-        }
-
-        .image-cell-full img {
-            max-width: 100%;
-            max-height: 300px;
-        }
-
-        .no-images {
-            text-align: center;
-            padding: 15px;
-            font-size: 9px;
-            color: #555;
-        }
-
-        /* =========================================================
-           FIRMAS
-        ========================================================= */
-
-        .firmas {
-            width: 100%;
-            margin-top: 15px;
-            page-break-inside: avoid;
-        }
-
-        .firmas td {
-            width: 50%;
-            text-align: center;
+        .description {
+            height: 139px;
+            border: 2px solid #000 !important;
             vertical-align: top;
-            padding: 8px;
-            border: 1px solid #000;
+            padding: 9px 5px;
+            font-size: 10px;
+            line-height: 11px;
+            white-space: pre-line;
         }
 
-        .firma-box {
-            height: 55px;
+        /* ==============   EVIDENCIA  =================== */
+        .evidence-box {
+            height: 175px;
+            vertical-align: middle;
+            padding: 5px;
         }
 
-        .firma-linea {
-            border-top: 1px solid #000;
-            margin: 2px 20px;
-        }
-
-        .firma-nombre {
-            font-size: 9px;
-            margin-top: 3px;
-        }
-
-        .firma-rol {
-            font-size: 9px;
-            font-weight: bold;
-            margin-top: 2px;
-        }
-
-        /* =========================================================
-           PIE DEL FORMATO
-        ========================================================= */
-
-        .footer-format {
-            margin-top: 10px;
+        .evidence-cell {
+            width: 33.33%;
+            height: 160px;
+            border: 0 !important;
             text-align: center;
-            font-size: 8px;
-            font-weight: bold;
-            color: #000;
+            vertical-align: middle;
+            padding: 3px;
         }
 
-        /* =========================================================
-           SALTOS
-        ========================================================= */
+        .evidence-image {
+            width: 225px;
+            height: 200px;
+            display: block;
+            margin: 0 auto;
+        }
 
+        /* ============= SALTO DE PÁGINA ====================== */
         .page-break {
             page-break-before: always;
         }
 
-        tr {
-            page-break-inside: avoid;
+        /* ===============  ANEXOS  ================== */
+        .annex-description {
+            min-height: 45px;
+            padding: 7px 6px;
+            font-size: 9px;
+            line-height: 10px;
+            white-space: pre-line;
+            vertical-align: top;
         }
 
-        td {
-            page-break-inside: avoid;
+        .annex-images-box {
+            height: 215px;
+            vertical-align: middle;
+            padding: 6px;
+        }
+
+        .annex-cell {
+            width: 50%;
+            height: 200px;
+            border: 0 !important;
+            text-align: center;
+            vertical-align: middle;
+            padding: 5px;
+        }
+
+        .annex-image {
+            width: 300px;
+            height: 212px;
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* ================= WEBFLEET ===================== */
+
+        .webfleet-box {
+            height: 180px;
+            padding: 6px;
+            vertical-align: top;
+        }
+
+        .webfleet-image {
+            width: 56%;
+            height: auto;
+            display: block;
+            margin-left: 0;
+        }
+
+        /* ================  ACCIONES ========================= */
+
+        .actions-box {
+            min-height: 91px;
+            padding: 6px;
+            font-size: 9px;
+            line-height: 11px;
+            white-space: pre-line;
+            vertical-align: top;
+        }
+
+        /* ================  FIRMA  ======================= */
+
+        .signature-area {
+            height: 64px;
+            vertical-align: bottom;
+            padding: 3px;
+        }
+
+        .signature-image {
+            max-width: 145px;
+            max-height: 43px;
+            display: block;
+            margin-left: 18px;
+            margin-bottom: 1px;
+        }
+
+        .signature-name {
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .signature-label {
+            background: #24577e;
+            color: white;
+            font-weight: bold;
+            font-size: 7px;
+            height: 15px;
+            padding: 3px;
         }
 
     </style>
+
 </head>
 
 <body>
 
-    {{-- =========================================================
-         ENCABEZADO
-    ========================================================== --}}
+@php
 
-    <div class="header clearfix">
+    /*
+    |--------------------------------------------------------------------------
+    | IMÁGENES
+    |--------------------------------------------------------------------------
+    */
 
-        <div class="header-logo">
+    $evidencias = $alert->images
+        ? $alert->images
+            ->where('tipo', 'evidencia')
+            ->sortBy('orden')
+            ->values()
+        : collect();
 
-            @if(isset($logoImage) && $logoImage)
-                <img
-                    src="{{ $logoImage }}"
-                    class="logoImg"
-                >
+
+    $anexosImagenes = $alert->images
+        ? $alert->images
+            ->where('tipo', 'anexo')
+            ->sortBy('orden')
+            ->values()
+        : collect();
+
+
+    $webfleet = $alert->images
+        ? $alert->images
+            ->where('tipo', 'webfleet')
+            ->sortBy('orden')
+            ->values()
+        : collect();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CLASIFICACIÓN
+    |--------------------------------------------------------------------------
+    */
+
+    $clasificacion = strtolower(
+        trim($alert->clasificacion_actual ?? '')
+    );
+
+@endphp
+
+{{-- ======================  ENCABEZADO  ======================== --}}
+<table class="header">
+    <tr>
+        <td class="header-logo">
+            @if(!empty($logoImage))
+                <img src="{{ $logoImage }}">
             @endif
+        </td>
 
-        </div>
+        <td class="header-title">
+            <div class="company-name">TRAMUSA CARRIER S.A. DE C.V.</div>
+            <div class="security-title">ALERTA DE SEGURIDAD</div>
 
-        <div class="header-info">
-
-            <div class="company">
-                TRAMUSA CARRIER S.A. DE C.V.
-            </div>
-
-            <div class="main-title">
-                ALERTA DE SEGURIDAD
-            </div>
-
-            <div class="header-footer">
-                ÁREA: SEGURIDAD E HIGIENE
-                &nbsp;&nbsp;
-                F-07-23/R2
-                &nbsp;&nbsp;
-                PERIODICIDAD: CUANDO SE PRESENTE
-                &nbsp;&nbsp;
-                RESGUARDO: 5 AÑOS
-                &nbsp;&nbsp;
+            <div class="orange-bar">
+                ÁREA: SEGURIDAD E HIGIENE&nbsp;&nbsp;&nbsp;
+                F-07-23/R2&nbsp;&nbsp;&nbsp;
+                PERIODICIDAD: CUANDO SE PRESENTE&nbsp;&nbsp;&nbsp;
+                RESGUARDO: 5 AÑOS&nbsp;&nbsp;&nbsp;
                 REVISIÓN: MARZO 2022
             </div>
+        </td>
+    </tr>
+</table>
+{{-- ==============   FOLIO ============================ --}}
+<div class="folio">
+    {{ $alert->folio ?? '' }}
+</div><br>
+{{-- ======================   DATOS GENERALES  ============================== --}}
+<table class="general">
+    {{-- ÁREA / LUGAR --}}
+    <tr class="row-small">
+        <td width="20%" class="label">ÁREA/LUGAR:</td>
+        <td width="80%" class="value">{{ $alert->area_lugar ?? 'N/A' }}</td>
+    </tr>
+    {{-- FECHA / HORA --}}
+    <tr class="row-small">
+        <td class="label">FECHA:</td>
+        <td class="value">
+            <table>
+                <tr>
+                    <td class="no-border value" style="width: 42%;" >
+                        {{ $alert->fecha ? \Carbon\Carbon::parse($alert->fecha)->format('d/m/Y') : 'N/A' }}
+                    </td>
+                    <td class="label" style="width: 14%;" >
+                        HORA:
+                    </td>
+                    <td class="no-border value" style="width: 44%;" >
+                        {{ $alert->hora ?? 'N/A' }}
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    {{-- DEPARTAMENTO --}}
+    <tr class="row-small">
+        <td class="label">
+            DEPARTAMENTO:
+        </td>
+        <td class="value">
+            {{ $alert->departamento ?? 'N/A' }}
+        </td>
+    </tr>
+</table>
+{{-- ================  CLASIFICACIÓN  ============================== --}}
+<table class="classification">
+    <tr>
+        {{-- TÍTULO --}}
+        <td class="classification-label">
+            CLASIFICACIÓN ACTUAL:
+        </td>
+        {{-- DAÑO A EQUIPO --}}
 
-        </div>
-
-    </div>
-
-
-    {{-- =========================================================
-         INFORMACIÓN GENERAL
-    ========================================================== --}}
-
-    <table class="data-table">
-
-        <tr>
-
-            <td style="width: 25%;">
-
-                <span class="label">
-                    FOLIO:
-                </span>
-
-                <div class="value">
-                    {{ $alert->folio ?? 'N/A' }}
-                </div>
-
-            </td>
-
-            <td style="width: 50%;">
-
-                <span class="label">
-                    ÁREA / LUGAR:
-                </span>
-
-                <div class="value break-text">
-                    {{ $alert->area_lugar ?? 'N/A' }}
-                </div>
-
-            </td>
-
-            <td style="width: 25%;">
-
-                <span class="label">
-                    FECHA:
-                </span>
-
-                <div class="value">
-                    {{ $alert->fecha ?? 'N/A' }}
-                </div>
-
-            </td>
-
-        </tr>
-
-
-        <tr>
-
-            <td>
-
-                <span class="label">
-                    HORA:
-                </span>
-
-                <div class="value">
-                    {{ $alert->hora ?? 'N/A' }}
-                </div>
-
-            </td>
-
-            <td>
-
-                <span class="label">
-                    DEPARTAMENTO:
-                </span>
-
-                <div class="value break-text">
-                    {{ $alert->departamento ?? 'N/A' }}
-                </div>
-
-            </td>
-
-            <td>
-
-                <span class="label">
-                    CLASIFICACIÓN ACTUAL:
-                </span>
-
-                <div class="value break-text">
-                    {{ $alert->clasificacion_actual ?? 'N/A' }}
-                </div>
-
-            </td>
-
-        </tr>
-
-
-        <tr>
-
-            <td>
-
-                <span class="label">
-                    UNIDAD:
-                </span>
-
-                <div class="value break-text">
+        <td class="classification-item {{ $clasificacion === 'daño a equipo' ? 'classification-selected' : '' }}">
+            Daño a<br>
+            equipo
+            @if($clasificacion === 'daño a equipo')
+                <span class="unit">
                     {{ $alert->unidad ?? 'N/A' }}
-                </div>
-
-            </td>
-
-            <td>
-
-                <span class="label">
-                    OPERADOR:
                 </span>
-
-                <div class="value break-text">
-                    {{ $alert->operador ?? 'N/A' }}
-                </div>
-
-            </td>
-
-            <td>
-
-                <span class="label">
-                    AFECTADO:
-                </span>
-
-                <div class="value break-text">
-                    {{ $alert->afectado ?? 'N/A' }}
-                </div>
-
-            </td>
-
-        </tr>
-
-
-        <tr>
-
-            <td>
-
-                <span class="label">
-                    PUESTO DEL AFECTADO:
-                </span>
-
-                <div class="value break-text">
-                    {{ $alert->puesto_afectado ?? 'N/A' }}
-                </div>
-
-            </td>
-
-            <td>
-
-                <span class="label">
-                    SUPERVISOR / MONITOR EN TURNO:
-                </span>
-
-                <div class="value break-text">
-                    {{ $alert->supervisor_monitor ?? 'N/A' }}
-                </div>
-
-            </td>
-
-            <td>
-
-                <span class="label">
-                    LOGÍSTICA:
-                </span>
-
-                <div class="value break-text">
-                    {{ $alert->logistica ?? 'N/A' }}
-                </div>
-
-            </td>
-
-        </tr>
-
-    </table>
-
-
-    {{-- =========================================================
-         DESCRIPCIÓN DEL INCIDENTE
-    ========================================================== --}}
-
-    <div class="text-section">
-
-        <div class="text-title">
-            DESCRIPCIÓN DEL INCIDENTE / ACCIDENTE
-        </div>
-
-        <div class="text-content text-content-large break-text">
-
-            {!! nl2br(e($alert->descripcion ?? 'N/A')) !!}
-
-        </div>
-
-    </div>
-
-
-    {{-- =========================================================
-         INVESTIGACIÓN
-    ========================================================== --}}
-
-    <div class="text-section">
-
-        <div class="text-title">
-            INVESTIGACIÓN DEL ACCIDENTE
-        </div>
-
-        <div class="text-content text-content-large break-text">
-
-            {!! nl2br(e($alert->investigacion ?? 'N/A')) !!}
-
-        </div>
-
-    </div>
-
-
-    {{-- =========================================================
-         ACCIONES
-    ========================================================== --}}
-
-    <div class="text-section">
-
-        <div class="text-title">
-            ACCIONES PARA EVITAR SU REPETICIÓN
-        </div>
-
-        <div class="text-content text-content-large break-text">
-
-            {!! nl2br(e($alert->acciones_repeticion ?? 'N/A')) !!}
-
-        </div>
-
-    </div>
-
-
-    {{-- =========================================================
-         EVIDENCIA FOTOGRÁFICA
-    ========================================================== --}}
-
-    @php
-
-        $evidencias = $alert->images
-            ->where('tipo', 'evidencia')
-            ->sortBy('orden');
-
-    @endphp
-
-    <div class="images-section">
-
-        <div class="images-title">
-            EVIDENCIA (FOTOGRÁFICA, MAPA, BOSQUEJOS)
-        </div>
-
-        @if($evidencias->count() > 0)
-
-            @foreach($evidencias->chunk(2) as $grupo)
-
-                <table>
-
-                    <tr>
-
-                        @foreach($grupo as $imagen)
-
-                            <td class="image-cell">
-
-                                @if($imagen->imagen)
-
-                                    <img
-                                        src="{{ Storage::disk('public')->path($imagen->imagen) }}"
-                                    >
-
-                                @endif
-
-                            </td>
-
-                        @endforeach
-
-
-                        {{-- Completar segunda celda --}}
-
-                        @if($grupo->count() == 1)
-
-                            <td class="image-cell"></td>
-
-                        @endif
-
-                    </tr>
-
-                </table>
-
-            @endforeach
-
-        @else
-
-            <div class="no-images">
-                SIN EVIDENCIA FOTOGRÁFICA
-            </div>
-
-        @endif
-
-    </div>
-
-
-    {{-- =========================================================
-         ANEXOS
-    ========================================================== --}}
-
-    @php
-
-        $anexos = $alert->images
-            ->where('tipo', 'anexo')
-            ->sortBy('orden');
-
-    @endphp
-
-    <div class="images-section">
-
-        <div class="images-title">
-            ANEXOS
-        </div>
-
-        @if($anexos->count() > 0)
-
-            @foreach($anexos->chunk(2) as $grupo)
-
-                <table>
-
-                    <tr>
-
-                        @foreach($grupo as $imagen)
-
-                            <td class="image-cell">
-
-                                @if($imagen->imagen)
-
-                                    <img
-                                        src="{{ Storage::disk('public')->path($imagen->imagen) }}"
-                                    >
-
-                                @endif
-
-                            </td>
-
-                        @endforeach
-
-
-                        @if($grupo->count() == 1)
-
-                            <td class="image-cell"></td>
-
-                        @endif
-
-                    </tr>
-
-                </table>
-
-            @endforeach
-
-        @else
-
-            <div class="no-images">
-                SIN ANEXOS
-            </div>
-
-        @endif
-
-    </div>
-
-
-    {{-- =========================================================
-         WEBFLEET
-    ========================================================== --}}
-
-    @php
-
-        $webfleet = $alert->images
-            ->where('tipo', 'webfleet')
-            ->sortBy('orden');
-
-    @endphp
-
-    <div class="images-section">
-
-        <div class="images-title">
-            WEBFLEET
-        </div>
-
-        @if($webfleet->count() > 0)
-
-            @foreach($webfleet as $imagen)
-
-                <table>
-
-                    <tr>
-
-                        <td class="image-cell-full">
-
-                            @if($imagen->imagen)
-
-                                <img
-                                    src="{{ Storage::disk('public')->path($imagen->imagen) }}"
-                                >
-
+            @endif
+        </td>
+        {{-- INCIDENTE POTENCIAL --}}
+        <td class="classification-item {{ $clasificacion === 'incidente potencial' ? 'classification-selected' : '' }}">
+            Incidente<br>
+            potencial
+        </td>
+        {{-- SIN INCAPACIDAD --}}
+        <td class="classification-item {{ $clasificacion === 'sin incapacidad' ? 'classification-selected' : '' }}">
+            Sin<br>
+            incapacidad
+        </td>
+        {{-- INCAPACIDAD TEMPORAL --}}
+        <td class="classification-item {{ $clasificacion === 'incapacidad temporal' ? 'classification-selected' : '' }}">
+            Incapacidad<br>
+            temporal
+        </td>
+        {{-- INCAPACIDAD PERMANENTE PARCIAL --}}
+        <td class="classification-item {{ $clasificacion === 'incapacidad permanente parcial' ? 'classification-selected' : '' }}">
+            Incapacidad<br>
+            permanente<br>
+            parcial
+        </td>
+        {{-- INCAPACIDAD PERMANENTE TOTAL --}}
+        <td class="classification-item  {{ $clasificacion === 'incapacidad permanente total' ? 'classification-selected' : '' }}">
+            Incapacidad<br>
+            permanente<br>
+            total
+        </td>
+        {{-- FATALIDAD --}}
+        <td class="classification-item {{ $clasificacion === 'fatalidad' ? 'classification-selected' : '' }}">
+            Fatalidad
+        </td>
+    </tr>
+</table>
+{{-- ================= OPERADOR / AFECTADO / SUPERVISOR ================= --}}
+<table class="row-small">
+    {{-- OPERADOR --}}
+    <tr>
+        <td width="20%" class="label">
+            OPERADOR:
+        </td>
+        <td width="80%" class="value">
+            {{ $alert->operador ?? 'N/A' }}
+        </td>
+    </tr>
+    {{-- AFECTADO --}}
+    <tr class="row-small">
+        <td class="label">
+            AFECTADO:
+        </td>
+        <td class="value value-blue">
+            {{ $alert->afectado ?? 'N/A' }}
+        </td>
+    </tr>
+    {{-- PUESTO --}}
+    <tr class="row-small">
+        <td class="label">
+            PUESTO DEL AFECTADO
+        </td>
+        <td class="value value-blue">
+            {{ $alert->puesto_afectado ?? 'N/A' }}
+        </td>
+    </tr>
+    {{-- SUPERVISOR --}}
+    <tr class="row-supervisor">
+        <td class="label">
+            SUPERVISOR / MONITOR EN<br>
+            TURNO:
+        </td>
+        <td class="value">
+            {{ $alert->supervisor_monitor ?? 'N/A' }}
+        </td>
+    </tr>
+</table>
+{{-- =====================   DESCRIPCIÓN  =============================== --}}
+<table style="margin-top: 5px;">
+    <tr>
+        <td class="section-header">
+            DESCRIPCIÓN DEL INCIDENTE/ACCIDENTE:
+        </td>
+    </tr>
+    <tr>
+        <td class="description">
+            {{ $alert->descripcion ?? 'N/A' }}
+        </td>
+    </tr>
+</table>
+{{-- ========================   EVIDENCIA  ========================================= --}}
+@if($evidencias->count() > 0)
+<table style="margin-top: 5px;">
+    <tr>
+        <td class="section-header">
+            EVIDENCIA (FOTOGRAFICA, MAPA, BOSQUEJOS)
+        </td>
+    </tr>
+    <tr>
+        <td class="evidence-box">
+            <table class="evidence-table">
+                <tr>
+                    @for($i = 0; $i < 3; $i++)
+                        <td class="evidence-cell">
+                            @if(isset($evidencias[$i]) && !empty($evidencias[$i]->pdf_image))
+                                <img src="{{ $evidencias[$i]->pdf_image }}" class="evidence-image">
                             @endif
-
                         </td>
-
-                    </tr>
-
-                </table>
-
-            @endforeach
-
-        @else
-
-            <div class="no-images">
-                SIN IMAGEN WEBFLEET
-            </div>
-
-        @endif
-
-    </div>
-
-
-    {{-- =========================================================
-         ANEXOS TEXTO
-    ========================================================== --}}
-
-    <div class="text-section">
-
-        <div class="text-title">
-            ANEXOS / INFORMACIÓN ADICIONAL
-        </div>
-
-        <div class="text-content break-text">
-
-            {!! nl2br(e($alert->anexos ?? 'N/A')) !!}
-
-        </div>
-
-    </div>
-
-
-    {{-- =========================================================
-         NOMBRE DE QUIEN REPORTA
-    ========================================================== --}}
-
-    <table class="firmas">
-
+                    @endfor
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+@endif
+{{-- ======================  ANEXOS ================================= --}}
+<table style="margin-top: 5px;">
+    {{-- TÍTULO --}}
+    <tr>
+        <td class="section-header">
+            ANEXOS
+        </td>
+    </tr>
+    {{-- DESCRIPCIÓN --}}
+    <tr>
+        <td class="annex-description">
+            {{ $alert->anexos ?? '' }}
+        </td>
+    </tr>
+    {{-- IMÁGENES --}}
+    @if($anexosImagenes->count() > 0)
         <tr>
-
-            <td>
-
-                <div class="firma-box">
-
-                    @if(!empty($alert->firma_reportado))
-
-                        <img
-                            src="{{ $alert->firma_reportado }}"
-                            style="max-height:50px; max-width:180px;"
-                        >
-
-                    @else
-
-                        <div style="padding-top:25px;">
-                            {{ $alert->reportado_por ?? '' }}
-                        </div>
-
-                    @endif
-
-                </div>
-
-                <div class="firma-linea"></div>
-
-                <div class="firma-nombre">
-                    {{ $alert->reportado_por ?? 'N/A' }}
-                </div>
-
-                <div class="firma-rol">
-                    NOMBRE Y FIRMA DE QUIEN REPORTA
-                </div>
-
+            <td class="annex-images-box">
+                <table class="annex-table">
+                    <tr>
+                        @for($i = 0; $i < 2; $i++)
+                            <td class="annex-cell">
+                                @if(isset($anexosImagenes[$i]) && !empty($anexosImagenes[$i]->pdf_image))
+                                    <img src="{{ $anexosImagenes[$i]->pdf_image }}" class="annex-image">
+                                @endif
+                            </td>
+                        @endfor
+                    </tr>
+                </table>
             </td>
-
-
-            <td>
-
-                <div class="firma-box"></div>
-
-                <div class="firma-linea"></div>
-
-                <div class="firma-nombre">
-                    {{ $alert->supervisor_monitor ?? 'N/A' }}
-                </div>
-
-                <div class="firma-rol">
-                    SUPERVISOR / MONITOR
-                </div>
-
-            </td>
-
         </tr>
-
-    </table>
-
-
-    {{-- =========================================================
-         PIE
-    ========================================================== --}}
-
-    <div class="footer-format">
-
-        TRAMUSA CARRIER S.A. DE C.V.
-        &nbsp;&nbsp;|&nbsp;&nbsp;
-        ÁREA: SEGURIDAD E HIGIENE
-        &nbsp;&nbsp;|&nbsp;&nbsp;
-        F-07-23/R2
-        &nbsp;&nbsp;|&nbsp;&nbsp;
-        RESGUARDO: 5 AÑOS
-        &nbsp;&nbsp;|&nbsp;&nbsp;
-        REVISIÓN: MARZO 2022
-
-    </div>
+    @endif
+</table>
+{{-- ===================  WEBFLEET ==================================== --}}
+<table style="margin-top: 5px;">
+    <tr>
+        <td class="webfleet-box">
+            @if($webfleet->count() > 0)
+                <div style="color:#ef6f3f; font-weight:bold; font-size:8px; margin-bottom:3px;">
+                    Webfleet
+                </div>
+                @foreach($webfleet->take(1) as $imagen)
+                    @if(!empty($imagen->pdf_image))
+                        <img src="{{ $imagen->pdf_image }}" class="webfleet-image">
+                    @endif
+                @endforeach
+            @endif
+        </td>
+    </tr>
+</table>
+{{-- =================  ACCIONES PARA EVITAR REPETICIÓN  ======================= --}}
+<table style="margin-top: 5px;">
+    <tr>
+        <td class="section-header">
+            Acciones para evitar su repetición
+        </td>
+    </tr>
+    <tr>
+        <td class="actions-box">
+            {{ $alert->acciones_repeticion ?? '' }}
+        </td>
+    </tr>
+</table>
+{{-- ===================   FIRMA  ================================ --}}
+<table style="margin-top: 3px;">
+    <tr>
+        <td class="signature-area">
+            {{-- Si posteriormente tienes una firma en imagen, aquí se puede colocar automáticamente. --}}
+            <div style="height: 40px;"></div>
+            <div class="signature-name">
+                {{ $alert->reportado_por ?? '' }}
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td class="signature-label">
+            Nombre y firma de quien reporta
+        </td>
+    </tr>
+</table>
 
 </body>
 
