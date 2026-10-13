@@ -19,8 +19,10 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 
 class ProgramsMttoVehiclesController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $year = $request->integer('year', now()->year);
+
         $programs = ProgramsMttoVehicles::query()
             ->select(
                 'programs_mtto_vehicles.*',
@@ -33,8 +35,10 @@ class ProgramsMttoVehiclesController extends Controller
                 $join->on('u.unit_id', '=', 'programs_mtto_vehicles.unit')
                     ->whereColumn('u.type', 'programs_mtto_vehicles.type');
             })
-            ->with(['schedules' => function ($q) {
-                $q->select('program_mtto_vehicle_id', 'week', 'status');
+            ->with(['schedules' => function ($q) use ($year) {
+                $q->select('id', 'program_mtto_vehicle_id', 'year', 'week', 'status', 'rescheduled_to_week', 'observation')
+                ->where('year', $year)
+                ->orderBy('week');
             }])
             ->orderBy('programs_mtto_vehicles.type')
             ->orderBy('u.no_economic')
@@ -62,10 +66,14 @@ class ProgramsMttoVehiclesController extends Controller
                 'id' => $program->id,
                 'name' => $program->activity,
                 'active' => $program->active,
-                'weeks' => $program->schedules->map(function ($s) {
+                'weeks' => $program->schedules->map(function ($schedule) {
                     return [
-                        'week' => $s->week,
-                        'status' => $s->status,
+                        'id' => $schedule->id,
+                        'year' => $schedule->year,
+                        'week' => $schedule->week,
+                        'status' => $schedule->status,
+                        'rescheduled_to_week' => $schedule->rescheduled_to_week,
+                        'observation' => $schedule->observation,
                     ];
                 })->values(),
             ];
@@ -74,15 +82,19 @@ class ProgramsMttoVehiclesController extends Controller
         return response()->json(array_values($grouped));
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
+        $year = $request->integer('year', now()->year);
+
         $program = ProgramsMttoVehicles::query()
             ->join('units_all as u', function ($join) {
                 $join->on('u.unit_id', '=', 'programs_mtto_vehicles.unit')
                     ->whereColumn('u.type', 'programs_mtto_vehicles.type');
             })
             ->with(['schedules' => function ($q) {
-                $q->select('program_mtto_vehicle_id', 'week', 'status');
+                $q->select('id', 'program_mtto_vehicle_id', 'year', 'week', 'status', 'rescheduled_to_week', 'observation')
+                ->where('year', $year)
+                ->orderBy('week');
             }])
             ->where('programs_mtto_vehicles.id', $id)
             ->firstOrFail();
@@ -96,12 +108,16 @@ class ProgramsMttoVehiclesController extends Controller
                     'id' => $program->id,
                     'name' => $program->activity,
                     'active' => $program->active,
-                    'weeks' => $program->schedules->map(function ($s) {
-                                    return [
-                                        'week' => $s->week,
-                                        'status' => $s->status, // done | late | pending
-                                    ];
-                                })->values(),
+                    'weeks' => $program->schedules->map(function ($schedule) {
+                        return [
+                            'id' => $schedule->id,
+                            'year' => $schedule->year,
+                            'week' => $schedule->week,
+                            'status' => $schedule->status,
+                            'rescheduled_to_week' => $schedule->rescheduled_to_week,
+                            'observation' => $schedule->observation,
+                        ];
+                    })->values(),
                 ]
             ]
         ]);

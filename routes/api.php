@@ -31,6 +31,7 @@ use App\Http\Controllers\MayorAccountController;
 use App\Http\Controllers\MissingDocsController;
 use App\Http\Controllers\NonConformityActionController;
 use App\Http\Controllers\NonConformityController;
+use App\Http\Controllers\OrderAnnexController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OutputDetailsController;
 use App\Http\Controllers\ParentAccountController;
@@ -54,6 +55,7 @@ use App\Http\Controllers\RequisitionsController;
 use App\Http\Controllers\RevisionsController;
 use App\Http\Controllers\RevisionsTireController;
 use App\Http\Controllers\SecurityFlashAlertController;
+use App\Http\Controllers\SecurityInvestigationController;
 use App\Http\Controllers\SubTitleAccountController;
 use App\Http\Controllers\SupplierBanckController;
 use App\Http\Controllers\SuppliersController;
@@ -316,3 +318,30 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('security-flash/{id}/finalize', [SecurityFlashAlertController::class, 'finalize']);
     Route::get('security-flash/{id}/pdf', [SecurityFlashAlertController::class, 'generarPDF']);
 });
+Route::middleware('auth:sanctum')->group(function () {
+
+    Route::apiResource('security-investigations', SecurityInvestigationController::class);
+    // Factores / listas
+    Route::post('security-investigations/{id}/factors', [SecurityInvestigationController::class, 'saveFactors']);
+    // Acciones
+    Route::post('security-investigations/{id}/actions', [SecurityInvestigationController::class, 'saveActions']);
+    // Equipo de investigación
+    Route::post('security-investigations/{id}/team', [SecurityInvestigationController::class, 'saveTeam']);
+    // Finalizar
+    Route::post('security-investigations/{id}/finalize', [SecurityInvestigationController::class, 'finalize']);
+    // PDF
+    Route::get('security-investigations/{id}/pdf', [SecurityInvestigationController::class, 'pdf']);
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    // Consultar evidencia / borrador
+    Route::get('/order-annexes/{order}', [OrderAnnexController::class, 'show']);
+    // Guardar evidencia como borrador
+    Route::post('/order-annexes/{order}/save', [OrderAnnexController::class, 'save']);
+    // Finalizar evidencia y generar PDF
+    Route::post('/order-annexes/{order}/finalize', [OrderAnnexController::class, 'finalize']);
+    // Abrir PDF ya generado
+    Route::get('/order-annexes/{order}/pdf', [OrderAnnexController::class, 'pdf']);
+});
+
+Route::middleware('auth:sanctum')->get('/order-annex-image/{id}', [OrderAnnexController::class, 'image']);

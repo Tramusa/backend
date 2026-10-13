@@ -91,4 +91,12 @@ class SecurityFlashAlert extends Model
         ->where('tipo', 'webfleet')
         ->orderBy('orden');
     }
+    
+    public function investigations()
+    {
+        return $this->hasMany(
+            SecurityInvestigation::class,
+            'security_flash_alert_id'
+        );
+    }
 }

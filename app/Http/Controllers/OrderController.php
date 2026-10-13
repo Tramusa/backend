@@ -132,6 +132,7 @@ class OrderController extends Controller
                 $join->on('ua.unit_id', '=', 'earrings.unit')
                     ->on('ua.type', '=', 'earrings.type');
             })
+            ->leftJoin('order_annexes', 'orders.id', '=', 'order_annexes.order_id')
             ->where('orders.status', 4)
             ->selectRaw("
                 orders.id,
@@ -146,7 +147,8 @@ class OrderController extends Controller
                 MAX(ua.no_economic) AS unidad,
                 MAX(orders.total_mano) AS total_mano,
                 MAX(orders.total_parts) AS total_parts,
-                GROUP_CONCAT(DISTINCT earrings.description SEPARATOR ', ') AS fallas
+                GROUP_CONCAT(DISTINCT earrings.description SEPARATOR ', ') AS fallas,
+                MAX(order_annexes.status) AS evidence_status
             ")
             ->groupBy(
                 'orders.id',

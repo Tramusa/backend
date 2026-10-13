@@ -7,13 +7,15 @@ use Illuminate\Http\Request;
 
 class ProgramsMttoVehicleScheduleController extends Controller
 {
-
+    /**
+     * Registrar una actividad en una semana de un año específico.
+     */
     public function store(Request $request)
     {
         $request->validate([
             'program_mtto_vehicle_id' => 'required|exists:programs_mtto_vehicles,id',
-            'year' => 'required|integer',
-            'week' => 'required|integer|min:1|max:53',
+            'year' => 'required|integer|min:2020|max:2100',
+            'week' => 'required|integer|min:1|max:52',
         ]);
 
         $schedule = ProgramsMttoVehicleSchedule::firstOrCreate(
@@ -33,24 +35,32 @@ class ProgramsMttoVehicleScheduleController extends Controller
         ], 201);
     }
 
+
+    /**
+     * Reprogramar una actividad.
+     */
     public function update(Request $request, $id)
     {
         $request->validate([
-            'current_week' => 'required|integer|min:1|max:53',
-            'week' => 'required|integer|min:1|max:53',
+            'year' => 'required|integer|min:2020|max:2100',
+            'current_week' => 'required|integer|min:1|max:52',
+            'week' => 'required|integer|min:1|max:52',
             'observation' => 'nullable|string',
         ]);
 
-        $schedule = ProgramsMttoVehicleSchedule::where('program_mtto_vehicle_id', $id)
+        $schedule = ProgramsMttoVehicleSchedule::where(
+                'program_mtto_vehicle_id',
+                $id
+            )
+            ->where('year', $request->year)
             ->where('week', $request->current_week)
             ->firstOrFail();
 
+        $currentYear = now()->year;
         $currentWeek = now()->isoWeek();
 
-        // Guardamos el id original del cronograma
         $scheduleId = $schedule->id;
 
-        // Actualizar cronograma
         $schedule->update([
             'week' => $request->week,
             'rescheduled_to_week' => $request->current_week,
@@ -59,18 +69,24 @@ class ProgramsMttoVehicleScheduleController extends Controller
         ]);
 
         /*
-        status earrings:
-        0 = finalizada
-        1 = pendiente
-        2 = en proceso
+         * Si la programación corresponde al año actual,
+         * solamente eliminamos pendientes si la nueva semana
+         * todavía no ha pasado.
+         *
+         * Si es un año futuro (ej. 2027), también se considera
+         * una programación futura.
+         */
+        $isCurrentOrFuture =
+            $request->year > $currentYear ||
+            (
+                $request->year == $currentYear &&
+                $request->week >= $currentWeek
+            );
 
-        Si se reprograma para la semana actual o futura,
-        eliminar solo las fallas preventivas pendientes o en proceso.
-        */
-        if ($request->week >= $currentWeek) {
+        if ($isCurrentOrFuture) {
             \App\Models\Earrings::where('schedule_id', $scheduleId)
                 ->where('type_mtto', 'Preventivo')
-                ->whereIn('status', [1, 2]) // pendiente o en proceso
+                ->whereIn('status', [1, 2])
                 ->delete();
         }
 
@@ -80,19 +96,35 @@ class ProgramsMttoVehicleScheduleController extends Controller
         ]);
     }
 
+
+    /**
+     * Eliminar una programación de una semana y año específico.
+     */
     public function destroy(Request $request, $id)
     {
-        $schedule = ProgramsMttoVehicleSchedule::where('program_mtto_vehicle_id', $id)
+        $request->validate([
+            'year' => 'required|integer|min:2020|max:2100',
+            'week' => 'required|integer|min:1|max:52',
+        ]);
+
+        $schedule = ProgramsMttoVehicleSchedule::where(
+                'program_mtto_vehicle_id',
+                $id
+            )
+            ->where('year', $request->year)
             ->where('week', $request->week)
             ->first();
 
         if (!$schedule) {
-            return response()->json(['message' => 'Programación no encontrada'], 404);
+            return response()->json([
+                'message' => 'Programación no encontrada'
+            ], 404);
         }
 
         $schedule->delete();
 
-        return response()->json(['message' => 'Programación eliminada correctamente']);
+        return response()->json([
+            'message' => 'Programación eliminada correctamente'
+        ]);
     }
-
 }
