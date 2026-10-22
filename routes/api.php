@@ -9,7 +9,6 @@ use App\Http\Controllers\BalanceSuppliersController;
 use App\Http\Controllers\CategoryProductsController;
 use App\Http\Controllers\CollaboratorsController;
 use App\Http\Controllers\ConcentratedResolutionController;
-use App\Http\Controllers\CtrlTiresController;
 use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\DetailsRequisitionsController;
 use App\Http\Controllers\DocsPDFsController;
@@ -29,7 +28,6 @@ use App\Http\Controllers\KpisController;
 use App\Http\Controllers\MaintenanceGeneralConcentrateController;
 use App\Http\Controllers\MayorAccountController;
 use App\Http\Controllers\MissingDocsController;
-use App\Http\Controllers\NonConformityActionController;
 use App\Http\Controllers\NonConformityController;
 use App\Http\Controllers\OrderAnnexController;
 use App\Http\Controllers\OrderController;
@@ -40,6 +38,7 @@ use App\Http\Controllers\PaymentOrderController;
 use App\Http\Controllers\PaymentSuppliersController;
 use App\Http\Controllers\PeajesController;
 use App\Http\Controllers\PointsInterest;
+use App\Http\Controllers\ProcedureController;
 use App\Http\Controllers\ProductsServicesController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProgramMttoGeneralController;
@@ -49,11 +48,9 @@ use App\Http\Controllers\ProgramsMttoVehicleScheduleController;
 use App\Http\Controllers\ProgramsMttoVehiclesController;
 use App\Http\Controllers\PurchaseOrderController;
 use App\Http\Controllers\RelationController;
-use App\Http\Controllers\RenovationsTireController;
 use App\Http\Controllers\RepairTireController;
 use App\Http\Controllers\RequisitionsController;
 use App\Http\Controllers\RevisionsController;
-use App\Http\Controllers\RevisionsTireController;
 use App\Http\Controllers\SecurityFlashAlertController;
 use App\Http\Controllers\SecurityInvestigationController;
 use App\Http\Controllers\SubTitleAccountController;
@@ -345,3 +342,11 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::middleware('auth:sanctum')->get('/order-annex-image/{id}', [OrderAnnexController::class, 'image']);
+
+
+Route::middleware('auth:sanctum')->group(function () {
+    // Debe declararse antes del recurso general.
+    Route::get('/procedures/{id}/pdf', [ProcedureController::class, 'pdf'])->whereNumber('id');
+
+    Route::apiResource('procedures', ProcedureController::class)->whereNumber('procedure');
+});
