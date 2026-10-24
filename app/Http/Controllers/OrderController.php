@@ -244,102 +244,228 @@ class OrderController extends Controller
     public function update(Request $request, $id)
     {
         $order = Orders::find($id);
+
         if (!$order) {
             return response()->json(['message' => 'Orden no encontrada'], 404);
         }
 
         $status = (int) $request->input('data.status');
-        $order->status = $status;
+        $action = $request->input('data.action');
+        $formData = $request->input('data.form', []);
 
-        /* VALIDACIÓN Y ACTUALIZACIÓN DE ODÓMETRO (SOLO STATUS 0 Y 4) */
-        if (in_array($status, [0, 4])) {
+        if (!is_array($formData)) {
+            $formData = [];
+        }
 
-            $odometro = $request->input('data.form.odometro');
+        /* ------------------------------------------------------------------------
+        | VALIDAR ANTES DE FINALIZAR
+        |--------------------------------------------------------------------------
+        | Para finalizar definitivamente, primero debe haberse registrado date_attended al terminar la reparación. */
+        $orderEarrings = collect();
 
-            // Convertir SIEMPRE a entero para evitar redondeos
-            $odometro = is_numeric($odometro) ? (int) $odometro : null;
+        if ($status === 4) {
+            if (empty($order->date_attended)) {
+                return response()->json(['message' => 'Primero debes terminar la reparación antes de finalizar la orden.'], 422);
+            }
 
-            if (
-                ($status == 4 && $odometro !== null) ||
-                ($status == 0 && $odometro !== null && $odometro > 0)
-            ) {
+            $earringIds = OrderDetail::where('id_order', $order->id)->pluck('id_earring');
 
-                $detail = OrderDetail::where('id_order', $order->id)->first();
-                if (!$detail) {
-                    return response()->json(['message' => 'No se encontró el detalle de la orden'], 422);
-                }
+            $orderEarrings = Earrings::whereIn('id', $earringIds)->get();
 
-                $earring = Earrings::find($detail->id_earring);
-                if (!$earring) {
-                    return response()->json(['message' => 'No se encontró la unidad'], 422);
-                }
+            if ($orderEarrings->isEmpty()) {
+                return response()->json(['message' => 'La orden no tiene fallas asociadas.'], 422);
+            }
 
-                $tablas = [1 => 'tractocamiones', 2 => 'remolques', 3 => 'dollys', 4 => 'volteos', 5 => 'toneles', 6 => 'tortons', 7 => 'autobuses', 8 => 'sprinters', 9 => 'utilitarios', 10 => 'maquinarias'];
+            $firstEarring = $orderEarrings->first();
+            // Los tipos 3, 4 y 5 no requieren odómetro.
+            $requiresOdometer = !in_array((int) $firstEarring->type, [3, 4, 5], true);
 
-                $tabla = $tablas[$earring->type] ?? null;
-                if (!$tabla) {
-                    return response()->json(['message' => 'Tipo de unidad inválido'], 422);
-                }
+            $requiresBatteryInspection = $orderEarrings->contains(function ($earring) {
+                return preg_match('/bater[ií]a/i', $earring->description ?? '');
+            });
 
-                $currentOdometer = (int) DB::table($tabla)
-                    ->where('id', $earring->unit)
-                    ->value('odometro');
+            $rules = [
+                'data.form.requisitions' => ['required', 'string'],
+                'data.form.repair' => ['required', 'string'],
+                'data.form.spare_parts' => ['required', 'string'],
+                'data.form.operator' => ['required', 'integer', 'exists:users,id'],
+                'data.form.total_mano' => ['required', 'numeric', 'min:0'],
+                'data.form.total_parts' => ['required', 'numeric', 'min:0'],
+            ];
 
-                if ($odometro < $currentOdometer) {
-                    return response()->json([
-                        'message' => 'El odómetro no puede ser menor al actual de la unidad'
-                    ], 422);
-                }
+            if ($requiresOdometer) {
+                $rules['data.form.odometro'] = ['required', 'numeric', 'min:0'];
+            }
 
-                // ✅ Actualizar UNIDAD
-                DB::table($tabla)
-                    ->where('id', $earring->unit)
-                    ->update(['odometro' => $odometro]);
+            if ($requiresBatteryInspection) {
+                $rules['data.form.voltaje'] = ['required', 'numeric', 'min:0'];
 
-                // ✅ Actualizar ORDEN (ESTO FALTABA)
-                $order->odometro = $odometro;
+                $rules['data.form.arranque'] = ['required', 'in:Sí, arranca sin dificultad,Arranca con dificultad,No arranca'];
+            }
+            // Laravel responderá con HTTP 422 si falta información obligatoria.
+            $request->validate($rules);
+        }
+
+        /*------------------------------------------------------------------------
+        | ACTUALIZAR ODÓMETRO
+        |--------------------------------------------------------------------------
+        | También se permite actualizarlo al terminar la reparación. Si se está guardando un avance y el campo está vacío, se omite.*/
+        $finishRepair = $status === 3 && $action === 'finish_repair';
+
+        if ($finishRepair) {
+            $request->validate([
+                'data.form.operator' => ['required', 'integer', 'exists:users,id',],
+                'data.form.repair' => ['required', 'string',],
+                'data.form.spare_parts' => ['required', 'string',],
+            ], [
+                'data.form.operator.required' => 'Debes seleccionar un operador.',
+                'data.form.operator.integer' => 'El operador seleccionado no es válido.',
+                'data.form.operator.exists' => 'El operador seleccionado no existe.',
+                'data.form.repair.required' => 'Debes capturar el resumen de reparación.',
+                'data.form.repair.string' => 'El resumen de reparación debe ser texto.',
+                'data.form.spare_parts.required' => 'Debes capturar la lista de refacciones.',
+                'data.form.spare_parts.string' => 'La lista de refacciones debe ser texto.',
+            ]);
+
+            // Rechazar cadenas que solo contienen espacios.
+            $form = $request->input('data.form', []);
+
+            if (trim($form['repair']) === '') {
+                return response()->json(['message' => 'Debes capturar el resumen de reparación.'], 422);
+            }
+
+            if (trim($form['spare_parts']) === '') {
+                return response()->json(['message' => 'Debes capturar la lista de refacciones.'], 422);
             }
         }
 
-        /*  LÓGICA DE STATUS  */
-        if ($status == 0) {
+        if (in_array($status, [0, 4], true) || $finishRepair) {
+            $odometroInput = $formData['odometro'] ?? null;
 
-            $order->fill($request->input('data.form'));
+            if (is_numeric($odometroInput)) {
+                $odometro = (int) $odometroInput;
+
+                if (($status === 4 && $odometroInput !== '') || ($status === 0 && $odometro > 0) || ($finishRepair && $odometro > 0)) {
+                    $detail = OrderDetail::where('id_order', $order->id)->first();
+
+                    if (!$detail) {
+                        return response()->json(['message' => 'No se encontró el detalle de la orden.'], 422);
+                    }
+
+                    $earring = Earrings::find($detail->id_earring);
+
+                    if (!$earring) {
+                        return response()->json(['message' => 'No se encontró la unidad.'], 422);
+                    }
+
+                    $tables = [1 => 'tractocamiones', 2 => 'remolques', 3 => 'dollys', 4 => 'volteos', 5 => 'toneles', 6 => 'tortons', 7 => 'autobuses', 8 => 'sprinters', 9 => 'utilitarios', 10 => 'maquinarias',];
+
+                    $table = $tables[$earring->type] ?? null;
+
+                    if (!$table) {
+                        return response()->json(['message' => 'Tipo de unidad inválido.'], 422);
+                    }
+
+                    $currentOdometer = (int) DB::table($table)
+                        ->where('id', $earring->unit)
+                        ->value('odometro');
+
+                    if ($odometro < $currentOdometer) {
+                        return response()->json(['message' => 'El odómetro no puede ser menor al actual de la unidad.'], 422);
+                    }
+
+                    DB::table($table)
+                        ->where('id', $earring->unit)
+                        ->update(['odometro' => $odometro]);
+
+                    $order->odometro = $odometro;
+                }
+            } elseif ($status === 4 && $requiresOdometer) {
+                return response()->json(['message' => 'Debes indicar el odómetro de la unidad.'], 422);
+            }
+        }
+
+        /*-----------------------------------------------------------------------
+        | GUARDAR CAMBIOS SIN TERMINAR LA REPARACIÓN
+        |--------------------------------------------------------------------------
+        | Tu botón Guardar cambios envía status 0. Se conservan el status 3 y la fecha de atención existente.*/
+        if ($status === 0) {
+            $perform = $formData['perform'] ?? null;
+            // No sobrescribir el mecánico con una selección vacía.
+            unset($formData['perform']);
+
+            $order->fill($formData);
             $order->status = 3;
 
-        } elseif ($status == 2) {
-
+            if (!empty($perform)) {
+                $order->perform = (int) $perform;
+            } elseif (empty($order->perform)) {
+                $order->perform = Auth::id();
+            }
+        /*-----------------------------------------------------------------------
+        | AUTORIZAR ORDEN
+        |------------------------------------------------------------------------*/
+        } elseif ($status === 2) {
+            $order->status = 2;
             $order->authorize = Auth::id();
+        /*-----------------------------------------------------------------------
+        | PASAR A PROCESO O TERMINAR REPARACIÓN
+        |----------------------------------------------------------------------*/
+        } elseif ($status === 3 && $action === 'finish_repair') {
+            // PRIMERA ETAPA: guardar la información de reparación.
+            $perform = $formData['perform'] ?? null;
 
-        } elseif ($status == 3) {
+            unset($formData['perform']);
 
+            $order->fill($formData);
+            $order->status = 3;
+            // Guardar fecha solo la primera vez.
+            if (empty($order->date_attended)) {
+                $order->date_attended = now();
+            }
+            // Conservar el mecánico asignado previamente.
+            if (!empty($perform)) {
+                $order->perform = (int) $perform;
+            } elseif (empty($order->perform)) {
+                $order->perform = Auth::id();
+            }
+        } elseif ($status === 3) {
+            // Asignar la fecha de inicio solo al pasar a proceso.
+            $order->status = 3;
             $order->date_in = now();
 
-        } elseif ($status == 4) {
+            $perform = $request->input('data.perform');
 
-            $order->fill($request->input('data.form'));
-            $order->date_attended = now();
-            // Mecánico que realizó el trabajo
-            // Si no se seleccionó uno, se asigna el usuario que está finalizando
-            $perform = $request->input('data.form.perform');
-            $order->perform = !empty($perform) ? (int) $perform : Auth::id();;
+            $order->perform = !empty($perform) ? (int) $perform : Auth::id();
+        /*------------------------------------------------------------------------
+        | FINALIZAR ORDEN
+        |------------------------------------------------------------------*/
+        } elseif ($status === 4) {
+            // La validación anterior garantiza que date_attended ya exista.
+            $perform = $formData['perform'] ?? null;
 
-            // FINALIZAR FALLAS
-            $earringsIds = OrderDetail::where('id_order', $order->id)
-                ->pluck('id_earring');
+            unset($formData['perform']);
 
-            $earrings = Earrings::whereIn('id', $earringsIds)->get();
+            $order->fill($formData);
+            // No volver a modificar date_attended.
+            $order->status = 4;
 
-            Earrings::whereIn('id', $earringsIds)
-                ->update(['status' => 0]);
+            if (!empty($perform)) {
+                $order->perform = (int) $perform;
+            } elseif (empty($order->perform)) {
+                $order->perform = Auth::id();
+            }
+            // Finalizar las fallas asociadas.
+            $earringIds = OrderDetail::where('id_order', $order->id)->pluck('id_earring');
 
-            // FECHA REAL DE FINALIZACIÓN
+            Earrings::whereIn('id', $earringIds)->update(['status' => 0]);
+
+            // Actualizar los cronogramas relacionados.
             $doneDate = Carbon::now();
             $doneWeek = $doneDate->isoWeek();
             $doneYear = $doneDate->isoWeekYear();
 
-            // OBTENER SCHEDULES
-            $scheduleIds = $earrings
+            $scheduleIds = $orderEarrings
                 ->pluck('schedule_id')
                 ->filter()
                 ->unique();
@@ -347,27 +473,39 @@ class OrderController extends Controller
             $schedules = ProgramsMttoVehicleSchedule::whereIn('id', $scheduleIds)->get();
 
             foreach ($schedules as $schedule) {
-                // COMPARAR SEMANA PROGRAMADA VS REAL
-                if (
-                    (int) $schedule->week === (int) $doneWeek &&
-                    (int) $schedule->year === (int) $doneYear
-                ) {
+                if ((int) $schedule->week === (int) $doneWeek && (int) $schedule->year === (int) $doneYear) {
                     $schedule->status = 'done';
                 } else {
                     $schedule->status = 'late';
                 }
+
                 $schedule->executed_at = $doneDate;
                 $schedule->save();
             }
-        }
 
+        } else {
+            return response()->json(['message' => 'El estado solicitado no es válido.'], 422);
+        }
+        /*----------------------------------------------------------------------
+        | GUARDAR ORDEN
+        |--------------------------------------------------------------------------*/
         try {
             $order->save();
-            return response()->json(['message' => 'Orden actualizada correctamente']);
-        } catch (\Exception $e) {
+
             return response()->json([
-                'message' => 'Error al actualizar la orden: ' . $e->getMessage()
-            ], 500);
+                'message' => $finishRepair
+                    ? 'Reparación registrada correctamente. La orden continúa en proceso.'
+                    : ($status === 4 ? 'Orden finalizada correctamente.' : 'Orden actualizada correctamente.'),
+                'order' => $order->fresh(),
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error al actualizar orden', [
+                'order_id' => $id,
+                'status' => $status,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json(['message' => 'Error al actualizar la orden.'], 500);
         }
     }
 

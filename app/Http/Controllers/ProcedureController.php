@@ -17,33 +17,25 @@ class ProcedureController extends Controller
             'Administración',
             'RRHH',
             'Seguridad',
-            'C&C',
+            'Concentrado',
+            'Combustible',
             'Personal',
         ]);
     }
 
-    /**
-     * Listar procedimientos.
-     * El departamento es opcional: si no se envía, muestra todos.
-     */
+    /** Listar procedimientos.
+     * El departamento es opcional: si no se envía, muestra todos. */
     public function index(Request $request)
     {
         $request->validate([
-            'departamento' => [
-                'nullable',
-                'string',
-                Rule::in($this->departamentos()),
-            ],
+            'departamento' => ['nullable','string', Rule::in($this->departamentos()),],
             'buscar' => ['nullable', 'string', 'max:180'],
         ]);
 
         $procedimientos = Procedure::query()
             ->when(
                 $request->filled('departamento'),
-                fn ($q) => $q->where(
-                    'departamento',
-                    $request->query('departamento')
-                )
+                fn ($q) => $q->where('departamento', $request->query('departamento'))
             )
             ->when($request->filled('buscar'), function ($q) use ($request) {
                 $buscar = trim($request->query('buscar'));
@@ -59,31 +51,17 @@ class ProcedureController extends Controller
         return response()->json($procedimientos);
     }
 
-    /**
-     * Registrar procedimiento y PDF.
-     */
+    /** Registrar procedimiento y PDF. */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'departamento' => [
-                'required',
-                'string',
-                Rule::in($this->departamentos()),
-            ],
+            'departamento' => ['nullable','string', Rule::in($this->departamentos()),],
             'nombre' => ['required', 'string', 'max:180'],
             'descripcion' => ['nullable', 'string', 'max:5000'],
-            'archivo_pdf' => [
-                'required',
-                'file',
-                'mimes:pdf',
-                'max:10240',
-            ],
+            'archivo_pdf' => ['required', 'file', 'mimes:pdf', 'max:10240',],
         ]);
 
-        $ruta = $request->file('archivo_pdf')->store(
-            'procedures',
-            'local'
-        );
+        $ruta = $request->file('archivo_pdf')->store('procedures', 'local');
 
         try {
             $procedure = Procedure::create([
@@ -104,9 +82,7 @@ class ProcedureController extends Controller
         ], 201);
     }
 
-    /**
-     * Consultar un procedimiento.
-     */
+    /** Consultar un procedimiento. */
     public function show(string $id)
     {
         return response()->json(
@@ -114,37 +90,23 @@ class ProcedureController extends Controller
         );
     }
 
-    /**
-     * Editar datos, departamento o sustituir el PDF.
-     */
+    /**  Editar datos, departamento o sustituir el PDF */
     public function update(Request $request, string $id)
     {
         $procedure = Procedure::findOrFail($id);
 
         $validated = $request->validate([
-            'departamento' => [
-                'required',
-                'string',
-                Rule::in($this->departamentos()),
-            ],
+            'departamento' => ['nullable','string', Rule::in($this->departamentos()),],
             'nombre' => ['required', 'string', 'max:180'],
             'descripcion' => ['nullable', 'string', 'max:5000'],
-            'archivo_pdf' => [
-                'nullable',
-                'file',
-                'mimes:pdf',
-                'max:10240',
-            ],
+            'archivo_pdf' => ['required', 'file', 'mimes:pdf', 'max:10240',],
         ]);
 
         $rutaAnterior = $procedure->archivo_pdf;
         $rutaNueva = null;
 
         if ($request->hasFile('archivo_pdf')) {
-            $rutaNueva = $request->file('archivo_pdf')->store(
-                'procedures',
-                'local'
-            );
+            $rutaNueva = $request->file('archivo_pdf')->store('procedures', 'local');
         }
 
         try {
@@ -161,7 +123,6 @@ class ProcedureController extends Controller
             if ($rutaNueva) {
                 Storage::disk('local')->delete($rutaNueva);
             }
-
             throw $e;
         }
 
@@ -175,24 +136,14 @@ class ProcedureController extends Controller
         ]);
     }
 
-    /**
-     * Visualizar PDF.
-     */
+    /** Visualizar PDF. */
     public function pdf(string $id)
     {
         $procedure = Procedure::findOrFail($id);
 
-        abort_unless(
-            Storage::disk('local')->exists($procedure->archivo_pdf),
-            404,
-            'El archivo PDF no existe.'
-        );
+        abort_unless(Storage::disk('local')->exists($procedure->archivo_pdf), 404, 'El archivo PDF no existe.');
 
-        $nombre = preg_replace(
-            '/[^A-Za-z0-9._-]/',
-            '_',
-            $procedure->nombre
-        );
+        $nombre = preg_replace('/[^A-Za-z0-9._-]/', '_', $procedure->nombre);
 
         return response()->file(
             Storage::disk('local')->path($procedure->archivo_pdf),
@@ -205,20 +156,13 @@ class ProcedureController extends Controller
         );
     }
 
-    /**
-     * Eliminar registro y archivo PDF.
-     */
+    /** Eliminar registro y archivo PDF. */
     public function destroy(string $id)
     {
         $procedure = Procedure::findOrFail($id);
         $ruta = $procedure->archivo_pdf;
-
         $procedure->delete();
-
         Storage::disk('local')->delete($ruta);
-
-        return response()->json([
-            'message' => 'Procedimiento eliminado correctamente.',
-        ]);
+        return response()->json(['message' => 'Procedimiento eliminado correctamente.',]);
     }
 }
