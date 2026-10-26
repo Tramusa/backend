@@ -336,7 +336,7 @@ class ProgramsMttoVehiclesController extends Controller
                         $months = [
                             'ENE' => 5, 'FEB' => 4, 'MAR' => 4, 'ABR' => 4,
                             'MAY' => 4, 'JUN' => 5, 'JUL' => 4, 'AGO' => 4,
-                            'SEP' => 5, 'OCT' => 4, 'NOV' => 4, 'DIC' => 5
+                            'SEP' => 5, 'OCT' => 5, 'NOV' => 4, 'DIC' => 4
                         ];
 
                         $col = 2;

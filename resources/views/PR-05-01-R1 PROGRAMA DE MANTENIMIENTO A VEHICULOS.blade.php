@@ -190,9 +190,9 @@
             ['name'=>'JUL','weeks'=>5,'class'=>'month-white'],
             ['name'=>'AGO','weeks'=>4,'class'=>'month-grey'],
             ['name'=>'SEP','weeks'=>4,'class'=>'month-white'],
-            ['name'=>'OCT','weeks'=>4,'class'=>'month-grey'],
+            ['name'=>'OCT','weeks'=>5,'class'=>'month-grey'],
             ['name'=>'NOV','weeks'=>4,'class'=>'month-white'],
-            ['name'=>'DIC','weeks'=>5,'class'=>'month-grey'],
+            ['name'=>'DIC','weeks'=>4,'class'=>'month-grey'],
         ];
 
         $weekClasses = [];
