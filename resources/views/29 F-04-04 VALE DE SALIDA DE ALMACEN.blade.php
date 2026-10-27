@@ -147,6 +147,22 @@
         padding: 2px 5px;
         border: 1px solid #000;
       }
+
+      .remision-table .total-row td {
+          background: #E8EDF2;
+          font-weight: bold;
+          border-top: 2px solid #000;
+          padding: 8px 5px;
+      }
+
+      .remision-table .total-label {
+          text-align: right;
+      }
+
+      .remision-table .total-amount {
+          font-size: 12px;
+          white-space: nowrap;
+      }
     </style>
   </head>
   <body>
@@ -170,44 +186,81 @@
           <tr><td class="blueTitle">{{ $DataOut['id']  ?? ' ' }}</td></tr>
         </table><br>
       </div>     
-      <div style="clear: both;"></div>
+      <div style="clear: both;"></div>      
       <div class="row">
-        <table>
-            <thead>
-                <tr>
-                    <th>TIPO DE COMPRA</th>
-                    <th>CANTIDAD</th>
-                    <th>UNIDAD DE MEDIDA</th>
-                    <th>DESCRIPCIÓN</th>
-                </tr>
-            </thead>
-            <tbody>
-                @php
-                    $minRows = 20;
-                    $filledRows = count($DataDetails);
-                @endphp
+          <table class="remision-table">
+              <thead>
+                  <tr>
+                      <th>CANTIDAD</th>
+                      <th>UNIDAD DE MEDIDA</th>
+                      <th>DESCRIPCIÓN</th>
+                      <th>PRECIO</th>
+                      <th>IMPORTE</th>
+                  </tr>
+              </thead>
 
-                {{-- Mostrar los datos reales --}}
-                @foreach($DataDetails as $detail)
-                    <tr>
-                        <td>{{ $DataOut->purchase_type ?? '' }}</td>
-                        <td>{{ $detail->quality ?? '' }}</td>
-                        <td>{{ $detail->product->unit_measure ?? '' }}</td>
-                        <td>{{ $detail->product->name ?? '' }}</td>
-                    </tr>
-                @endforeach
+              <tbody>
+                  @php
+                      $minRows = 20;
+                      $filledRows = count($DataDetails);
+                      $totalImporte = 0;
+                  @endphp
 
-                {{-- Rellenar con filas vacías si hay menos de 20 --}}
-                @for($i = 0; $i < $minRows - $filledRows; $i++)
-                    <tr>
-                        <td>&nbsp;</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                @endfor
-            </tbody>
-        </table>
+                  {{-- PRODUCTOS --}}
+                  @foreach($DataDetails as $detail)
+                      @php
+                          $cantidad = (float) ($detail->quality ?? 0);
+                          $precio = (float) ($detail->product->price ?? 0);
+                          $importe = $cantidad * $precio;
+
+                          $totalImporte += $importe;
+                      @endphp
+
+                      <tr>
+                          <td class="text-center">
+                              {{ $detail->quality ?? 0 }}
+                          </td>
+
+                          <td class="text-center">
+                              {{ $detail->product->unit_measure ?? '' }}
+                          </td>
+
+                          <td>
+                              {{ $detail->product->name ?? '' }}
+                          </td>
+
+                          <td class="text-right">
+                              ${{ number_format($precio, 2) }}
+                          </td>
+
+                          <td class="text-right">
+                              ${{ number_format($importe, 2) }}
+                          </td>
+                      </tr>
+                  @endforeach
+
+                  {{-- FILAS VACÍAS --}}
+                  @for($i = 0; $i < max(0, $minRows - $filledRows); $i++)
+                      <tr class="empty-row">
+                          <td>&nbsp;</td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                      </tr>
+                  @endfor
+
+                  {{-- TOTAL GENERAL --}}
+                  <tr class="total-row">
+                      <td colspan="4" class="total-label">
+                          TOTAL
+                      </td>
+                      <td class="text-right total-amount">
+                          ${{ number_format($totalImporte, 2) }}
+                      </td>
+                  </tr>
+              </tbody>
+          </table>
       </div>
       <div style="clear: both;"></div>
       <div class="row">        
