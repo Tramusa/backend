@@ -15,6 +15,9 @@ class InventoryDetailsController extends Controller
             $details = InventoryDetails::where('id_inventory', $inventoryId)
                         ->with('product')
                         ->get();
+            $details->each(function ($detail) {
+                $detail->product?->append('net_cost');
+            });
 
             return response()->json($details);
         } catch (\Throwable $e) {
@@ -34,6 +37,9 @@ class InventoryDetailsController extends Controller
             $details = InventoryDetails::where('id_inventory', $id)
                         ->with('product')
                         ->get();
+            $details->each(function ($detail) {
+                $detail->product?->append('net_cost');
+            });
 
             return response()->json($details);
         } catch (\Throwable $e) {

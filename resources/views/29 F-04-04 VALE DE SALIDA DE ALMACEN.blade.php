@@ -33,12 +33,12 @@
       }
 
       .column-2-1 {
-        width: 85%;
+        width: 65%;
         float: left; 
       }
 
       .column-2-2 {
-        width: 15%;
+        width: 35%;
         float: left;
         border: 1px solid #000;
       }
@@ -182,8 +182,8 @@
       <div class="row">
         <div class="column-2-1"></div>
         <table class="column-2-2">
-          <tr><th>FOLIO</th></tr>
-          <tr><td class="blueTitle">{{ $DataOut['id']  ?? ' ' }}</td></tr>
+          <tr><th>Fecha</th><th>FOLIO</th></tr>
+          <tr><td>{{ $fecha ?? ' ' }}</td><td class="blueTitle">{{ $DataOut['id']  ?? ' ' }}</td></tr>
         </table><br>
       </div>     
       <div style="clear: both;"></div>      
@@ -210,7 +210,7 @@
                   @foreach($DataDetails as $detail)
                       @php
                           $cantidad = (float) ($detail->quality ?? 0);
-                          $precio = (float) ($detail->product->price ?? 0);
+                          $precio = (float) ($detail->price ?? 0);
                           $importe = $cantidad * $precio;
 
                           $totalImporte += $importe;

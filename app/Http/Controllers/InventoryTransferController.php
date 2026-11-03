@@ -50,61 +50,66 @@ class InventoryTransferController extends Controller
     {
         $request->validate([
             'inventory_origin_id' => ['required', 'exists:warehouses,id'],
-            'inventory_destination_id' => ['required', 'exists:warehouses,id', 'different:inventory_origin_id'],
+            'inventory_destination_id' => [
+                'required', 'exists:warehouses,id', 'different:inventory_origin_id'
+            ],
             'receiver' => ['required', 'string', 'max:255'],
             'date' => ['nullable', 'date'],
             'observations' => ['nullable', 'string'],
-            'products' => ['required','array','min:1'],
-            'products.*.id_product' => ['required', 'exists:products_services,id'],
+            'products' => ['required', 'array', 'min:1'],
+            'products.*.id_product' => [
+                'required', 'exists:products_services,id'
+            ],
             'products.*.quantity' => ['required', 'numeric', 'min:0.1']
         ]);
 
         try {
-            /*-----------------------------------------------------------------------
-            | TODO SE HACE EN UNA SOLA TRANSACCIÓN
-            |----------------------------------------------------------------------*/
+
             $result = DB::transaction(function () use ($request) {
+
                 $originId = $request->inventory_origin_id;
                 $destinationId = $request->inventory_destination_id;
                 $userId = auth()->id();
 
-                /*-----------------------------------------------------------------------
-                | 1. VALIDAR EXISTENCIAS
-                |---------------------------------------------------------------------*/
+                // 1. Validar existencias y consultar costo neto.
                 $productsToTransfer = [];
-                foreach ($request->products as $product) {
-                    $productId = $product['id_product'];
-                    $quantity = (float) $product['quantity'];
+
+                foreach ($request->products as $item) {
+
+                    $product = ProductsServices::findOrFail($item['id_product']);
+
+                    $quantity = (float) $item['quantity'];
+
                     $originDetail = InventoryDetails::where('id_inventory', $originId)
-                    ->where('id_product', $productId)
-                    ->lockForUpdate()
-                    ->first();
+                        ->where('id_product', $product->id)
+                        ->lockForUpdate()
+                        ->first();
 
                     if (!$originDetail) {
-                        $productData = ProductsServices::find($productId);
-                        throw new \Exception(
-                            "El producto " . ($productData->name ?? 'desconocido') . " no existe en el almacén de origen."
-                        );
+                        throw new \Exception("El producto {$product->name} no existe en el almacén de origen.");
                     }
 
-                    /*------------------------------------------------------------------------
-                    | STOCK
-                    |------------------------------------------------------------------------*/
                     if ((float) $originDetail->quality < $quantity) {
-                        $productData = ProductsServices::find($productId);
-                        throw new \Exception(
-                            "Stock insuficiente para " . ($productData->name ?? 'desconocido') .
-                            ". Disponible: " . $originDetail->quality .
-                            ", solicitado: " . $quantity
-                        );
+                        throw new \Exception("Stock insuficiente para {$product->name}. Disponible: {$originDetail->quality}, solicitado: {$quantity}");
                     }
 
-                    $productsToTransfer[] = [ 'productId' => $productId, 'quantity' => $quantity, 'originDetail' => $originDetail];
+                    // Obtener costo neto directamente del producto.
+                    $netCost = (float) $product->net_cost;
+
+                    $productsToTransfer[] = [
+                        'product' => $product,
+                        'productId' => $product->id,
+                        'quantity' => $quantity,
+                        'netCost' => $netCost,
+                        'originDetail' => $originDetail
+                    ];
                 }
 
-                /*------------------------------------------------------------------------
-                | 2. CREAR TRASPASO
-                |------------------------------------------------------------------------*/
+                // 2. Obtener almacenes.
+                $originWarehouse = Warehouses::findOrFail($originId);
+                $destinationWarehouse = Warehouses::findOrFail($destinationId);
+
+                // 3. Crear cabecera del traspaso.
                 $transfer = InventoryTransfer::create([
                     'inventory_origin_id' => $originId,
                     'inventory_destination_id' => $destinationId,
@@ -114,35 +119,49 @@ class InventoryTransferController extends Controller
                     'observations' => $request->observations ?? "Traspaso de almacén {$originId} a almacén {$destinationId}",
                 ]);
 
+                // 4. Crear salida automática.
+                $output = InventoryOutput::create([
+                    'id_inventory' => $originId,
+                    'date' => $transfer->date,
+                    'user_id' => $userId,
+                    'receiver' => $request->receiver,
+                    'observations' => "Traspaso de almacén {$originWarehouse->name} a almacén {$destinationWarehouse->name}",
+                ]);
 
-                /*-----------------------------------------------------------------------
-                | 3. CREAR DETALLES + ACTUALIZAR INVENTARIOS
-                |-----------------------------------------------------------------------*/
+                // 5. Crear entrada automática.
+                $entry = InventoryEntries::create([
+                    'invoice' => 'TRASPASO',
+                    'requisition' => 'DESDE ALMACÉN ' . $originWarehouse->name,
+                    'id_inventory' => $destinationId,
+                    'date' => $transfer->date,
+                    'user_id' => $userId,
+                ]);
+
+                // 6. Registrar detalles y actualizar existencias.
                 foreach ($productsToTransfer as $item) {
+
+                    $product = $item['product'];
                     $productId = $item['productId'];
                     $quantity = $item['quantity'];
+                    $netCost = $item['netCost'];
 
-                    /*-----------------------------------------------------------------------
-                    | DETALLE DEL TRASPASO
-                    |------------------------------------------------------------------------*/
+                    $subtotal = round($quantity * $netCost, 2);
+
+                    // Detalle del traspaso.
                     TransferDetails::create([
                         'id_transfer' => $transfer->id,
                         'id_product' => $productId,
                         'quantity' => $quantity,
                     ]);
 
-                    /*-----------------------------------------------------------------------
-                    | RESTAR DEL ORIGEN
-                    |-----------------------------------------------------------------------*/
+                    // Descontar del almacén de origen.
                     $item['originDetail']->decrement('quality', $quantity);
 
-                    /*---------------------------------------------------------------------
-                    | AGREGAR AL DESTINO
-                    |---------------------------------------------------------------------*/
+                    // Agregar al almacén de destino.
                     $destinationDetail = InventoryDetails::where('id_inventory', $destinationId)
-                    ->where('id_product', $productId)
-                    ->lockForUpdate()
-                    ->first();
+                        ->where('id_product', $productId)
+                        ->lockForUpdate()
+                        ->first();
 
                     if ($destinationDetail) {
                         $destinationDetail->increment('quality', $quantity);
@@ -153,77 +172,32 @@ class InventoryTransferController extends Controller
                             'quality' => $quantity,
                         ]);
                     }
-                }
 
-                /*-------------------------------------------------------------------------
-                | 4. CREAR SALIDA AUTOMÁTICA
-                |------------------------------------------------------------------------*/
-                $originWarehouse = Warehouses::findOrFail($originId);
-                $destinationWarehouse = Warehouses::findOrFail($destinationId);
-                
-                $output = InventoryOutput::create([
-                    'id_inventory' => $originId,
-                    'date' => $transfer->date,
-                    'user_id' => $userId,
-                    'receiver' => $request->receiver,
-                    'observations' => "Traspaso de almacén {$originWarehouse->name} a almacén {$destinationWarehouse->name}",
-                ]);
-
-                foreach ($productsToTransfer as $item) {
-                    /*
-                    | Aquí NO necesitamos volver a descontar inventario.
-                    | Ya se descontó arriba.
-                    */
+                    // Detalle de salida con costo neto.
                     OutputDetails::create([
                         'id_output' => $output->id,
-                        'id_product' => $item['productId'],
-                        'quality' => $item['quantity'],
-                        'price' => 0,
+                        'id_product' => $productId,
+                        'quality' => $quantity,
+                        'price' => $netCost,
                     ]);
-                }
 
-                /*------------------------------------------------------------------------
-                | 5. CREAR ENTRADA AUTOMÁTICA
-                |------------------------------------------------------------------------*/
-                $entry = InventoryEntries::create([
-                    'invoice' => 'TRASPASO',
-                    'requisition' => 'DESDE ALMACÉN ' . $originWarehouse->name,
-                    'id_inventory' => $destinationId,
-                    'date' => $transfer->date,
-                    'user_id' => $userId,
-                ]);
-
-                foreach ($productsToTransfer as $item) {
-
-                    $product = ProductsServices::findOrFail($item['productId']);
-
+                    // Detalle de entrada con costo neto.
                     EntryDetails::create([
                         'id_entry' => $entry->id,
-                        'id_product' => $product->id,
-
-                        // COPIA HISTÓRICA DEL PRODUCTO
+                        'id_product' => $productId,
                         'name' => $product->name,
                         'category' => $product->category,
                         'unit_measure' => $product->unit_measure,
                         'description' => $product->description ?? null,
-
-                        // DATOS DEL TRASPASO
-                        'quantity' => $item['quantity'],
-                        'unit_price' => $product->price ?? 0,
-                        'subtotal' => $item['quantity'] * ($product->price ?? 0),
+                        'quantity' => $quantity,
+                        'unit_price' => $netCost,
+                        'subtotal' => $subtotal,
                     ]);
                 }
 
-                return [
-                    'transfer' => $transfer,
-                    'output' => $output,
-                    'entry' => $entry,
-                ];
+                return ['transfer' => $transfer, 'output' => $output, 'entry' => $entry,];
             });
 
-            /*----------------------------------------------------------------------
-            | RESPUESTA
-            |-----------------------------------------------------------------------*/
             return response()->json([
                 'message' => 'Traspaso realizado correctamente.',
                 'transfer' => $result['transfer'],
@@ -231,10 +205,12 @@ class InventoryTransferController extends Controller
                 'entry_id' => $result['entry']->id,
             ], 201);
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
+
             return response()->json([
                 'message' => 'No se pudo realizar el traspaso.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'line' => $e->getLine(),
             ], 400);
         }
     }

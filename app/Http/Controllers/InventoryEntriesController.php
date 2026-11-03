@@ -13,7 +13,7 @@ class InventoryEntriesController extends Controller
 {
     /**
      * Registrar una entrada
-     */
+     */    
     public function store(Request $request)
     {
         $request->validate([
@@ -24,14 +24,11 @@ class InventoryEntriesController extends Controller
             'products' => 'required|array|min:1',
             'products.*.id_product' => 'required|exists:products_services,id',
             'products.*.quantity' => 'required|numeric|min:0.001',
-            'products.*.unit_price' => 'required|numeric|min:0',
         ]);
 
         try {
             $entry = DB::transaction(function () use ($request) {
-                /*------------------------------------------------------------------------
-                | 1. Crear cabecera de entrada
-                |------------------------------------------------------------------------*/
+
                 $entry = InventoryEntries::create([
                     'id_inventory' => $request->id_inventory,
                     'invoice' => $request->invoice ?: 'N/A',
@@ -40,71 +37,55 @@ class InventoryEntriesController extends Controller
                     'user_id' => auth()->id(),
                 ]);
 
-                /*----------------------------------------------------------------------
-                | 2. Registrar productos
-                |------------------------------------------------------------------------*/
                 foreach ($request->products as $item) {
+
                     $product = ProductsServices::findOrFail($item['id_product']);
 
                     $quantity = (float) $item['quantity'];
-                    $unitPrice = (float) $item['unit_price'];
-                    $subtotal = $quantity * $unitPrice;
 
-                    /*----------------------------------------------------------------------
-                    | 3. Guardar detalle histórico de la entrada
-                    |------------------------------------------------------------------------*/
+                    // Calcular el costo neto desde Laravel.
+                    $netCost = (float) $product->net_cost;
 
+                    $subtotal = round($quantity * $netCost, 2);
+
+                    // Guardar detalle histórico de la entrada.
                     EntryDetails::create([
                         'id_entry' => $entry->id,
                         'id_product' => $product->id,
-                        // COPIA HISTÓRICA DEL PRODUCTO
-                        'name' =>  $product->name,
+                        'name' => $product->name,
                         'category' => $product->category,
                         'unit_measure' => $product->unit_measure,
                         'description' => $product->description ?? null,
-                        // DATOS DE LA COMPRA
                         'quantity' => $quantity,
-                        'unit_price' => $unitPrice,
+                        'unit_price' => $netCost,
                         'subtotal' => $subtotal,
                     ]);
 
-                    /*----------------------------------------------------------------------
-                    | 4. Buscar existencia del producto
-                    |-----------------------------------------------------------------------*/
-                    $inventoryDetail =
-                        InventoryDetails::firstOrCreate(
-                            [
-                                'id_inventory' => $request->id_inventory,
-                                'id_product' => $product->id,
-                            ],
-                            [
-                                'quality' => 0,
-                            ]
-                        );
+                    // Buscar o crear existencia.
+                    $inventoryDetail = InventoryDetails::firstOrCreate(
+                        [
+                            'id_inventory' => $request->id_inventory,
+                            'id_product' => $product->id,
+                        ],
+                        ['quality' => 0,]
+                    );
 
-                    /*-----------------------------------------------------------------------
-                    | 5. Incrementar existencia
-                    |-------------------------------------------------------------------------*/
+                    // Incrementar existencia.
                     $inventoryDetail->increment('quality', $quantity);
-
-                    /*---------------------------------------------------------------------
-                    | 6. Actualizar precio actual del producto
-                    |-----------------------------------------------------------------------*/
-                    $product->update(['price' => $unitPrice,]);
                 }
 
                 return $entry;
             });
 
             return response()->json([
-                'message' => 'Entrada registrada correctamente.',
-                'entry' => $entry,
+                'message' => 'Entrada registrada correctamente.', 'entry' => $entry,
             ], 201);
 
         } catch (\Throwable $e) {
+
             return response()->json([
                 'message' => 'No se pudo registrar la entrada.',
-                'error' =>  $e->getMessage(),
+                'error' => $e->getMessage(),
                 'line' => $e->getLine(),
             ], 500);
         }
@@ -112,14 +93,18 @@ class InventoryEntriesController extends Controller
 
     /**
      * Historial de entradas de un almacén
-     */
+    */
     public function show($id)
     {
         $entries = InventoryEntries::where('id_inventory', $id)
-        ->with(['user', 'details'])
-        ->orderByDesc('date')
-        ->orderByDesc('id')
-        ->get();
+            ->with([
+                'user',
+                'details.categoryProduct',
+                'details.product.categoryProduct'
+            ])
+            ->orderByDesc('date')
+            ->orderByDesc('id')
+            ->get();
 
         return response()->json($entries);
     }

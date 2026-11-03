@@ -21,17 +21,11 @@ class InventoryDetails extends Model
 
     public function warehouse()
     {
-        return $this->belongsTo(
-            Warehouses::class,
-            'id_inventory'
-        );
+        return $this->belongsTo(Warehouses::class, 'id_inventory');
     }
 
     public function product()
     {
-        return $this->belongsTo(
-            ProductsServices::class,
-            'id_product'
-        );
+        return $this->belongsTo(ProductsServices::class, 'id_product');
     }
 }
