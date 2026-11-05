@@ -29,17 +29,16 @@ class EntryDetails extends Model
 
     public function inventoryEntry()
     {
-        return $this->belongsTo(
-            InventoryEntries::class,
-            'id_entry'
-        );
+        return $this->belongsTo(InventoryEntries::class, 'id_entry');
     }
 
     public function product()
     {
-        return $this->belongsTo(
-            ProductsServices::class,
-            'id_product'
-        );
+        return $this->belongsTo( ProductsServices::class, 'id_product');
+    }
+
+    public function categoryProduct()
+    {
+        return $this->belongsTo(CategoryProducts::class, 'category', 'id');
     }
 }

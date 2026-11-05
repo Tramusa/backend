@@ -9,6 +9,7 @@ class Procedure extends Model
 {
     protected $fillable = [
         'departamento',
+        'tipo_documento',
         'nombre',
         'descripcion',
         'archivo_pdf',
