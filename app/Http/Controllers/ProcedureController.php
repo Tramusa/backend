@@ -29,21 +29,9 @@ class ProcedureController extends Controller
     public function index(Request $request)
     {
         $validated = $request->validate([
-            'departamento' => [
-                'required',
-                'string',
-                Rule::in($this->departamentos()),
-            ],
-            'tipo_documento' => [
-                'required',
-                'string',
-                'max:80',
-            ],
-            'buscar' => [
-                'nullable',
-                'string',
-                'max:180',
-            ],
+            'departamento' => ['required', 'string', Rule::in($this->departamentos()), ],
+            'tipo_documento' => ['required', 'string', 'max:80', ],
+            'buscar' => ['nullable', 'string', 'max:180', ],
         ]);
 
         $documentos = Procedure::query()
@@ -69,36 +57,14 @@ class ProcedureController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'departamento' => [
-                'required',
-                'string',
-                Rule::in($this->departamentos()),
-            ],
-            'tipo_documento' => [
-                'required',
-                'string',
-                'max:80',
-            ],
-            'nombre' => [
-                'required',
-                'string',
-                'max:180',
-            ],
-            'descripcion' => [
-                'nullable',
-                'string',
-                'max:5000',
-            ],
-            'archivo_pdf' => [
-                'required',
-                'file',
-                'mimes:pdf',
-                'max:10240',
-            ],
+            'departamento' => ['required', 'string', Rule::in($this->departamentos()), ],
+            'tipo_documento' => ['required', 'string', 'max:80', ],
+            'nombre' => ['required', 'string', 'max:180', ],
+            'descripcion' => ['nullable', 'string', 'max:5000', ],
+            'archivo_pdf' => ['required', 'file', 'mimes:pdf', 'max:10240', ],
         ]);
 
-        $ruta = $request->file('archivo_pdf')
-            ->store('procedures', 'local');
+        $ruta = $request->file('archivo_pdf')->store('procedures', 'local');
 
         try {
             $documento = Procedure::create([
@@ -115,8 +81,7 @@ class ProcedureController extends Controller
         }
 
         return response()->json([
-            'message' => 'Documento registrado correctamente.',
-            'procedure' => $documento,
+            'message' => 'Documento registrado correctamente.', 'procedure' => $documento,
         ], 201);
     }
 
@@ -138,40 +103,18 @@ class ProcedureController extends Controller
         $documento = Procedure::findOrFail($id);
 
         $validated = $request->validate([
-            'departamento' => [
-                'required',
-                'string',
-                Rule::in($this->departamentos()),
-            ],
-            'tipo_documento' => [
-                'required',
-                'string',
-                'max:80',
-            ],
-            'nombre' => [
-                'required',
-                'string',
-                'max:180',
-            ],
-            'descripcion' => [
-                'nullable',
-                'string',
-                'max:5000',
-            ],
-            'archivo_pdf' => [
-                'nullable',
-                'file',
-                'mimes:pdf',
-                'max:10240',
-            ],
+            'departamento' => ['required', 'string', Rule::in($this->departamentos()), ],
+            'tipo_documento' => ['required', 'string', 'max:80', ],
+            'nombre' => ['required', 'string', 'max:180', ],
+            'descripcion' => ['nullable', 'string', 'max:5000', ],
+            'archivo_pdf' => ['nullable', 'file', 'mimes:pdf', 'max:10240', ],
         ]);
 
         $rutaAnterior = $documento->archivo_pdf;
         $rutaNueva = null;
 
         if ($request->hasFile('archivo_pdf')) {
-            $rutaNueva = $request->file('archivo_pdf')
-                ->store('procedures', 'local');
+            $rutaNueva = $request->file('archivo_pdf')->store('procedures', 'local');
         }
 
         try {
@@ -190,7 +133,6 @@ class ProcedureController extends Controller
             if ($rutaNueva) {
                 Storage::disk('local')->delete($rutaNueva);
             }
-
             throw $e;
         }
 
@@ -199,8 +141,7 @@ class ProcedureController extends Controller
         }
 
         return response()->json([
-            'message' => 'Documento actualizado correctamente.',
-            'procedure' => $documento->fresh(),
+            'message' => 'Documento actualizado correctamente.', 'procedure' => $documento->fresh(),
         ]);
     }
 
@@ -211,17 +152,9 @@ class ProcedureController extends Controller
     {
         $documento = Procedure::findOrFail($id);
 
-        abort_unless(
-            Storage::disk('local')->exists($documento->archivo_pdf),
-            404,
-            'El archivo PDF no existe.'
-        );
+        abort_unless(Storage::disk('local')->exists($documento->archivo_pdf), 404, 'El archivo PDF no existe.');
 
-        $nombre = preg_replace(
-            '/[^A-Za-z0-9._-]/',
-            '_',
-            $documento->nombre
-        );
+        $nombre = preg_replace('/[^A-Za-z0-9._-]/', '_', $documento->nombre);
 
         return response()->file(
             Storage::disk('local')->path($documento->archivo_pdf),
@@ -240,17 +173,12 @@ class ProcedureController extends Controller
     public function destroy(string $id)
     {
         $documento = Procedure::findOrFail($id);
-
         $ruta = $documento->archivo_pdf;
-
         $documento->delete();
-
         if ($ruta) {
             Storage::disk('local')->delete($ruta);
         }
 
-        return response()->json([
-            'message' => 'Documento eliminado correctamente.',
-        ]);
+        return response()->json(['message' => 'Documento eliminado correctamente.',]);
     }
 }
