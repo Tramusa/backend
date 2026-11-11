@@ -315,20 +315,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('security-flash/{id}/finalize', [SecurityFlashAlertController::class, 'finalize']);
     Route::get('security-flash/{id}/pdf', [SecurityFlashAlertController::class, 'generarPDF']);
 });
-Route::middleware('auth:sanctum')->group(function () {
 
+Route::middleware('auth:sanctum')->group(function () {
+    // Imagen privada de una investigación
+    Route::get('/security-investigations/images/{imageId}', [SecurityInvestigationController::class, 'showImage']
+    )->name('security-investigations.images.show');
+    // Finalizar investigación
+    Route::post('/security-investigations/{id}/finalize', [SecurityInvestigationController::class, 'finalize']);
+    // CRUD
     Route::apiResource('security-investigations', SecurityInvestigationController::class);
-    // Factores / listas
-    Route::post('security-investigations/{id}/factors', [SecurityInvestigationController::class, 'saveFactors']);
-    // Acciones
-    Route::post('security-investigations/{id}/actions', [SecurityInvestigationController::class, 'saveActions']);
-    // Equipo de investigación
-    Route::post('security-investigations/{id}/team', [SecurityInvestigationController::class, 'saveTeam']);
-    // Finalizar
-    Route::post('security-investigations/{id}/finalize', [SecurityInvestigationController::class, 'finalize']);
-    // PDF
-    Route::get('security-investigations/{id}/pdf', [SecurityInvestigationController::class, 'pdf']);
 });
+
 
 Route::middleware('auth:sanctum')->group(function () {
     // Consultar evidencia / borrador
