@@ -349,7 +349,7 @@ class KpisController extends Controller
                     |--------------------------------------------------------------------------*/
                     $horasProgramadasMes =
                         (str_contains($logistic, 'personal') || str_contains($logistic, 'utilitario'))
-                        ? 280 : 250;
+                        ? 720 : 720;
 
                     /*------------------------------------------------------------------
                     | 🔹 MESES POR UNIDAD
@@ -489,34 +489,28 @@ class KpisController extends Controller
                 $join->on('u.unit_id', '=', 'e.unit')
                     ->on('u.type', '=', 'e.type');
             })
-
             ->whereYear('o.date', $year)
             ->where('o.status', 4)
 
             // ================== FILTRO LOGÍSTICA ========================
-            ->when(
-                $selectedLogistics === 'PERSONAL',
+            ->when($selectedLogistics === 'PERSONAL',
                 function ($query) {
                     $query->whereRaw("LOWER(u.logistic) LIKE '%personal%'");
                 }
             )
 
-            ->when(
-                $selectedLogistics === 'CC',
+            ->when($selectedLogistics === 'CC',
                 function ($query) {
                     $query->whereRaw("LOWER(u.logistic) LIKE '%cc%'");
                 }
             )
 
-            ->when(
-                $selectedLogistics === 'UTILITARIOS',
+            ->when($selectedLogistics === 'UTILITARIOS',
                 function ($query) {
                     $query->whereRaw("LOWER(u.logistic) LIKE '%utilitario%'");
                 }
             )
-            // ==========================================
-            // FILTRO CLIENTE SOLO PERSONAL
-            // ==========================================
+            // ============ FILTRO CLIENTE SOLO PERSONAL ========================================
             ->when(
                 $selectedLogistics === 'PERSONAL'
                 && $selectedCustomer !== ''
