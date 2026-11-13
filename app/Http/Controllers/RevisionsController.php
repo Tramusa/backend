@@ -294,8 +294,8 @@ class RevisionsController extends Controller
         }
 
         //AQUI SE DEBE GENERAR EL PDF
-        $pdfContent = $this->PDF_FM($data);
-        Storage::disk('public')->put('Revisions/'.$request->input('Document').'- Folio N°'. $id . '.pdf', $pdfContent);
+        //$pdfContent = $this->PDF_FM($data);
+        //Storage::disk('public')->put('Revisions/'.$request->input('Document').'- Folio N°'. $id . '.pdf', $pdfContent);
         
         $fecha = Carbon::now()->format('d/m/Y');
 
