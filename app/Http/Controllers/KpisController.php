@@ -49,12 +49,7 @@ class KpisController extends Controller
         | 1️⃣ CONSULTA BASE
         |--------------------------------------------------------------------------*/
         $registros = DB::table('programs_mtto_vehicle_schedule as s')
-            ->join(
-                'programs_mtto_vehicles as v',
-                'v.id',
-                '=',
-                's.program_mtto_vehicle_id'
-            )
+            ->join('programs_mtto_vehicles as v', 'v.id', '=', 's.program_mtto_vehicle_id')
             ->join('units_all as u', function ($join) {
                 $join->on('u.unit_id', '=', 'v.unit')
                     ->on('u.type', '=', 'v.type');
@@ -64,24 +59,17 @@ class KpisController extends Controller
             | 🔥 FILTRO POR LOGÍSTICA
             |--------------------------------------------------------------------------
             | Primero filtramos la logística. */
-            ->when(
-                $selectedLogistics === 'PERSONAL',
+            ->when($selectedLogistics === 'PERSONAL',
                 function ($query) {
-                    $query->whereRaw(
-                        "LOWER(u.logistic) LIKE '%personal%'"
-                    );
+                    $query->whereRaw("LOWER(u.logistic) LIKE '%personal%'");
                 }
-            )->when(
-                $selectedLogistics === 'CC',
+            )->when($selectedLogistics === 'CC',
                 function ($query) {
-                    $query->whereRaw("LOWER(u.logistic) LIKE '%cc%'"
-                    );
-
+                    $query->whereRaw("LOWER(u.logistic) LIKE '%cc%'");
                 }
             )
 
-            ->when(
-                $selectedLogistics === 'UTILITARIOS',
+            ->when($selectedLogistics === 'UTILITARIOS',
                 function ($query) {
                     $query->whereRaw("LOWER(u.logistic) LIKE '%utilitario%'");
                 }
@@ -99,13 +87,7 @@ class KpisController extends Controller
                     $query->where('u.customer', $selectedCustomer);
                 }
             )
-            ->select(
-                's.*',
-                'u.no_economic',
-                'u.logistic',
-                'u.type',
-                'u.customer'
-            )
+            ->select('s.*', 'u.no_economic', 'u.logistic', 'u.type', 'u.customer')
             ->get()
             ->map(function ($item) use ($obtenerMesPorSemana) {
                 // ✅ MES basado en SEMANA
@@ -251,20 +233,17 @@ class KpisController extends Controller
             /*----------------------------------------------------------------------
             | 🔥 FILTRO POR LOGÍSTICA
             |-----------------------------------------------------------------------*/
-            ->when(
-                $selectedLogistics === 'PERSONAL',
+            ->when($selectedLogistics === 'PERSONAL',
                 function ($query) { 
                     $query->whereRaw("LOWER(u.logistic) LIKE '%personal%'");
                 }
             )
-            ->when(
-                $selectedLogistics === 'CC',
+            ->when($selectedLogistics === 'CC',
                 function ($query) {
                     $query->whereRaw("LOWER(u.logistic) LIKE '%cc%'");
                 }
             )
-            ->when(
-                $selectedLogistics === 'UTILITARIOS',
+            ->when($selectedLogistics === 'UTILITARIOS',
                 function ($query) {
                     $query->whereRaw("LOWER(u.logistic) LIKE '%utilitario%'");
                 }
@@ -294,16 +273,10 @@ class KpisController extends Controller
                 'u.customer',
                 DB::raw("
                     GREATEST(
-                        TIMESTAMPDIFF(
-                            HOUR,
-                            o.date_in,
-                            o.date_attended
-                        ), 0
+                        TIMESTAMPDIFF(HOUR, o.date_in, o.date_attended), 0
                     ) as horas_mtto
                 "),
-                DB::raw(
-                    'COALESCE(wh.total_waiting_hours,0) as horas_espera'
-                )
+                DB::raw('COALESCE(wh.total_waiting_hours,0) as horas_espera')
             )
             ->get();
 
@@ -347,9 +320,7 @@ class KpisController extends Controller
                     /*-----------------------------------------------------------------------
                     | HORAS PROGRAMADAS MENSUALES
                     |--------------------------------------------------------------------------*/
-                    $horasProgramadasMes =
-                        (str_contains($logistic, 'personal') || str_contains($logistic, 'utilitario'))
-                        ? 720 : 720;
+                    $horasProgramadasMes = (str_contains($logistic, 'personal') || str_contains($logistic, 'utilitario')) ? 720 : 720;
 
                     /*------------------------------------------------------------------
                     | 🔹 MESES POR UNIDAD
@@ -841,25 +812,15 @@ class KpisController extends Controller
 
             ->select(
                 'o.id',
-
                 DB::raw('MAX(o.date_attended) as date_attended'),
-
                 DB::raw("
                     GREATEST(
-                        TIMESTAMPDIFF(
-                            HOUR,
-                            MIN(o.date_in),
-                            MAX(o.date_attended)
-                        ),
-                        0
+                        TIMESTAMPDIFF(HOUR,  MIN(o.date_in), MAX(o.date_attended)), 0
                     ) as horas_mtto
                 ")
             )
-
             ->groupBy('o.id')
-
             ->orderByDesc('date_attended')
-
             ->get();
 
         return response()->json($orders);
