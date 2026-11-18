@@ -208,48 +208,53 @@ class RevisionsController extends Controller
         }
 
         $folio = $infoRevision['id'];
-           
+                 
         foreach ($dataVerificar as $key => $value) {
+
             if ($value == 'NO') {
-                if (array_key_exists('Observacion-'.$key, $dataVerificar)) {
+
+                if (!empty($dataVerificar['Observacion-'.$key])) {
                     $description = 'No cumple con: '.$key.' ( '.$dataVerificar['Observacion-'.$key].' )';
                 } else {
                     $description = 'No cumple con: '.$key;
                 }
-                // Verificar si la descripción ya existe en los pendientes registrados
-                $existingEarring = Earrings::where('description', $description)->where('status', 1)->where('type', $infoRevision['type'])->where('unit', $infoRevision['unit'])->first();
-                if ($existingEarring) {
-                    continue; // La descripción ya existe, pasa al siguiente pendiente
-                }else{
-                    $earrings = new Earrings(
-                        [
-                            'unit' => $infoRevision['unit'],
-                            'type' => $infoRevision['type'],
-                            'description' => $description,
-                            'fm' => $folio,
-                            'reported_by' => auth()->id(),
-                        ]
-                    );//GENERAMOS LOS PENDIENTES UNO A UNO 
-                    $earrings->save();
-                } 
-            }else if ($key == 'observation') {
-                $existingEarring = Earrings::where('description', $value)->where('status', 1)->where('type', $infoRevision['type'])->where('unit', $infoRevision['unit'])->first();
-                if ($existingEarring) {
-                    continue; // La descripción ya existe, pasa al siguiente pendiente
-                }else{
-                    $earrings = new Earrings(
-                        [
-                            'unit' => $infoRevision['unit'],
-                            'type' => $infoRevision['type'],
-                            'description' => $value,
-                            'fm' => $folio,
-                            'reported_by' => auth()->id(),
-                        ]
-                    );//GENERAMOS LOS PENDIENTES UNO A UNO 
-                    $earrings->save();
+
+            } elseif ($key == 'observation') {
+
+                // Si la observación está vacía, no generar pendiente
+                if (empty(trim($value ?? ''))) {
+                    continue;
                 }
+
+                $description = trim($value);
+
+            } else {
+                continue;
             }
+
+            // Verificar si la descripción ya existe
+            $existingEarring = Earrings::where('description', $description)
+                ->where('status', 1)
+                ->where('type', $infoRevision['type'])
+                ->where('unit', $infoRevision['unit'])
+                ->first();
+
+            if ($existingEarring) {
+                continue;
+            }
+
+            // Generar pendiente
+            $earrings = new Earrings([
+                'unit' => $infoRevision['unit'],
+                'type' => $infoRevision['type'],
+                'description' => $description,
+                'fm' => $folio,
+                'reported_by' => auth()->id(),
+            ]);
+
+            $earrings->save();
         }
+
         //CAMBIAR STATUS Fecha y odometro
         $odometro = ($request->filled('odometro')) ? $request->input('odometro') : 0;
 
@@ -294,8 +299,8 @@ class RevisionsController extends Controller
         }
 
         //AQUI SE DEBE GENERAR EL PDF
-        //$pdfContent = $this->PDF_FM($data);
-        //Storage::disk('public')->put('Revisions/'.$request->input('Document').'- Folio N°'. $id . '.pdf', $pdfContent);
+        $pdfContent = $this->PDF_FM($data);
+        Storage::disk('public')->put('Revisions/'.$request->input('Document').'- Folio N°'. $id . '.pdf', $pdfContent);
         
         $fecha = Carbon::now()->format('d/m/Y');
 

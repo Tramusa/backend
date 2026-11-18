@@ -12,7 +12,13 @@ class ConcentratedResolutionController extends Controller
 {
     public function index()
     {
-        return ConcentradoResolution::with('responsible')
+        return ConcentradoResolution::with([
+            'responsible',
+            'nonConformity',
+            'correctiveAction',
+            'activity',
+            'investigation',
+        ])
         ->orderBy('folio')
         ->orderBy('id')
         ->get();
@@ -63,27 +69,23 @@ class ConcentratedResolutionController extends Controller
         $item = ConcentradoResolution::findOrFail($id);
 
         $item->update([
-
             'category' => $request->category,
-
             'support' => $request->support,
-
             'agreement_date' => $request->agreement_date,
-
             'responsible_id' => $request->responsible_id,
-
             'planned_closure' => $request->planned_closure,
-
-            'actual_closure' => $request->actual_closure,
-
+            'real_closure' => $request->real_closure,
             'status' => $request->status,
-
             'observations' => $request->observations,
-
         ]);
 
         return response()->json([
-            'message'=>'Actualizado'
+            'message' => 'Actualizado correctamente.',
+            'data' => $item->fresh()->load([
+                'responsible',
+                'investigation',
+                'nonConformity',
+            ]),
         ]);
     }
 }

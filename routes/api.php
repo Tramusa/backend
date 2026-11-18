@@ -320,10 +320,14 @@ Route::middleware('auth:sanctum')->group(function () {
     // Imagen privada de una investigación
     Route::get('/security-investigations/images/{imageId}', [SecurityInvestigationController::class, 'showImage']
     )->name('security-investigations.images.show');
+    
+    Route::get('/security-investigations/images/{imageId}', [SecurityInvestigationController::class, 'showImage']
+    )->name('security-investigations.images.show');
     // Finalizar investigación
     Route::post('/security-investigations/{id}/finalize', [SecurityInvestigationController::class, 'finalize']);
     // CRUD
     Route::apiResource('security-investigations', SecurityInvestigationController::class);
+    Route::get('/security-investigations/{id}/pdf', [SecurityInvestigationController::class, 'pdf']);
 });
 
 

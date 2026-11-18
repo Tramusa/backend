@@ -4,6 +4,10 @@
     <meta charset="utf-8">
     <title>F-05-03 R1 CONDICIONES FISICO-MECANICAS DE TRANSPORTE DE PERSONAL</title>
     <style>
+      * {
+        box-sizing: border-box;
+      }
+
       .clearfix:after {
         content: "";
         display: table;
@@ -56,7 +60,7 @@
       body {
         position: relative;
         width: 19cm;  
-        height: 29.7cm; 
+        min-height: 29.7cm; 
         margin: 0 auto; 
         color: #001028;
         background: #FFFFFF; 
@@ -180,14 +184,14 @@
     <main>
       <div class="row">
         <div class="column-2-1">
-          FECHA: ____{{ $fecha }}____  VEHICULO: ___{{ $data['unit']->no_economic }}___
+          FECHA: ____{{ $fecha }}____  VEHICULO: ___{{ $data['unit']->no_economic ?? 'N/A' }}___
         </div>
         <table class="column-2-2">
           <tr><th>Odometro</th></tr>
-          <tr><td class="blueTitle">{{ $data['odometro'] }}</td></tr>
+          <tr><td class="blueTitle">{{ $data['odometro'] ?? 'N/A' }}</td></tr>
         </table>
       </div>   
-      <div style="clear: both; blueTitle">{{ $data['¿Se realizó prueba de frenado?'] }}</div>
+      <div class="blueTitle" style="clear: both;">¿Se realizó prueba de frenado?: {{ $data['¿Se realizó prueba de frenado?'] ?? 'N/A' }}</div>
         
       <div style="clear: both;"></div>
       <!-- Primera fila con dos columnas -->
@@ -201,97 +205,97 @@
               <th>Cumple</th>
             </tr>
             <tr>
-              <td>1</td><td>Luces interiortes</td><td>{{ $data['Luces interiores'] }}</td>
+              <td>1</td><td>Luces interiortes</td><td>{{ $data['Luces interiores'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>2</td><td>Luces indicador de advertencia</td><td>{{ $data['Luces indicador de advertencia'] }}</td>
+              <td>2</td><td>Luces indicador de advertencia</td><td>{{ $data['Luces indicador de advertencia'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>3</td><td>Luces indicador de direccionales</td><td>{{ $data['Luces indicador de direccionales'] }}</td>
+              <td>3</td><td>Luces indicador de direccionales</td><td>{{ $data['Luces indicador de direccionales'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>4</td><td>Luces indicador de bateria</td><td>{{ $data['Luces indicador de bateria'] }}</td>
+              <td>4</td><td>Luces indicador de bateria</td><td>{{ $data['Luces indicador de bateria'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>5</td><td>Funcionamiento de aire acondicionado</td><td>{{ $data['Funcionamiento de aire acondicionado'] }}</td>
+              <td>5</td><td>Funcionamiento de aire acondicionado</td><td>{{ $data['Funcionamiento de aire acondicionado'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>6</td><td>Indicador de presion de aceite</td><td>{{ $data['Indicador de presion de aceite'] }}</td>
+              <td>6</td><td>Indicador de presion de aceite</td><td>{{ $data['Indicador de presion de aceite'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>7</td><td>Indicador de presion de aire vacio</td><td>{{ $data['Indicador de presion de aire vacio'] }}</td>
+              <td>7</td><td>Indicador de presion de aire vacio</td><td>{{ $data['Indicador de presion de aire vacio'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>8</td><td>Dispositivo de advirtencia de aire vacio</td><td>{{ $data['Dispositivo de advertencia de aire vacio'] }}</td>
+              <td>8</td><td>Dispositivo de advirtencia de aire vacio</td><td>{{ $data['Dispositivo de advertencia de aire vacio'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>9</td><td>Velocimetro</td><td>{{ $data['Velocimetro'] }}</td>
+              <td>9</td><td>Velocimetro</td><td>{{ $data['Velocimetro'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>10</td><td>Claxon</td><td>{{ $data['Claxon o corneta'] }}</td>
+              <td>10</td><td>Claxon</td><td>{{ $data['Claxon o corneta'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>11</td><td>Cinturones de seguridad</td><td>{{ $data['Cinturon de seguridad'] }}</td>
+              <td>11</td><td>Cinturones de seguridad</td><td>{{ $data['Cinturon de seguridad'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>12</td><td>Actuador de sistema Ansul</td><td>{{ $data['Actuador de sistema Ansul'] }}</td>
+              <td>12</td><td>Actuador de sistema Ansul</td><td>{{ $data['Actuador de sistema Ansul'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>13</td><td>Puertas de acceso</td><td>{{ $data['Puertas de acceso'] }}</td>
+              <td>13</td><td>Puertas de acceso</td><td>{{ $data['Puertas de acceso'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>14</td><td>Vidrios y/o Parabrisas</td><td>{{ $data['Vidrios y/o Parabrisas'] }}</td>
+              <td>14</td><td>Vidrios y/o Parabrisas</td><td>{{ $data['Vidrios y/o Parabrisas'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>15</td><td>Limipiadores</td><td>{{ $data['Limpiadores'] }}</td>
+              <td>15</td><td>Limipiadores</td><td>{{ $data['Limpiadores'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>16</td><td>Espejo retrovisores (I. D.)</td><td>{{ $data['Espejo retrovisor'] }}</td>
+              <td>16</td><td>Espejo retrovisores (I. D.)</td><td>{{ $data['Espejo retrovisor'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>17</td><td>Volante (Sin juego excesivo)</td><td>{{ $data['Volante (Sin juego excesivo)'] }}</td>
+              <td>17</td><td>Volante (Sin juego excesivo)</td><td>{{ $data['Volante (Sin juego excesivo)'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>18</td><td>Freno de pie</td><td>{{ $data['Freno de pie'] }}</td>
+              <td>18</td><td>Freno de pie</td><td>{{ $data['Freno de pie'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>19</td><td>Freno retardador</td><td>{{ $data['Freno de retardador'] }}</td>
+              <td>19</td><td>Freno retardador</td><td>{{ $data['Freno de retardador'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>20</td><td>Frenado de motor</td><td>{{ $data['Frenado de motor'] }}</td>
+              <td>20</td><td>Frenado de motor</td><td>{{ $data['Frenado de motor'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>21</td><td>Freno electromagnetico</td><td>{{ $data['Freno electromagnetico'] }}</td>
+              <td>21</td><td>Freno electromagnetico</td><td>{{ $data['Freno electromagnetico'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>22</td><td>Switch de marcha</td><td>{{ $data['Switch de marcha'] }}</td>
+              <td>22</td><td>Switch de marcha</td><td>{{ $data['Switch de marcha'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>23</td><td>Control de acceso</td><td>{{ $data['Control de acceso'] }}</td>
+              <td>23</td><td>Control de acceso</td><td>{{ $data['Control de acceso'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>24</td><td>Funcionamiento W.C.</td><td>{{ $data['Funcionamiento de W.C'] }}</td>
+              <td>24</td><td>Funcionamiento W.C.</td><td>{{ $data['Funcionamiento de W.C'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>25</td><td>Fijacion de asientos</td><td>{{ $data['Fijacion de asientos'] }}</td>
+              <td>25</td><td>Fijacion de asientos</td><td>{{ $data['Fijacion de asientos'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>26</td><td>Tapiceria</td><td>{{ $data['Tapiceria'] }}</td>
+              <td>26</td><td>Tapiceria</td><td>{{ $data['Tapiceria'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>27</td><td>Martillos rompe cristales completos</td><td>{{ $data['Martillos rompe cristales completos'] }}</td>
+              <td>27</td><td>Martillos rompe cristales completos</td><td>{{ $data['Martillos rompe cristales completos'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>28</td><td>Accesorios sistema GUARDIAN</td><td>{{ $data['Accesorios sistema GUARDIAN'] }}</td>
+              <td>28</td><td>Accesorios sistema GUARDIAN</td><td>{{ $data['Accesorios sistema GUARDIAN'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>29</td><td>Limpieza de unidad</td><td>{{ $data['Limpieza de unidad'] }}</td>
+              <td>29</td><td>Limpieza de unidad</td><td>{{ $data['Limpieza de unidad'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>30</td><td>Botiquin de Primeros Auxilios</td><td>{{ $data['Botiquin de Primeros Auxilios'] }}</td>
+              <td>30</td><td>Botiquin de Primeros Auxilios</td><td>{{ $data['Botiquin de Primeros Auxilios'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>31</td><td>Extintores</td><td>{{ $data['Extintores'] }}</td>
+              <td>31</td><td>Extintores</td><td>{{ $data['Extintores'] ?? 'N/A' }}</td>
             </tr>
           </table>
           <table style="width: 96%;">
@@ -301,52 +305,52 @@
               <th>Cumple</th>
             </tr>
             <tr>
-              <td>32</td><td>Chapas de las puertas</td><td>{{ $data['Chapas de las puertas'] }}</td>
+              <td>32</td><td>Chapas de las puertas</td><td>{{ $data['Chapas de las puertas'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>33</td><td>Escalón de acceso</td><td>{{ $data['Escalon de acceso'] }}</td>
+              <td>33</td><td>Escalón de acceso</td><td>{{ $data['Escalon de acceso'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>34</td><td>Tanque de combustible si fugas</td><td>{{ $data['Tanque de combustible sin fugas'] }}</td>
+              <td>34</td><td>Tanque de combustible si fugas</td><td>{{ $data['Tanque de combustible sin fugas'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>35</td><td>Tapón de tanque de combustible</td><td>{{ $data['Tapon de tanque de combustible'] }}</td>
+              <td>35</td><td>Tapón de tanque de combustible</td><td>{{ $data['Tapon de tanque de combustible'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>36</td><td>Tanque de urea sin fuga</td><td>{{ $data['Tanque de urea sin fuga'] }}</td>
+              <td>36</td><td>Tanque de urea sin fuga</td><td>{{ $data['Tanque de urea sin fuga'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>37</td><td>Tapa de baterias</td><td>{{ $data['Tapa de las baterias'] }}</td>
+              <td>37</td><td>Tapa de baterias</td><td>{{ $data['Tapa de las baterias'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>38</td><td>Guarda equipaje</td><td>{{ $data['Guarda equipaje'] }}</td>
+              <td>38</td><td>Guarda equipaje</td><td>{{ $data['Guarda equipaje'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>39</td><td>Tanque y conexiones de sistema Ansul</td><td>{{ $data['Tanques y conexiones de sistema Ansul'] }}</td>
+              <td>39</td><td>Tanque y conexiones de sistema Ansul</td><td>{{ $data['Tanques y conexiones de sistema Ansul'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>40</td><td>Baterias (sin fugas, terminales, fijas)</td><td>{{ $data['Baterias (sin fugas, terminales, fijas y con tapa)'] }}</td>
+              <td>40</td><td>Baterias (sin fugas, terminales, fijas)</td><td>{{ $data['Baterias (sin fugas, terminales, fijas y con tapa)'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>41</td><td>Valvula en batería de sistema Ansul</td><td>{{ $data['Valvulas mangueras y conexiones de sistema Ansul'] }}</td>
+              <td>41</td><td>Valvula en batería de sistema Ansul</td><td>{{ $data['Valvulas mangueras y conexiones de sistema Ansul'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>42</td><td>Luces de advertencia laterales</td><td>{{ $data['Luces de advertencia laterales'] }}</td>
+              <td>42</td><td>Luces de advertencia laterales</td><td>{{ $data['Luces de advertencia laterales'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>43</td><td>Reflejantes</td><td>{{ $data['Reflejantes'] }}</td>
+              <td>43</td><td>Reflejantes</td><td>{{ $data['Reflejantes'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>44</td><td>Razón social y número de equipo</td><td>{{ $data['Razon social y numero de equipo'] }}</td>
+              <td>44</td><td>Razón social y número de equipo</td><td>{{ $data['Razon social y numero de equipo'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>45</td><td>Telefono de emergencia</td><td>{{ $data['Telefono de emergencia'] }}</td>
+              <td>45</td><td>Telefono de emergencia</td><td>{{ $data['Telefono de emergencia'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>46</td><td>Espejos y/o Cristales laterales</td><td>{{ $data['Espejos y/o cristales laterales'] }}</td>
+              <td>46</td><td>Espejos y/o Cristales laterales</td><td>{{ $data['Espejos y/o cristales laterales'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>47</td><td>Cuñas de bloqueo para ruedas</td><td>{{ $data['Cuñas de bloqueo para ruedas'] }}</td>
+              <td>47</td><td>Cuñas de bloqueo para ruedas</td><td>{{ $data['Cuñas de bloqueo para ruedas'] ?? 'N/A' }}</td>
             </tr>
           </table>          
         </div>
@@ -359,25 +363,25 @@
               <th>Cumple</th>
             </tr>
             <tr>
-              <td>48</td><td>Frenos (sin fuga de aire)</td><td>{{ $data['Frenos (sin fuga de aire)'] }}</td>
+              <td>48</td><td>Frenos (sin fuga de aire)</td><td>{{ $data['Frenos (sin fuga de aire)'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>49</td><td>Muelle (sin hojas sueltas, rotas o fisuras)</td><td>{{ $data['Muelles (Suspension sin hojas sueltas, rotas o fisuras)'] }}</td>
+              <td>49</td><td>Muelle (sin hojas sueltas, rotas o fisuras)</td><td>{{ $data['Muelles (Suspension sin hojas sueltas, rotas o fisuras)'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>50</td><td>Lineas de aire (sin fugas de aire)</td><td>{{ $data['Lineas de aire (sin fuga de aire) Inferior'] }}</td>
+              <td>50</td><td>Lineas de aire (sin fugas de aire)</td><td>{{ $data['Lineas de aire (sin fuga de aire) Inferior'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>51</td><td>Alarma Reversa</td><td>{{ $data['Alarma Reversa'] }}</td>
+              <td>51</td><td>Alarma Reversa</td><td>{{ $data['Alarma Reversa'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>52</td><td>Radiador</td><td>{{ $data['Radiador'] }}</td>
+              <td>52</td><td>Radiador</td><td>{{ $data['Radiador'] ?? 'N/A' }}</td>
             </tr>   
             <tr>
-              <td>53</td><td>Llanta de refacción</td><td>{{ $data['Llanta de refaccion'] }}</td>
+              <td>53</td><td>Llanta de refacción</td><td>{{ $data['Llanta de refaccion'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>54</td><td>Bolsas de aire sin fuga</td><td>{{ $data['Bolsas de aire sin fuga'] }}</td>
+              <td>54</td><td>Bolsas de aire sin fuga</td><td>{{ $data['Bolsas de aire sin fuga'] ?? 'N/A' }}</td>
             </tr>
           </table> 
           <table style="width: 97%;" class="espacio-derecha">
@@ -387,43 +391,43 @@
               <th>Cumple</th>
             </tr>
             <tr>
-              <td>55</td><td>Defensa (sujecion)</td><td>{{ $data['Defensa (sujecion) Frontal'] }}</td>
+              <td>55</td><td>Defensa (sujecion)</td><td>{{ $data['Defensa (sujecion) Frontal'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>56</td><td>Placa de identificación vehícular</td><td>{{ $data['Placa de identificacion vehicular Frontal'] }}</td>
+              <td>56</td><td>Placa de identificación vehícular</td><td>{{ $data['Placa de identificacion vehicular Frontal'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>57</td><td>Faros principales (color y funcionamiento)</td><td>{{ $data['Faros principales (Color y funcionamiento)'] }}</td>
+              <td>57</td><td>Faros principales (color y funcionamiento)</td><td>{{ $data['Faros principales (Color y funcionamiento)'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>58</td><td>Luces direccionales</td><td>{{ $data['Luces direccionales Frontal'] }}</td>
+              <td>58</td><td>Luces direccionales</td><td>{{ $data['Luces direccionales Frontal'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>59</td><td>Luces de advertencia</td><td>{{ $data['Luces de advertencia Frontal'] }}</td>
+              <td>59</td><td>Luces de advertencia</td><td>{{ $data['Luces de advertencia Frontal'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>60</td><td>Luces de altura</td><td>{{ $data['Luces de altura'] }}</td>
+              <td>60</td><td>Luces de altura</td><td>{{ $data['Luces de altura'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>61</td><td>Torreta</td><td>{{ $data['Torreta'] }}</td>
+              <td>61</td><td>Torreta</td><td>{{ $data['Torreta'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>62</td><td>Llanta (No renovadas surco no menos de 3 mm)</td><td>{{ $data['Llantas (No renovadas Surco no menos de 3 mm.)'] }}</td>
+              <td>62</td><td>Llanta (No renovadas surco no menos de 3 mm)</td><td>{{ $data['Llantas (No renovadas Surco no menos de 3 mm.)'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>63</td><td>Rines sin fisuras</td><td>{{ $data['Rines sin fisuras Frontal'] }}</td>
+              <td>63</td><td>Rines sin fisuras</td><td>{{ $data['Rines sin fisuras Frontal'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>64</td><td>Birlos completos y sin fisuras</td><td>{{ $data['Birlos completos y sin fisuras Frontal'] }}</td>
+              <td>64</td><td>Birlos completos y sin fisuras</td><td>{{ $data['Birlos completos y sin fisuras Frontal'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>65</td><td>Espejos laterales (I. D.)</td><td>{{ $data['Espejos laterales (I. D.)'] }}</td>
+              <td>65</td><td>Espejos laterales (I. D.)</td><td>{{ $data['Espejos laterales (I. D.)'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>66</td><td>Baleros (Sin Fuga)</td><td>{{ $data['Baleros (Sin fuga) Frontal'] }}</td>
+              <td>66</td><td>Baleros (Sin Fuga)</td><td>{{ $data['Baleros (Sin fuga) Frontal'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>67</td><td>Sistema de auto inflado</td><td>{{ $data['Sistema de auto inflado'] }}</td>
+              <td>67</td><td>Sistema de auto inflado</td><td>{{ $data['Sistema de auto inflado'] ?? 'N/A' }}</td>
             </tr>
           </table>
           <table style="width: 97%;" class="espacio-derecha">
@@ -431,50 +435,50 @@
               <th>N°</th>
               <th>Revisión cabina posterior de la unidad</th>
               <th>Cumple</th>
-            </tr>
-              <td>68</td><td>Luces direccionales</td><td>{{ $data['Luces direccionales'] }}</td>
+            <tr>
+              <td>68</td><td>Luces direccionales</td><td>{{ $data['Luces direccionales'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>69</td><td>Luces de advertencia</td><td>{{ $data['Luces de advertencia'] }}</td>
+              <td>69</td><td>Luces de advertencia</td><td>{{ $data['Luces de advertencia'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>70</td><td>Luces de banderola</td><td>{{ $data['Luces de banderola'] }}</td>
+              <td>70</td><td>Luces de banderola</td><td>{{ $data['Luces de banderola'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>71</td><td>Luces de estacionamineto</td><td>{{ $data['Luces de estacionamiento'] }}</td>
+              <td>71</td><td>Luces de estacionamineto</td><td>{{ $data['Luces de estacionamiento'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>72</td><td>Luces de frenado</td><td>{{ $data['Luces de frenado'] }}</td>
+              <td>72</td><td>Luces de frenado</td><td>{{ $data['Luces de frenado'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>73</td><td>Luces de marcha atras</td><td>{{ $data['Luces de marcha atras'] }}</td>
+              <td>73</td><td>Luces de marcha atras</td><td>{{ $data['Luces de marcha atras'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>74</td><td>Reflejantes</td><td>{{ $data['Reflejantes'] }}</td>
+              <td>74</td><td>Reflejantes</td><td>{{ $data['Reflejantes'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>75</td><td>Guardafangos (Loderas)</td><td>{{ $data['Guardafangos (Loderas)'] }}</td>
+              <td>75</td><td>Guardafangos (Loderas)</td><td>{{ $data['Guardafangos (Loderas)'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>76</td><td>Defensa (sujeción)</td><td>{{ $data['Defensa (sujecion)'] }}</td>
+              <td>76</td><td>Defensa (sujeción)</td><td>{{ $data['Defensa (sujecion)'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>77</td><td>Placa de identificación vehícular</td><td>{{ $data['Placa de identificacion vehicular'] }}</td>
-            </tr>
-            </tr>
-              <td>78</td><td>Escape</td><td>{{ $data['Escape'] }}</td>
+              <td>77</td><td>Placa de identificación vehícular</td><td>{{ $data['Placa de identificacion vehicular'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>79</td><td>Llantas (surco no menos de 3 mm)</td><td>{{ $data['Llantas (Surco no menos de 3 mm.)'] }}</td>
+              <td>78</td><td>Escape</td><td>{{ $data['Escape'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>80</td><td>Rines sin fisuras</td><td>{{ $data['Rines sin fisuras'] }}</td>
+              <td>79</td><td>Llantas (surco no menos de 3 mm)</td><td>{{ $data['Llantas (Surco no menos de 3 mm.)'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>81</td><td>Birlos completos y sin fisuras</td><td>{{ $data['Birlos completos y sin fisuras'] }}</td>
+              <td>80</td><td>Rines sin fisuras</td><td>{{ $data['Rines sin fisuras'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>82</td><td>Baleros (sin fuga)</td><td>{{ $data['Baleros (Sin Fuga)'] }}</td>
+              <td>81</td><td>Birlos completos y sin fisuras</td><td>{{ $data['Birlos completos y sin fisuras'] ?? 'N/A' }}</td>
+            </tr>
+            <tr>
+              <td>82</td><td>Baleros (sin fuga)</td><td>{{ $data['Baleros (Sin Fuga)'] ?? 'N/A' }}</td>
             </tr>
           </table> 
           <table style="width: 97%;" class="espacio-derecha">
@@ -484,21 +488,20 @@
               <th>Cumple</th>
             </tr>
             <tr>
-              <td>83</td><td>Puertas de acceso a motor</td><td>{{ $data['Puerta de acceso a motor'] }}</td>
+              <td>83</td><td>Puertas de acceso a motor</td><td>{{ $data['Puerta de acceso a motor'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>84</td><td>Válvulas mangueras y conexiones de sistema Ansul</td><td>{{ $data['Valvulas mangueras y conexiones de sistema Ansul'] }}</td>
+              <td>84</td><td>Válvulas mangueras y conexiones de sistema Ansul</td><td>{{ $data['Valvulas mangueras y conexiones de sistema Ansul'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>85</td><td>Nivel de refrigerante</td><td>{{ $data['Nivel de refrigerante'] }}</td>
+              <td>85</td><td>Nivel de refrigerante</td><td>{{ $data['Nivel de refrigerante'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>86</td><td>Nivel de aceite de motor</td><td>{{ $data['Nivel de aceite de motor'] }}</td>
+              <td>86</td><td>Nivel de aceite de motor</td><td>{{ $data['Nivel de aceite de motor'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <td>87</td><td>Nivel de aceite de direcciones</td><td>{{ $data['Nivel de aceite de direccion'] }}</td>
+              <td>87</td><td>Nivel de aceite de direcciones</td><td>{{ $data['Nivel de aceite de direccion'] ?? 'N/A' }}</td>
             </tr>
-            <tr>
             <tr>
               <td>88</td><td></td><td></td>
             </tr>
@@ -519,7 +522,7 @@
                 {{ $data['auxiliar']->name ?? ' ' }} {{ $data['auxiliar']->a_paterno ?? ' ' }} {{ $data['auxiliar']->a_materno ?? ' ' }}
               </td>
               <td class="signature"><br>
-                {{ $data['operator']->name }} {{ $data['operator']->a_paterno }} {{ $data['operator']->a_materno }}<br>
+                {{ $data['operator']->name ?? '' }} {{ $data['operator']->a_paterno ?? '' }} {{ $data['operator']->a_materno ?? '' }}<br>
               </td>
               <td>{{ $data['observation'] ?? ' ' }}</td>
             </tr>
