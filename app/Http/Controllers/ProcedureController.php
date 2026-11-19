@@ -20,6 +20,8 @@ class ProcedureController extends Controller
             'Concentrado',
             'Combustible',
             'Personal',
+            'Turismo',
+            'Arrendamiento',
         ]);
     }
 
